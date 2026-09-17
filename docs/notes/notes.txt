@@ -1,0 +1,37 @@
+UNLEASED — TEAM NOTES
+======================
+Weekly progress updates, teammate notes, reminders, and challenges.
+Add a new dated entry each week (don't delete old ones — this is a log).
+
+------------------------------------------------------------
+Week of 2026-09-17
+------------------------------------------------------------
+Progress:
+- Refactored the project into a production-aware structure:
+  unleased_project/settings.py -> settings/{base,dev,prod}.py
+- Moved SECRET_KEY and API keys out of source into a .env file
+  (gitignored) with .env.example as the safe, committed template.
+- Added .gitignore covering .env, __pycache__, db.sqlite3, .idea, OS files.
+- Initialized git, pushed to GitHub (SurutheJ/2_Unleased), did the work
+  on a feature/production-config branch and merged it into main.
+- Added README.md with setup instructions and this docs/ structure
+  (wireframes, branching-strategy, notes).
+
+Notes for teammates:
+- Pull main, then run `cp .env.example .env` and generate your own
+  SECRET_KEY (command is in the README) — the app won't start without one.
+- db.sqlite3 is now gitignored going forward. Run `python seed_data.py`
+  after `python manage.py migrate` to get sample data locally.
+- Follow docs/branching-strategy/branching-strategy.md for new work —
+  branch off main, don't commit straight to it.
+
+Challenges / open questions:
+- No real frontend yet — accounts/views.py and listings/views.py are
+  still empty stubs. Only /admin/ is wired up in urls.py.
+- Need to decide on a production host (Render/Railway/etc.) before
+  settings/prod.py's assumptions (HTTPS redirect, secure cookies) can
+  actually be tested end-to-end.
+
+Reminders:
+- Update this file weekly, even briefly — it's graded on being kept
+  current, not on length.
