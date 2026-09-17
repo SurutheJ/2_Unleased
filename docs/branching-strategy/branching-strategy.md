@@ -47,7 +47,7 @@ Rejects double-booking with a 409 if the slot was taken concurrently.
 
 Prefixes we use loosely: `Add`, `Fix`, `Refactor`, `Docs`, `Chore`.
 
-## Why this matters for this assignment
+## Why this matters for this project
 
 This exact pattern — branch off `main`, commit, merge back — is what
 `feature/production-config` in this repo demonstrates: the settings
