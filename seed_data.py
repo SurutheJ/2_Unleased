@@ -1,5 +1,5 @@
 """
-seed_data.py — Realistic test data for Unleased (Unleased/INFO 490 MG)
+seed_data.py — Realistic test data for Unleased
 Run with: python seed_data.py
 Populates: UnleasedUser, UserReview, Listing, VisitSlot, Inquiry, SavedListing
 All data is fictional but modeled after real UIUC subleases (Champaign, IL).

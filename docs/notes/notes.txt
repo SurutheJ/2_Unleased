@@ -31,7 +31,3 @@ Challenges / open questions:
 - Need to decide on a production host (Render/Railway/etc.) before
   settings/prod.py's assumptions (HTTPS redirect, secure cookies) can
   actually be tested end-to-end.
-
-Reminders:
-- Update this file weekly, even briefly — it's graded on being kept
-  current, not on length.
