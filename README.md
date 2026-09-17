@@ -97,7 +97,3 @@ See [`docs/branching-strategy/`](docs/branching-strategy/) for the full
 write-up. Short version: `main` is always deployable; work happens on
 short-lived `feature/*` branches and gets merged back via PR.
 
-## Team notes
-
-Weekly progress notes, blockers, and reminders live in
-[`docs/notes/notes.txt`](docs/notes/notes.txt) and are updated weekly.
