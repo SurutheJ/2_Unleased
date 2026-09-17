@@ -1,0 +1,35 @@
+# ---- Environment / secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+
+# ---- Virtual environments ----
+venv/
+env/
+.venv/
+ENV/
+
+# ---- Django ----
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+static_root/
+*.log
+
+# ---- IDE ----
+.idea/
+.vscode/
+*.iml
+
+# ---- OS cruft ----
+.DS_Store
+.Rhistory
+Thumbs.db
