@@ -2,9 +2,9 @@
 
 UI wireframes and mockups for Unleased live in this folder.
 
-Expected to be updated a handful of times over the semester as the
-screens get designed (listing feed, listing detail, inquiry flow, visit
-scheduling, profile/reviews) — not every week.
+Expected to be updated a handful of times as the screens get designed
+(listing feed, listing detail, inquiry flow, visit scheduling,
+profile/reviews) — not every week.
 
 ## How to add one
 
