@@ -31,3 +31,41 @@ Challenges / open questions:
 - Need to decide on a production host (Render/Railway/etc.) before
   settings/prod.py's assumptions (HTTPS redirect, secure cookies) can
   actually be tested end-to-end.
+
+------------------------------------------------------------
+Section 2: Views (FBV + CBV) — domain model: Listing
+------------------------------------------------------------
+All views live in listings/views.py; routes in listings/urls.py,
+included in the project under /listings/. Every route has a name=.
+
+1. listing_manual   (FBV, HttpResponse)  /listings/manual/       name=listings:manual
+   Purpose: loads the template with loader.get_template() and wraps the
+   output in HttpResponse. Shows the total number of listings.
+2. listing_render   (FBV, render())      /listings/render/       name=listings:render
+   Purpose: queries Listing.objects and lists every listing via render().
+3. ListingBaseView  (CBV, View)          /listings/cbv-base/     name=listings:cbv_base
+   Purpose: get() manually queries available listings and renders them.
+4. ListingListView  (CBV, generic ListView) /listings/cbv-generic/ name=listings:cbv_generic
+   Purpose: lists all listings with model=Listing, context_object_name.
+   Extra: ListingDetailView (generic DetailView) at /listings/<pk>/ name=listings:detail.
+
+Experience / when each was useful:
+HttpResponse vs render():
+  Writing the manual version first was actually helpful, because I could
+  see every step: find the template, fill it with data, wrap it in a
+  response. It felt like a lot of typing for a simple page though. Once I
+  switched to render() the same thing took one line, and I didn't have to
+  think about the plumbing. For Unleased, render() is what I'd use for
+  almost every page (listing feeds, detail pages). I'd only go back to
+  HttpResponse if I needed something unusual, like setting custom headers
+  or returning a plain-text or quick status response.
+
+Base CBV vs Generic CBV:
+  The base View was nice when I wanted control. In the base view I only
+  show listings that are still "available", and I had to write that query
+  myself in get(). It also makes it easy to add a post() later, for
+  example for sending an inquiry. The generic ListView and DetailView were
+  much faster for the plain "show all listings" and "show one listing"
+  pages: I just set the model and context_object_name and Django did the
+  rest. My takeaway is to start with a generic view and only drop down to
+  the base View when the page needs custom logic.
