@@ -1,13 +1,29 @@
-<!DOCTYPE html>
-<html><head><title>Unleased - Generic ListView</title></head>
-<body>
-  <h1>Listings (Generic ListView)</h1>
-  <ul>
-    {% for listing in listings %}
-      <li><a href="{% url 'listings:detail' listing.pk %}">{{ listing.title }}</a>
-        - ${{ listing.monthly_rent }}/mo, {{ listing.bedrooms }} bd</li>
-    {% empty %}
-      <li>No listings yet.</li>
-    {% endfor %}
-  </ul>
-</body></html>
+{% extends "base.html" %}
+
+{% block title %}Listings{% endblock %}
+
+{% block content %}
+  {# Every list view (FBV or CBV) feeds this same template a `listings` collection. #}
+  {% with total=listings|length %}
+    <section class="page-head">
+      <div>
+        <h1>Sublease listings</h1>
+        <p class="muted">{{ total }} listing{{ total|pluralize }} shown</p>
+      </div>
+      {% if view_label %}
+        <span class="tag">Rendered by: {{ view_label }}</span>
+      {% endif %}
+    </section>
+
+    <section class="grid" aria-label="Sublease listings">
+      {% for listing in listings %}
+        {% include "listings/partials/_listing_card.html" %}
+      {% empty %}
+        <div class="empty-state">
+          <h2>No listings yet</h2>
+          <p>There are no subleases to show right now. New listings appear here as soon as students post them, so check back soon.</p>
+        </div>
+      {% endfor %}
+    </section>
+  {% endwith %}
+{% endblock %}

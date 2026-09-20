@@ -6,6 +6,11 @@ from django.views.generic import DetailView, ListView
 
 from .models import Listing
 
+# All four list views share ONE template. The views differ in how they fetch
+# and pass the data; the page itself looks the same. `view_label` is only a
+# small tag shown on the page so you can tell which view produced it.
+LIST_TEMPLATE = 'listings/listing_list.html'
+
 
 # ---------------------------------------------------------------------------
 # Function-based views
@@ -13,15 +18,21 @@ from .models import Listing
 
 def listing_manual(request):
     """FBV 1: load the template by hand and wrap the result in HttpResponse."""
-    template = loader.get_template('listings/listing_manual.html')
-    context = {'count': Listing.objects.count()}
+    template = loader.get_template(LIST_TEMPLATE)
+    context = {
+        'listings': Listing.objects.select_related('lister'),
+        'view_label': 'HttpResponse + loader.get_template()',
+    }
     return HttpResponse(template.render(context, request))
 
 
 def listing_render(request):
     """FBV 2: query the model and use the render() shortcut."""
-    listings = Listing.objects.select_related('lister')
-    return render(request, 'listings/listing_render.html', {'listings': listings})
+    context = {
+        'listings': Listing.objects.select_related('lister'),
+        'view_label': 'render() shortcut',
+    }
+    return render(request, LIST_TEMPLATE, context)
 
 
 # ---------------------------------------------------------------------------
@@ -32,14 +43,19 @@ class ListingBaseView(View):
     """CBV 1: plain View; query the model manually inside get()."""
 
     def get(self, request):
-        listings = Listing.objects.filter(status=Listing.Status.AVAILABLE)
-        return render(request, 'listings/listing_base.html', {'listings': listings})
+        context = {
+            'listings': Listing.objects.filter(status=Listing.Status.AVAILABLE),
+            'view_label': 'Base CBV (View), available listings only',
+        }
+        return render(request, LIST_TEMPLATE, context)
 
 
 class ListingListView(ListView):
-    """CBV 2: generic ListView (default template: listings/listing_list.html)."""
+    """CBV 2: generic ListView (its default template is listings/listing_list.html)."""
     model = Listing
+    template_name = LIST_TEMPLATE
     context_object_name = 'listings'
+    extra_context = {'view_label': 'Generic ListView'}
 
 
 class ListingDetailView(DetailView):

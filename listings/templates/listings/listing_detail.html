@@ -1,8 +1,34 @@
-<!DOCTYPE html>
-<html><head><title>{{ listing.title }}</title></head>
-<body>
-  <h1>{{ listing.title }}</h1>
-  <p>${{ listing.monthly_rent }}/mo - {{ listing.bedrooms }} bd / {{ listing.bathrooms }} ba</p>
-  <p>{{ listing.description }}</p>
-  <a href="{% url 'listings:cbv_generic' %}">Back to listings</a>
-</body></html>
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+  <article class="detail">
+    <span class="badge badge--{{ listing.status }}">{{ listing.get_status_display }}</span>
+    {% if listing.is_property_verified %}<span class="badge badge--verified">Verified</span>{% endif %}
+
+    <h1>{{ listing.title }}</h1>
+    <p class="muted">{{ listing.building_name|default:"Private residence" }} &middot; {{ listing.city }}, {{ listing.state }}</p>
+
+    <p class="price">${{ listing.monthly_rent|floatformat:"0" }}<span>/mo</span>
+      {% if listing.utilities_included %}<em>utilities included</em>{% endif %}</p>
+    <p>{{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba</p>
+    <p>Available {{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }}</p>
+
+    <p>{{ listing.description }}</p>
+
+    <h2>Features</h2>
+    <ul>
+      {% if listing.is_furnished %}<li>Furnished</li>{% endif %}
+      {% if listing.is_private_bedroom %}<li>Private bedroom</li>{% endif %}
+      {% if listing.is_private_bathroom %}<li>Private bathroom</li>{% endif %}
+      {% if listing.has_in_unit_laundry %}<li>In-unit laundry</li>{% endif %}
+      {% if listing.has_parking %}<li>Parking</li>{% endif %}
+      {% if listing.has_balcony %}<li>Balcony</li>{% endif %}
+      {% if listing.pets_allowed %}<li>Pets allowed</li>{% endif %}
+      {% if listing.ac_included %}<li>A/C included</li>{% endif %}
+    </ul>
+
+    <p><a href="{% url 'listings:cbv_generic' %}">&larr; Back to listings</a></p>
+  </article>
+{% endblock %}

@@ -7,7 +7,7 @@ All data is fictional but modeled after real UIUC subleases (Champaign, IL).
 
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unleased_project.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unleased_project.settings.dev')
 django.setup()
 
 from datetime import date, timedelta

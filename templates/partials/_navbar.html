@@ -1,0 +1,15 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="{% url 'listings:cbv_generic' %}">Un<span>leased</span></a>
+
+    {# Highlight the link for the page we are on, using the current URL name. #}
+    <nav class="nav" aria-label="Main">
+      {% with current=request.resolver_match.view_name %}
+        <a href="{% url 'listings:manual' %}" class="{% if current == 'listings:manual' %}active{% endif %}">HttpResponse FBV</a>
+        <a href="{% url 'listings:render' %}" class="{% if current == 'listings:render' %}active{% endif %}">render() FBV</a>
+        <a href="{% url 'listings:cbv_base' %}" class="{% if current == 'listings:cbv_base' %}active{% endif %}">Base CBV</a>
+        <a href="{% url 'listings:cbv_generic' %}" class="{% if current == 'listings:cbv_generic' %}active{% endif %}">Generic CBV</a>
+      {% endwith %}
+    </nav>
+  </div>
+</header>
