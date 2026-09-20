@@ -1,26 +1,14 @@
-{# One listing card. Expects a `listing` variable, so it works inside any loop. #}
-{# The street address is never shown here: the model keeps it private until an inquiry is accepted. #}
-<article class="card">
-  <div class="card__top">
-    <span class="badge badge--{{ listing.status }}">{{ listing.get_status_display }}</span>
-    {% if listing.is_property_verified %}
-      <span class="badge badge--verified">Verified</span>
-    {% endif %}
+{# One listing card. Expects `listing` (and optionally `tint`, a gradient class), so it works inside any loop. #}
+{# The street address is never shown: the model keeps it private until an inquiry is accepted. #}
+<a class="card" href="{% url 'listings:detail' listing.pk %}">
+  <div class="thumb {{ tint|default:'g1' }}">
+    {% if listing.is_property_verified %}<span class="badge-fav">Verified</span>{% endif %}
+    <span class="status status--{{ listing.status }}">{{ listing.get_status_display }}</span>
+    <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
   </div>
-
-  <h2 class="card__title">
-    <a href="{% url 'listings:detail' listing.pk %}">{{ listing.title }}</a>
-  </h2>
-  <p class="muted">{{ listing.building_name|default:"Private residence" }} &middot; {{ listing.city }}, {{ listing.state }}</p>
-
-  <p class="price">
-    ${{ listing.monthly_rent|floatformat:"0" }}<span>/mo</span>
-    {% if listing.utilities_included %}<em>utilities included</em>{% endif %}
-  </p>
-  <p class="specs">
-    {{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba
-    {% if listing.is_furnished %}&middot; Furnished{% endif %}
-  </p>
-  <p class="dates">{{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }}</p>
-  <p class="desc">{{ listing.description|truncatechars:110 }}</p>
-</article>
+  <p class="card-title">{{ listing.title }}</p>
+  <p class="card-meta"><b>${{ listing.monthly_rent|floatformat:"0" }}</b>/mo{% if listing.utilities_included %} &middot; utilities included{% endif %}</p>
+  <p class="card-meta">{{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba{% if listing.is_furnished %} &middot; Furnished{% endif %}</p>
+  <p class="card-meta">{{ listing.building_name|default:"Private residence" }} &middot; {{ listing.city }}, {{ listing.state }}</p>
+  <p class="card-meta">{{ listing.available_from|date:"M j" }} to {{ listing.available_until|date:"M j, Y" }}</p>
+</a>

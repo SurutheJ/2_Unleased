@@ -79,11 +79,21 @@ inline CSS (no JavaScript, no Node, no CDN), so nothing beyond
 
 Template files:
   templates/base.html                            base layout (blocks: title, extra_head, content)
-  templates/partials/_navbar.html                nav links to the four graded URLs, highlights current page
+  templates/partials/_navbar.html                logo + one tab per graded view, highlights current page
+  templates/partials/_house_icon.html            small house icon reused on cards, detail page and empty state
   templates/partials/_footer.html                footer
   listings/templates/listings/listing_list.html  the list page: extends base.html, {% for %} / {% empty %}
   listings/templates/listings/partials/_listing_card.html   one listing card, pulled in with {% include %}
   listings/templates/listings/listing_detail.html  detail page (linked from each card), also extends base.html
+
+Look and feel:
+  The styling follows our product mockup (product-mockup.html): the pink accent
+  (#FF3B5C), rounded cards on pastel gradient tiles, and the icon-over-label
+  top navigation with an underline on the active tab. Only the look was copied.
+  The mockup's search bar, hearts and extra tabs are not built yet, so the four
+  tabs here point at our four graded views instead. The Listing model has no
+  photo field yet, so each card shows a tinted tile with a house icon where a
+  photo will go.
 
 How inheritance works:
   base.html defines the page shell and three blocks. listing_list.html says
