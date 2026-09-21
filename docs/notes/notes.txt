@@ -1,0 +1,71 @@
+UNLEASED — TEAM NOTES
+======================
+Weekly progress updates, teammate notes, reminders, and challenges.
+Add a new dated entry each week (don't delete old ones — this is a log).
+
+------------------------------------------------------------
+Week of 2026-09-17
+------------------------------------------------------------
+Progress:
+- Refactored the project into a production-aware structure:
+  unleased_project/settings.py -> settings/{base,dev,prod}.py
+- Moved SECRET_KEY and API keys out of source into a .env file
+  (gitignored) with .env.example as the safe, committed template.
+- Added .gitignore covering .env, __pycache__, db.sqlite3, .idea, OS files.
+- Initialized git, pushed to GitHub (SurutheJ/2_Unleased), did the work
+  on a feature/production-config branch and merged it into main.
+- Added README.md with setup instructions and this docs/ structure
+  (wireframes, branching-strategy, notes).
+
+Notes for teammates:
+- Pull main, then run `cp .env.example .env` and generate your own
+  SECRET_KEY (command is in the README) — the app won't start without one.
+- db.sqlite3 is now gitignored going forward. Run `python seed_data.py`
+  after `python manage.py migrate` to get sample data locally.
+- Follow docs/branching-strategy/branching-strategy.md for new work —
+  branch off main, don't commit straight to it.
+
+Challenges / open questions:
+- No real frontend yet — accounts/views.py and listings/views.py are
+  still empty stubs. Only /admin/ is wired up in urls.py.
+- Need to decide on a production host (Render/Railway/etc.) before
+  settings/prod.py's assumptions (HTTPS redirect, secure cookies) can
+  actually be tested end-to-end.
+
+------------------------------------------------------------
+Section 2: Views (FBV + CBV) — domain model: Listing
+------------------------------------------------------------
+All views live in listings/views.py; routes in listings/urls.py,
+included in the project under /listings/. Every route has a name=.
+
+1. listing_manual   (FBV, HttpResponse)  /listings/manual/       name=listings:manual
+   Purpose: loads the template with loader.get_template() and wraps the
+   output in HttpResponse. Shows the total number of listings.
+2. listing_render   (FBV, render())      /listings/render/       name=listings:render
+   Purpose: queries Listing.objects and lists every listing via render().
+3. ListingBaseView  (CBV, View)          /listings/cbv-base/     name=listings:cbv_base
+   Purpose: get() manually queries available listings and renders them.
+4. ListingListView  (CBV, generic ListView) /listings/cbv-generic/ name=listings:cbv_generic
+   Purpose: lists all listings with model=Listing, context_object_name.
+   Extra: ListingDetailView (generic DetailView) at /listings/<pk>/ name=listings:detail.
+
+Experience / when each was useful:
+HttpResponse vs render():
+  Writing the manual version first was actually helpful, because I could
+  see every step: find the template, fill it with data, wrap it in a
+  response. It felt like a lot of typing for a simple page though. Once I
+  switched to render() the same thing took one line, and I didn't have to
+  think about the plumbing. For Unleased, render() is what I'd use for
+  almost every page (listing feeds, detail pages). I'd only go back to
+  HttpResponse if I needed something unusual, like setting custom headers
+  or returning a plain-text or quick status response.
+
+Base CBV vs Generic CBV:
+  The base View was nice when I wanted control. In the base view I only
+  show listings that are still "available", and I had to write that query
+  myself in get(). It also makes it easy to add a post() later, for
+  example for sending an inquiry. The generic ListView and DetailView were
+  much faster for the plain "show all listings" and "show one listing"
+  pages: I just set the model and context_object_name and Django did the
+  rest. My takeaway is to start with a generic view and only drop down to
+  the base View when the page needs custom logic.

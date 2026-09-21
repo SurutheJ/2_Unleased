@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html><head><title>Unleased - Manual View</title></head>
+<body>
+  <h1>Unleased (HttpResponse + loader.get_template)</h1>
+  <p>There are {{ count }} listing{{ count|pluralize }} on Unleased.</p>
+  <nav><a href="{% url 'listings:render' %}">render()</a> |
+  <a href="{% url 'listings:cbv_base' %}">Base CBV</a> |
+  <a href="{% url 'listings:cbv_generic' %}">Generic CBV</a></nav>
+</body></html>

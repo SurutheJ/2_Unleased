@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><title>Unleased - render() FBV</title></head>
+<body>
+  <h1>Listings (render() FBV)</h1>
+  <ul>
+    {% for listing in listings %}
+      <li><a href="{% url 'listings:detail' listing.pk %}">{{ listing.title }}</a>
+        - ${{ listing.monthly_rent }}/mo ({{ listing.get_status_display }})</li>
+    {% empty %}
+      <li>No listings yet.</li>
+    {% endfor %}
+  </ul>
+</body></html>

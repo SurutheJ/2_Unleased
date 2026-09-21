@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><title>Unleased - Generic ListView</title></head>
+<body>
+  <h1>Listings (Generic ListView)</h1>
+  <ul>
+    {% for listing in listings %}
+      <li><a href="{% url 'listings:detail' listing.pk %}">{{ listing.title }}</a>
+        - ${{ listing.monthly_rent }}/mo, {{ listing.bedrooms }} bd</li>
+    {% empty %}
+      <li>No listings yet.</li>
+    {% endfor %}
+  </ul>
+</body></html>

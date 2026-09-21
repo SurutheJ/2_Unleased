@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html><head><title>{{ listing.title }}</title></head>
+<body>
+  <h1>{{ listing.title }}</h1>
+  <p>${{ listing.monthly_rent }}/mo - {{ listing.bedrooms }} bd / {{ listing.bathrooms }} ba</p>
+  <p>{{ listing.description }}</p>
+  <a href="{% url 'listings:cbv_generic' %}">Back to listings</a>
+</body></html>
