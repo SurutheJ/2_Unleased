@@ -1,0 +1,14 @@
+{# One listing card. Expects `listing` (and optionally `tint`, a gradient class), so it works inside any loop. #}
+{# The street address is never shown: the model keeps it private until an inquiry is accepted. #}
+<a class="card" href="{% url 'listings:detail' listing.pk %}">
+  <div class="thumb {{ tint|default:'g1' }}">
+    {% if listing.is_property_verified %}<span class="badge-fav">Verified</span>{% endif %}
+    <span class="status status--{{ listing.status }}">{{ listing.get_status_display }}</span>
+    <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
+  </div>
+  <p class="card-title">{{ listing.title }}</p>
+  <p class="card-meta"><b>${{ listing.monthly_rent|floatformat:"0" }}</b>/mo{% if listing.utilities_included %} &middot; utilities included{% endif %}</p>
+  <p class="card-meta">{{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba{% if listing.is_furnished %} &middot; Furnished{% endif %}</p>
+  <p class="card-meta">{{ listing.building_name|default:"Private residence" }} &middot; {{ listing.city }}, {{ listing.state }}</p>
+  <p class="card-meta">{{ listing.available_from|date:"M j" }} to {{ listing.available_until|date:"M j, Y" }}</p>
+</a>

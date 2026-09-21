@@ -40,7 +40,7 @@ included in the project under /listings/. Every route has a name=.
 
 1. listing_manual   (FBV, HttpResponse)  /listings/manual/       name=listings:manual
    Purpose: loads the template with loader.get_template() and wraps the
-   output in HttpResponse. Shows the total number of listings.
+   output in HttpResponse. Renders the shared list template with every listing.
 2. listing_render   (FBV, render())      /listings/render/       name=listings:render
    Purpose: queries Listing.objects and lists every listing via render().
 3. ListingBaseView  (CBV, View)          /listings/cbv-base/     name=listings:cbv_base
@@ -69,3 +69,86 @@ Base CBV vs Generic CBV:
   pages: I just set the model and context_object_name and Django did the
   rest. My takeaway is to start with a generic view and only drop down to
   the base View when the page needs custom logic.
+
+------------------------------------------------------------
+Section 3: Templates
+------------------------------------------------------------
+No extra technology was added. This section uses plain Django templates with
+inline CSS (no JavaScript, no Node, no CDN), so nothing beyond
+`pip install -r requirements.txt` is needed to run it.
+
+Template files:
+  templates/base.html                            base layout (blocks: title, extra_head, content)
+  templates/partials/_navbar.html                logo + one tab per graded view, highlights current page
+  templates/partials/_house_icon.html            small house icon reused on cards, detail page and empty state
+  templates/partials/_footer.html                footer
+  listings/templates/listings/listing_list.html  the list page: extends base.html, {% for %} / {% empty %}
+  listings/templates/listings/partials/_listing_card.html   one listing card, pulled in with {% include %}
+  listings/templates/listings/listing_detail.html  detail page (linked from each card), also extends base.html
+
+Look and feel:
+  The styling follows our product mockup (product-mockup.html): the pink accent
+  (#FF3B5C), rounded cards on pastel gradient tiles, and the icon-over-label
+  top navigation with an underline on the active tab. Only the look was copied.
+  The mockup's search bar, hearts and extra tabs are not built yet, so the four
+  tabs here point at our four graded views instead. The Listing model has no
+  photo field yet, so each card shows a tinted tile with a house icon where a
+  photo will go.
+
+How inheritance works:
+  base.html defines the page shell and three blocks. listing_list.html says
+  {% extends "base.html" %} and only fills {% block title %} and
+  {% block content %}. The navbar and footer come from {% include %}.
+  settings/base.py now has TEMPLATES DIRS = [BASE_DIR / "templates"] so that
+  project-level templates like base.html can be found by every app.
+
+Template reuse (one template, four views):
+  All four graded views render listings/listing_list.html and pass a context
+  variable named `listings`. The template does not care whether the data came
+  from an FBV or a CBV. Each view also passes a small `view_label`, shown as a
+  tag on the page so it is obvious which view produced it.
+
+  /listings/manual/       listing_manual    HttpResponse + loader.get_template()
+  /listings/render/       listing_render    render()
+  /listings/cbv-base/     ListingBaseView   View (available listings only)
+  /listings/cbv-generic/  ListingListView   generic ListView
+
+Empty state:
+  The loop uses {% for listing in listings %} ... {% empty %} ... {% endfor %}.
+  When there are no listings, the page shows a "No listings yet" message in a
+  dashed box instead of a blank page.
+
+Privacy note:
+  The card and detail templates show building_name, city and state only. They
+  never print street_address, because the model keeps it private until an
+  inquiry is accepted.
+
+Small fix made along the way:
+  seed_data.py defaulted to unleased_project.settings, which is now an empty
+  package after the settings split. It now defaults to unleased_project.settings.dev
+  so `python seed_data.py` works as the README says.
+
+IMPORTANT for anyone running the project (teammates, instructor):
+  db.sqlite3 is gitignored, so a fresh clone has an EMPTY database and every
+  listing page will show the "No listings yet" empty state. Run
+  `python seed_data.py` (after `python manage.py migrate`) to load the sample
+  listings before opening the pages.
+
+How to take the Section 3 screenshots:
+  1. Start with an empty database (fresh clone: no db.sqlite3 yet):
+       python manage.py migrate
+       python manage.py runserver
+     Open http://127.0.0.1:8000/listings/render/ (or any of the four URLs).
+     This is the EMPTY STATE screenshot.
+  2. Stop the server, load sample data, and start it again:
+       python seed_data.py
+       python manage.py runserver
+     Reload the same URLs. This is the NORMAL LIST screenshot (5 cards; the
+     Base CBV shows 4 because it only lists "available" listings).
+
+Challenges:
+  - Deciding where base.html should live. Putting it in the top-level
+    templates/ folder (not inside listings/) means accounts and future apps
+    can extend it too.
+  - Styles are inline in base.html on purpose. A separate static CSS file
+    would not load when DEBUG=False without extra static-file setup.

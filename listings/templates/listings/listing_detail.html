@@ -1,8 +1,39 @@
-<!DOCTYPE html>
-<html><head><title>{{ listing.title }}</title></head>
-<body>
-  <h1>{{ listing.title }}</h1>
-  <p>${{ listing.monthly_rent }}/mo - {{ listing.bedrooms }} bd / {{ listing.bathrooms }} ba</p>
-  <p>{{ listing.description }}</p>
-  <a href="{% url 'listings:cbv_generic' %}">Back to listings</a>
-</body></html>
+{% extends "base.html" %}
+
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+  <a class="back-btn" href="{% url 'listings:cbv_generic' %}">&larr; Back to listings</a>
+
+  <div class="thumb g1 detail-hero">
+    <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
+  </div>
+
+  <div class="detail-head">
+    <h2>{{ listing.title }}</h2>
+    <div class="detail-badges">
+      {% if listing.is_property_verified %}<span class="badge-fav">Verified</span>{% endif %}
+      <span class="badge-fav badge-soft">{{ listing.get_status_display }}</span>
+    </div>
+    <p class="detail-meta">
+      ${{ listing.monthly_rent|floatformat:"0" }}/mo{% if listing.utilities_included %} (utilities included){% endif %}
+      &middot; {{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba
+      &middot; Available {{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }}
+    </p>
+  </div>
+
+  <div class="detail-body">
+    <p class="detail-desc">{{ listing.description }}</p>
+    <h4>Amenities</h4>
+    <ul class="amen-list">
+      {% if listing.is_furnished %}<li>Furnished</li>{% endif %}
+      {% if listing.is_private_bedroom %}<li>Private bedroom</li>{% endif %}
+      {% if listing.is_private_bathroom %}<li>Private bathroom</li>{% endif %}
+      {% if listing.has_in_unit_laundry %}<li>In-unit laundry</li>{% endif %}
+      {% if listing.has_parking %}<li>Parking</li>{% endif %}
+      {% if listing.has_balcony %}<li>Balcony</li>{% endif %}
+      {% if listing.pets_allowed %}<li>Pets allowed</li>{% endif %}
+      {% if listing.ac_included %}<li>A/C included</li>{% endif %}
+    </ul>
+  </div>
+{% endblock %}

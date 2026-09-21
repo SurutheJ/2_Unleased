@@ -19,6 +19,7 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
 │   │   └── prod.py             # DEBUG=False, hardened, requires ALLOWED_HOSTS
 │   ├── urls.py
 │   ├── wsgi.py / asgi.py
+├── templates/                  # Project-wide templates: base.html + partials (navbar, footer)
 ├── docs/
 │   ├── wireframes/             # UI wireframes/mockups
 │   ├── branching-strategy/     # How we use git branches as a team
@@ -55,11 +56,14 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
    ```
    python manage.py migrate
    ```
-6. (Optional) Load sample data:
+6. Load the sample data. **Do this before opening the site**: the database
+   file (`db.sqlite3`) is not stored in Git, so a fresh clone starts empty and
+   the listing pages will show the "No listings yet" message until you seed it.
    ```
-   python manage.py createsuperuser   # if you need to log into /admin/
    python seed_data.py
    ```
+   (Optional) To log into `/admin/` with your own account, also run
+   `python manage.py createsuperuser`.
 7. Run the dev server:
    ```
    python manage.py runserver
