@@ -22,6 +22,7 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
 ├── templates/                  # Project-wide templates: base.html + partials (navbar, footer)
 ├── docs/
 │   ├── wireframes/             # UI wireframes/mockups
+│   ├── screenshots/            # Browser-output screenshots (Sections 2 & 3)
 │   ├── branching-strategy/     # How we use git branches as a team
 │   └── notes/notes.txt         # Weekly progress log (updated every week)
 ├── manage.py
@@ -94,6 +95,35 @@ See `.env.example` for the full list. Summary:
 | `ALLOWED_HOSTS` | Comma-separated list of hostnames Django will serve |
 | `DJANGO_SETTINGS_MODULE` | Which settings module to load (`unleased_project.settings.dev` or `.prod`) |
 | `MAPS_API_KEY` | Placeholder third-party API key, read the same way real secrets will be |
+
+## Screenshots
+
+### Section 2 — Four Django views
+
+Browser output for each of the four required view types, confirming all
+four work and are wired up behind named URLs.
+
+| View | URL name | Screenshot |
+|---|---|---|
+| `HttpResponse` + `loader.get_template()` FBV | `listings:manual` | [section2-01-httpresponse-fbv.jpg](docs/screenshots/section2-01-httpresponse-fbv.jpg) |
+| `render()` FBV | `listings:render` | [section2-02-render-fbv.jpg](docs/screenshots/section2-02-render-fbv.jpg) |
+| Base `View` CBV | `listings:cbv_base` | [section2-03-base-cbv.jpg](docs/screenshots/section2-03-base-cbv.jpg) |
+| Generic `ListView` CBV | `listings:cbv_generic` | [section2-04-generic-cbv.jpg](docs/screenshots/section2-04-generic-cbv.jpg) |
+
+### Section 3 — Reusable templates
+
+The same four views rendered through the shared, inheriting template
+(`templates/base.html` + `listings/listing_list.html`), plus the listing
+detail page and the `{% for %}...{% empty %}` empty-state case.
+
+| View | URL name | Screenshot |
+|---|---|---|
+| `HttpResponse` FBV | `listings:manual` | [01-httpresponse-fbv-list.png](docs/screenshots/01-httpresponse-fbv-list.png) |
+| `render()` FBV | `listings:render` | [02-render-fbv-list.png](docs/screenshots/02-render-fbv-list.png) |
+| Base CBV | `listings:cbv_base` | [03-base-cbv-list.png](docs/screenshots/03-base-cbv-list.png) |
+| Generic CBV | `listings:cbv_generic` | [04-generic-cbv-list.png](docs/screenshots/04-generic-cbv-list.png) |
+| Listing detail page (shared template) | `listings:detail` | [05-listing-detail.png](docs/screenshots/05-listing-detail.png) |
+| Empty state (`{% empty %}` block, no listings in DB) | `listings:cbv_generic` | [06-empty-state.png](docs/screenshots/06-empty-state.png) |
 
 ## Branching strategy
 
