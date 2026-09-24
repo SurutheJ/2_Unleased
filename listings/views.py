@@ -5,7 +5,7 @@ from django.template import loader
 from django.views import View
 from django.views.generic import DetailView, ListView
 
-from .models import Listing
+from .models import Inquiry, Listing
 
 # All four list views share ONE template. The views differ in how they fetch
 # and pass the data; the page itself looks the same. `view_label` is only a
@@ -137,3 +137,45 @@ def listing_search(request):
         },
     }
     return render(request, 'listings/listing_search.html', context)
+
+
+class InquiryLookupView(View):
+    """
+    PRIVATE search, submitted with POST: "Track my inquiries".
+
+    A seeker types their .edu email to see the inquiries they have sent and
+    whether each one was accepted. This is personal data (an email address,
+    and for accepted inquiries the listing's private street address), so it
+    should NOT end up in the URL, browser history, bookmarks or server logs.
+    POST sends the email in the request body instead, and {% csrf_token %}
+    protects the form. Refreshing or sharing the page does not replay it.
+    """
+    template_name = 'listings/inquiry_lookup.html'
+
+    def get(self, request):
+        # First visit: just show the empty form.
+        return render(request, self.template_name, {'submitted': False})
+
+    def post(self, request):
+        email = request.POST.get('edu_email', '').strip().lower()
+        error = ''
+        inquiries = Inquiry.objects.none()
+
+        if not email.endswith('.edu'):
+            error = 'Please enter the .edu email you used on Unleased.'
+        else:
+            # Relationship-spanning lookup: Inquiry -> seeker (UnleasedUser).
+            # We never show the email back in a URL; it only lives in this request.
+            inquiries = (
+                Inquiry.objects
+                .filter(seeker__edu_email__iexact=email)
+                .select_related('listing')
+            )
+
+        context = {
+            'submitted': True,
+            'email': email,
+            'error': error,
+            'inquiries': inquiries,
+        }
+        return render(request, self.template_name, context)
