@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Search listings{% endblock %}
+
+{% block extra_head %}
+<style>
+  .search-form {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; align-items: end;
+    background: var(--bg-card); border-radius: var(--radius-md);
+    padding: 16px; margin-bottom: 22px;
+  }
+  .search-form label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+  .search-form input, .search-form select {
+    width: 100%; font: inherit; font-size: 13.5px;
+    padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  }
+  .search-actions { display: flex; gap: 8px; }
+  .btn {
+    font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    padding: 10px 16px; border-radius: 8px; border: 0;
+    background: var(--accent); color: #fff; text-align: center;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn--ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn--ghost:hover { background: var(--bg-card); }
+  .hint { font-size: 12.5px; color: var(--ink-soft); margin: -12px 0 20px; }
+  .hint code { background: var(--bg-card); padding: 2px 6px; border-radius: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section-head">
+    <div>
+      <h2>Search listings</h2>
+      <div class="sub">
+        {% if searched %}
+          {{ results|length }} of {{ total_listings }} listing{{ total_listings|pluralize }} match your filters
+        {% else %}
+          Showing all {{ total_listings }} listing{{ total_listings|pluralize }}. Use the filters to narrow it down.
+        {% endif %}
+      </div>
+    </div>
+    <span class="pill">Public search (GET)</span>
+  </div>
+
+  {# method="get": the inputs are added to the URL as ?q=...&max_rent=... #}
+  <form class="search-form" method="get" action="{% url 'listings:search' %}">
+    <div>
+      <label for="q">Keyword</label>
+      <input id="q" name="q" type="text" placeholder="furnished, Green St..." value="{{ form_values.q }}">
+    </div>
+    <div>
+      <label for="max_rent">Max rent ($/mo)</label>
+      <input id="max_rent" name="max_rent" type="number" min="0" step="50" placeholder="800" value="{{ form_values.max_rent }}">
+    </div>
+    <div>
+      <label for="min_bedrooms">Min bedrooms</label>
+      <input id="min_bedrooms" name="min_bedrooms" type="number" min="0" placeholder="1" value="{{ form_values.min_bedrooms }}">
+    </div>
+    <div>
+      <label for="lister">Posted by</label>
+      <input id="lister" name="lister" type="text" placeholder="Lister name" value="{{ form_values.lister }}">
+    </div>
+    <div>
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="">Any status</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if form_values.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="search-actions">
+      <button class="btn" type="submit">Search</button>
+      <a class="btn btn--ghost" href="{% url 'listings:search' %}">Clear</a>
+    </div>
+  </form>
+
+  {% if searched %}
+    <p class="hint">Share these results: this page's URL holds your filters, so anyone opening it sees the same list.</p>
+  {% endif %}
+
+  <div class="grid">
+    {% for listing in results %}
+      {% cycle 'g1' 'g2' 'g3' 'g4' 'g5' 'g6' 'g7' 'g8' as tint silent %}
+      {% include "listings/partials/_listing_card.html" with tint=tint %}
+    {% empty %}
+      <div class="empty">
+        <div class="empty-icon">{% include "partials/_house_icon.html" %}</div>
+        <h3>No listings match your search</h3>
+        <p>Try a higher max rent, fewer bedrooms, or a different keyword. <a href="{% url 'listings:search' %}"><u>Clear all filters</u></a></p>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -74,3 +75,65 @@ class ListingDetailView(DetailView):
     """Generic DetailView (default template: listings/listing_detail.html)."""
     model = Listing
     context_object_name = 'listing'
+
+
+# ---------------------------------------------------------------------------
+# A3 Section 2: search and ORM queries
+# ---------------------------------------------------------------------------
+
+def listing_search(request):
+    """
+    PUBLIC search, submitted with GET.
+
+    The filters live in the URL (e.g. /listings/search/?q=furnished&max_rent=800),
+    so the same link always loads the same results. A student can bookmark it
+    or paste it in a group chat and their roommate sees the exact same list.
+    Nothing here is private, so there is no reason to hide it in a POST body.
+    """
+    q = request.GET.get('q', '').strip()
+    max_rent = request.GET.get('max_rent', '').strip()
+    min_bedrooms = request.GET.get('min_bedrooms', '').strip()
+    lister_name = request.GET.get('lister', '').strip()
+    status = request.GET.get('status', '').strip()
+
+    results = Listing.objects.select_related('lister')
+
+    if q:
+        # Keyword search across several text fields (OR, using Q objects).
+        results = results.filter(
+            Q(title__icontains=q)
+            | Q(description__icontains=q)
+            | Q(building_name__icontains=q)
+        )
+    if max_rent.isdigit():
+        results = results.filter(monthly_rent__lte=max_rent)
+    if min_bedrooms.isdigit():
+        results = results.filter(bedrooms__gte=min_bedrooms)
+    if lister_name:
+        # Relationship-spanning lookup: Listing -> lister (UnleasedUser).
+        # The double underscore follows the ForeignKey into the user table.
+        results = results.filter(
+            Q(lister__first_name__icontains=lister_name)
+            | Q(lister__last_name__icontains=lister_name)
+            | Q(lister__username__icontains=lister_name)
+        )
+    if status in Listing.Status.values:
+        results = results.filter(status=status)
+
+    searched = any([q, max_rent, min_bedrooms, lister_name, status])
+
+    context = {
+        'results': results,
+        'searched': searched,
+        'total_listings': Listing.objects.count(),
+        'status_choices': Listing.Status.choices,
+        # Echo the inputs back so the form keeps what the user typed.
+        'form_values': {
+            'q': q,
+            'max_rent': max_rent,
+            'min_bedrooms': min_bedrooms,
+            'lister': lister_name,
+            'status': status,
+        },
+    }
+    return render(request, 'listings/listing_search.html', context)

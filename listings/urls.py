@@ -10,5 +10,6 @@ urlpatterns = [
     path('render/', views.listing_render, name='render'),
     path('cbv-base/', views.ListingBaseView.as_view(), name='cbv_base'),
     path('cbv-generic/', views.ListingListView.as_view(), name='cbv_generic'),
+    path('search/', views.listing_search, name='search'),      # GET search (public, shareable)
     path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),
 ]
