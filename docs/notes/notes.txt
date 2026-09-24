@@ -152,3 +152,38 @@ Challenges:
     can extend it too.
   - Styles are inline in base.html on purpose. A separate static CSS file
     would not load when DEBUG=False without extra static-file setup.
+
+------------------------------------------------------------
+A3 Section 1: URL linking and navigation
+------------------------------------------------------------
+What was added:
+  - Home page at / (listings.views.home, name='home'). It replaced the old
+    redirect, so the root URL is now a real page: total listing count plus
+    the three newest available listings.
+  - /listings/ (name='listings:list') as the main browse page, using the
+    existing generic ListingListView.
+  - Navbar (templates/partials/_navbar.html) with three tabs: Home, Browse,
+    Available now. Every link uses {% url 'route_name' %}, nothing is
+    hard-coded, and the current tab is highlighted using
+    request.resolver_match.view_name.
+  - Listing.get_absolute_url() in listings/models.py, returning
+    reverse('listings:detail', kwargs={'pk': self.pk}).
+
+End-to-end flow (clicking a listing card):
+  models.py   Listing.get_absolute_url() builds "/listings/5/" from the pk
+  urls.py     path('<int:pk>/', ListingDetailView.as_view(), name='detail')
+              captures pk=5 from the URL
+  views.py    ListingDetailView (generic DetailView) runs
+              Listing.objects.get(pk=5), or returns a 404 if it does not exist
+  templates   listing_detail.html receives it as `listing` and renders it
+
+Where get_absolute_url() is useful:
+  The listing card partial (_listing_card.html) is included on the home page
+  and on every list page. Before, each card built its link with
+  {% url 'listings:detail' listing.pk %}. Now it just uses
+  {{ listing.get_absolute_url }}, so the model is the single place that knows
+  what a listing's URL looks like. If we rename the route or change the URL
+  to something like /sublets/<pk>/, only urls.py and this one method change,
+  not every template. It will also be handy later: after a new listing is
+  created with a POST form, the view can redirect(listing) and Django uses
+  get_absolute_url() to send the user to the new listing's page.
