@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Track my inquiries{% endblock %}
+
+{% block extra_head %}
+<style>
+  .lookup-form {
+    display: flex; gap: 10px; align-items: end; flex-wrap: wrap;
+    background: var(--bg-card); border-radius: var(--radius-md);
+    padding: 16px; margin-bottom: 14px; max-width: 620px;
+  }
+  .lookup-form div { flex: 1; min-width: 220px; }
+  .lookup-form label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+  .lookup-form input {
+    width: 100%; font: inherit; font-size: 13.5px;
+    padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  }
+  .btn {
+    font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    padding: 10px 16px; border-radius: 8px; border: 0; background: var(--accent); color: #fff;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .note { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 22px; max-width: 620px; }
+  .error { color: #9A2A18; font-size: 13px; font-weight: 600; margin: 0 0 16px; }
+  .inq-list { list-style: none; padding: 0; margin: 0; max-width: 760px; }
+  .inq {
+    border: 1px solid var(--line); border-radius: var(--radius-md);
+    padding: 14px 16px; margin-bottom: 12px;
+  }
+  .inq-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+  .inq-top a { font-weight: 600; font-size: 14px; }
+  .inq-top a:hover { text-decoration: underline; }
+  .inq p { font-size: 13px; color: var(--ink-soft); margin: 6px 0 0; }
+  .tag { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-pill); color: #fff; white-space: nowrap; }
+  .tag--pending { background: #8A5A00; }
+  .tag--accepted { background: #17683A; }
+  .tag--declined { background: #9A2A18; }
+  .address { color: var(--ink) !important; font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section-head">
+    <div>
+      <h2>Track my inquiries</h2>
+      <div class="sub">See the status of the inquiries you sent to listers.</div>
+    </div>
+    <span class="pill">Private search (POST)</span>
+  </div>
+
+  {# method="post": the email goes in the request body, not the URL. #}
+  <form class="lookup-form" method="post" action="{% url 'listings:inquiries' %}">
+    {% csrf_token %}
+    <div>
+      <label for="edu_email">Your .edu email</label>
+      <input id="edu_email" name="edu_email" type="email" required placeholder="netid@illinois.edu" value="{{ email }}">
+    </div>
+    <button class="btn" type="submit">Look up</button>
+  </form>
+  <p class="note">Your email is sent privately and is never added to the page address, so it does not show up in your browser history or in a shared link.</p>
+
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+  {% if submitted and not error %}
+    <ul class="inq-list">
+      {% for inquiry in inquiries %}
+        <li class="inq">
+          <div class="inq-top">
+            <a href="{{ inquiry.listing.get_absolute_url }}">{{ inquiry.listing.title }}</a>
+            <span class="tag tag--{{ inquiry.status }}">{{ inquiry.get_status_display }}</span>
+          </div>
+          <p>Sent {{ inquiry.created_at|date:"M j, Y" }} &middot; ${{ inquiry.listing.monthly_rent|floatformat:"0" }}/mo</p>
+          {% if inquiry.status == 'accepted' %}
+            {# The private address is only revealed once the lister accepts. #}
+            <p class="address">Address: {{ inquiry.listing.street_address }}{% if inquiry.listing.unit_number %}, Unit {{ inquiry.listing.unit_number }}{% endif %}, {{ inquiry.listing.city }}, {{ inquiry.listing.state }}</p>
+          {% else %}
+            <p>The address will appear here once the lister accepts your inquiry.</p>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="empty">
+          <div class="empty-icon">{% include "partials/_house_icon.html" %}</div>
+          <h3>No inquiries found</h3>
+          <p>We could not find any inquiries sent from that email. Check the spelling, or <a href="{% url 'listings:search' %}"><u>search listings</u></a> to send your first one.</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}

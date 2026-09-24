@@ -1,6 +1,7 @@
 {# One listing card. Expects `listing` (and optionally `tint`, a gradient class), so it works inside any loop. #}
 {# The street address is never shown: the model keeps it private until an inquiry is accepted. #}
-<a class="card" href="{% url 'listings:detail' listing.pk %}">
+{# The link comes from Listing.get_absolute_url(), so the model owns its own URL. #}
+<a class="card" href="{{ listing.get_absolute_url }}">
   <div class="thumb {{ tint|default:'g1' }}">
     {% if listing.is_property_verified %}<span class="badge-fav">Verified</span>{% endif %}
     <span class="status status--{{ listing.status }}">{{ listing.get_status_display }}</span>

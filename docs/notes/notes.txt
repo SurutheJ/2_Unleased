@@ -152,3 +152,89 @@ Challenges:
     can extend it too.
   - Styles are inline in base.html on purpose. A separate static CSS file
     would not load when DEBUG=False without extra static-file setup.
+
+------------------------------------------------------------
+A3 Section 1: URL linking and navigation
+------------------------------------------------------------
+What was added:
+  - Home page at / (listings.views.home, name='home'). It replaced the old
+    redirect, so the root URL is now a real page: total listing count plus
+    the three newest available listings.
+  - /listings/ (name='listings:list') as the main browse page, using the
+    existing generic ListingListView.
+  - Navbar (templates/partials/_navbar.html) with three tabs: Home, Browse,
+    Available now. Every link uses {% url 'route_name' %}, nothing is
+    hard-coded, and the current tab is highlighted using
+    request.resolver_match.view_name.
+  - Listing.get_absolute_url() in listings/models.py, returning
+    reverse('listings:detail', kwargs={'pk': self.pk}).
+
+End-to-end flow (clicking a listing card):
+  models.py   Listing.get_absolute_url() builds "/listings/5/" from the pk
+  urls.py     path('<int:pk>/', ListingDetailView.as_view(), name='detail')
+              captures pk=5 from the URL
+  views.py    ListingDetailView (generic DetailView) runs
+              Listing.objects.get(pk=5), or returns a 404 if it does not exist
+  templates   listing_detail.html receives it as `listing` and renders it
+
+Where get_absolute_url() is useful:
+  The listing card partial (_listing_card.html) is included on the home page
+  and on every list page. Before, each card built its link with
+  {% url 'listings:detail' listing.pk %}. Now it just uses
+  {{ listing.get_absolute_url }}, so the model is the single place that knows
+  what a listing's URL looks like. If we rename the route or change the URL
+  to something like /sublets/<pk>/, only urls.py and this one method change,
+  not every template. It will also be handy later: after a new listing is
+  created with a POST form, the view can redirect(listing) and Django uses
+  get_absolute_url() to send the user to the new listing's page.
+
+------------------------------------------------------------
+A3 Section 2: ORM queries and data presentation
+------------------------------------------------------------
+Pages added (all in listings/views.py, routes in listings/urls.py):
+  /listings/               full list of every listing (ListingListView)
+  /listings/search/        listing_search       GET search  (name=listings:search)
+  /listings/my-inquiries/  InquiryLookupView    POST search (name=listings:inquiries)
+  /listings/insights/      listing_insights     aggregations (name=listings:insights)
+Each page has its own navbar tab, and every loop uses {% for %} ... {% empty %}.
+
+GET search: public, shareable results
+  Reads request.GET for q, max_rent, min_bedrooms, lister and status.
+  Filters: Q(title__icontains) | Q(description__icontains) | Q(building_name__icontains),
+  monthly_rent__lte, bedrooms__gte, status.
+  Why GET: listings are public, and the whole search sits in the URL, e.g.
+  /listings/search/?q=furnished&max_rent=800. The same link always loads the
+  same results, so a student can bookmark it or paste it into a group chat and
+  their roommate sees the exact same list. Refreshing is harmless too.
+
+POST search: data that should stay hidden
+  InquiryLookupView (a base View with get() and post()). get() shows an empty
+  form; post() reads request.POST['edu_email'] and finds that seeker's inquiries.
+  Why POST: the input is a personal email address, and the results can reveal a
+  listing's private street address (only shown once an inquiry is accepted).
+  With GET, the email would sit in the URL, browser history, bookmarks and
+  server logs, and could be shared by accident. POST keeps it in the request
+  body, and {% csrf_token %} stops other sites from submitting the form.
+  Limitation: looking up by email alone is not real security, since anyone who
+  knows the email could see the results. In the finished app this page would
+  require login and use request.user instead of a typed email. Here it
+  demonstrates when data should be kept out of the URL.
+
+Relationship-spanning queries (double underscore __)
+  - Search "Posted by": Listing.objects.filter(lister__first_name__icontains=...)
+    follows the Listing.lister ForeignKey into the UnleasedUser table.
+  - Inquiry lookup: Inquiry.objects.filter(seeker__edu_email__iexact=email)
+    follows Inquiry.seeker into UnleasedUser.
+  - Insights: values('lister__username') groups listings by the lister's username.
+
+Aggregations (Insights page)
+  Totals (one value each):
+    Listing.objects.count(), available listings count, Inquiry.objects.count(),
+    Listing.objects.aggregate(avg=Avg('monthly_rent'))
+  Grouped summaries (one row per group, like SQL GROUP BY):
+    Listing.objects.values('status').annotate(total=Count('id'), avg_rent=Avg('monthly_rent'))
+    Listing.objects.values('lister__username', ...).annotate(total=Count('id'))
+    Listing.objects.annotate(num_inquiries=Count('inquiries'))   (reverse relation)
+  What I learned: aggregate() squeezes the whole table into one answer, while
+  values() + annotate() first splits rows into groups and then counts each group.
+  The database does the math, so Python never has to loop over every listing.

@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.urls import reverse
 
 
 class Listing(models.Model):
@@ -145,6 +146,15 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.title} — ${self.monthly_rent}/mo ({self.status})"
+
+    def get_absolute_url(self):
+        """
+        Canonical URL for this listing's detail page.
+        Templates call {{ listing.get_absolute_url }} instead of building
+        the URL by hand, so if the URL pattern ever changes, only
+        listings/urls.py needs to change.
+        """
+        return reverse('listings:detail', kwargs={'pk': self.pk})
 
     @property
     def popularity_score(self):

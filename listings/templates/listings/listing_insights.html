@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Insights{% endblock %}
+
+{% block extra_head %}
+<style>
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 30px; }
+  .stat { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px 18px; }
+  .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .stat-label { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 36px; }
+  .panel { min-width: 0; }  /* lets a grid column shrink instead of being pushed wider by long content */
+  .panel h3 { font-size: 15px; margin: 0 0 4px; }
+  .panel .sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 10px; }
+  .panel code {
+    display: inline-block; max-width: 100%; overflow-wrap: anywhere;  /* long ORM calls wrap inside their own panel */
+    background: var(--bg-card); padding: 2px 6px; border-radius: 4px; font-size: 11.5px;
+  }
+  table.summary { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.summary th { text-align: left; font-size: 11.5px; color: var(--ink-soft); font-weight: 600; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  table.summary td { padding: 9px 6px; border-bottom: 1px solid var(--line); }
+  table.summary td.num, table.summary th.num { text-align: right; }
+  table.summary a:hover { text-decoration: underline; }
+  .empty-row { color: var(--ink-soft); text-align: center; padding: 18px 6px !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section-head">
+    <div>
+      <h2>Insights</h2>
+      <div class="sub">Live numbers from the Unleased database, computed with Django ORM aggregations.</div>
+    </div>
+    <span class="pill">count() &middot; aggregate() &middot; annotate()</span>
+  </div>
+
+  {# Totals: one value each, from .count() and .aggregate() #}
+  <div class="stats">
+    <div class="stat"><div class="stat-value">{{ totals.listings }}</div><div class="stat-label">Total listings</div></div>
+    <div class="stat"><div class="stat-value">{{ totals.available }}</div><div class="stat-label">Available right now</div></div>
+    <div class="stat"><div class="stat-value">{{ totals.inquiries }}</div><div class="stat-label">Inquiries sent</div></div>
+    <div class="stat"><div class="stat-value">{% if totals.avg_rent %}${{ totals.avg_rent|floatformat:"0" }}{% else %}&ndash;{% endif %}</div><div class="stat-label">Average monthly rent</div></div>
+  </div>
+
+  <div class="panels">
+    {# Grouped summary 1 #}
+    <section class="panel">
+      <h3>Listings by status</h3>
+      <p class="sub"><code>values('status').annotate(total=Count('id'))</code></p>
+      <table class="summary">
+        <thead><tr><th>Status</th><th class="num">Listings</th><th class="num">Avg rent</th></tr></thead>
+        <tbody>
+          {% for row in by_status %}
+            <tr>
+              <td><a href="{% url 'listings:search' %}?status={{ row.status }}">{{ row.label }}</a></td>
+              <td class="num">{{ row.total }}</td>
+              <td class="num">${{ row.avg_rent|floatformat:"0" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="empty-row">No listings yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    {# Grouped summary 2: spans Listing -> lister #}
+    <section class="panel">
+      <h3>Listings per lister</h3>
+      <p class="sub"><code>values('lister__username').annotate(total=Count('id'))</code></p>
+      <table class="summary">
+        <thead><tr><th>Lister</th><th class="num">Listings</th><th class="num">Avg rent</th></tr></thead>
+        <tbody>
+          {% for row in by_lister %}
+            <tr>
+              <td><a href="{% url 'listings:search' %}?lister={{ row.lister__username }}">{{ row.lister__first_name }} {{ row.lister__last_name }}</a> <span style="color:var(--ink-soft)">@{{ row.lister__username }}</span></td>
+              <td class="num">{{ row.total }}</td>
+              <td class="num">${{ row.avg_rent|floatformat:"0" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="empty-row">No listers yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    {# Grouped summary 3: counts the reverse relation Listing -> inquiries #}
+    <section class="panel">
+      <h3>Most inquired listings</h3>
+      <p class="sub"><code>annotate(num_inquiries=Count('inquiries'))</code></p>
+      <table class="summary">
+        <thead><tr><th>Listing</th><th class="num">Inquiries</th></tr></thead>
+        <tbody>
+          {% for listing in most_inquired %}
+            <tr>
+              <td><a href="{{ listing.get_absolute_url }}">{{ listing.title }}</a></td>
+              <td class="num">{{ listing.num_inquiries }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="2" class="empty-row">No inquiries have been sent yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  </div>
+{% endblock %}

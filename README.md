@@ -96,6 +96,26 @@ See `.env.example` for the full list. Summary:
 | `DJANGO_SETTINGS_MODULE` | Which settings module to load (`unleased_project.settings.dev` or `.prod`) |
 | `MAPS_API_KEY` | Placeholder third-party API key, read the same way real secrets will be |
 
+## Navigation and URLs
+
+The home page (`/`) shows the newest available sublease listings, and the
+navbar links to **Home**, **Browse** (`/listings/`) and **Available now**
+(`/listings/cbv-base/`), all built with `{% url %}` route names. Every listing
+card links to its own detail page at `/listings/<pk>/` through
+`Listing.get_absolute_url()`, so templates never hand-build listing URLs.
+
+## Search and insights
+
+**Search** (`/listings/search/`) is a public GET form that filters listings by
+keyword, max rent, min bedrooms, status and lister name; the filters live in the
+URL, so a search link can be bookmarked or shared and always loads the same
+results. **My inquiries** (`/listings/my-inquiries/`) is a POST form where a
+seeker enters their `.edu` email to see the status of inquiries they sent, and
+the private address of any accepted listing; it uses POST and `{% csrf_token %}`
+so the email never appears in the URL. **Insights** (`/listings/insights/`) shows
+ORM aggregations: totals (`count()`, `Avg`) and grouped summaries
+(`values().annotate(Count())`) by status, by lister, and by number of inquiries.
+
 ## Screenshots
 
 ### Section 2 — Four Django views
@@ -124,6 +144,23 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 | Generic CBV | `listings:cbv_generic` | [04-generic-cbv-list.png](docs/screenshots/04-generic-cbv-list.png) |
 | Listing detail page (shared template) | `listings:detail` | [05-listing-detail.png](docs/screenshots/05-listing-detail.png) |
 | Empty state (`{% empty %}` block, no listings in DB) | `listings:cbv_generic` | [06-empty-state.png](docs/screenshots/06-empty-state.png) |
+
+### A3 Section 1: URL linking and navigation
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Home page | `/` (`home`) | [a3-s1-01-home.png](docs/screenshots/a3-s1-01-home.png) |
+| Navigation working (active tab underlined) | `/listings/` (`listings:list`) | [a3-s1-02-navigation.png](docs/screenshots/a3-s1-02-navigation.png) |
+| Detail page opened by clicking a card | `/listings/<pk>/` (`listings:detail`) | [a3-s1-03-detail.png](docs/screenshots/a3-s1-03-detail.png) |
+
+### A3 Section 2: ORM queries and data presentation
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| GET search with filters visible in the URL | `/listings/search/?max_rent=800` | [a3-s2-01-get-search.png](docs/screenshots/a3-s2-01-get-search.png) |
+| POST inquiry lookup results (URL has no email) | `/listings/my-inquiries/` | [a3-s2-02-post-lookup.png](docs/screenshots/a3-s2-02-post-lookup.png) |
+| Aggregation summaries | `/listings/insights/` | [a3-s2-03-insights.png](docs/screenshots/a3-s2-03-insights.png) |
+| `{% empty %}` state for a search with no matches | `/listings/search/?q=zzz` | [a3-s2-04-empty-search.png](docs/screenshots/a3-s2-04-empty-search.png) |
 
 ## Branching strategy
 

@@ -66,13 +66,13 @@ suruthe = UnleasedUser.objects.create_user(
 
 shithil = UnleasedUser.objects.create_user(
     username='shithil_s',
-    email='shithil2@illinois.edu',
+    email='shetty7@illinois.edu',
     password='test1234',
     first_name='Shithil',
     last_name='Shetty',
-    edu_email='shithil2@illinois.edu',
+    edu_email='shetty7@illinois.edu',
     is_edu_verified=True,
-    role='seeker',
+    role='both',          # lists his own place AND is looking for a new one
     bio='ECE grad student arriving in August. Need a furnished room near Engineering.',
     sleep_schedule='flexible',
     cleanliness='moderate',
@@ -201,7 +201,7 @@ listing2 = Listing.objects.create(
 )
 
 listing3 = Listing.objects.create(
-    lister=alex,
+    lister=shithil,
     title='URGENT — Male Only, 1 Room in Maywood Apts, Full Year Sublease',
     description=(
         'Need someone ASAP. Leaving for Chicago internship Aug 20. '
@@ -275,7 +275,7 @@ listing4 = Listing.objects.create(
 
 # NEW — listing 5
 listing5 = Listing.objects.create(
-    lister=alex,
+    lister=shithil,
     title='Furnished Room in 4BD House — Minutes from ARC & State Farm',
     description=(
         'Subleasing one room in a spacious 4-bedroom house. Huge backyard, '
