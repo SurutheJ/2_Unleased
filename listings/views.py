@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Avg, Count, Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -179,3 +179,58 @@ class InquiryLookupView(View):
             'inquiries': inquiries,
         }
         return render(request, self.template_name, context)
+
+
+def listing_insights(request):
+    """
+    Insights page: summary numbers computed by the database with the ORM.
+
+    Totals use .count() / .aggregate(), which return ONE value for the whole table.
+    Grouped summaries use .values(...).annotate(Count(...)), which works like
+    SQL GROUP BY and returns one row per group.
+    """
+    # --- Totals (one number each) ---
+    totals = {
+        'listings': Listing.objects.count(),
+        'available': Listing.objects.filter(status=Listing.Status.AVAILABLE).count(),
+        'inquiries': Inquiry.objects.count(),
+        'avg_rent': Listing.objects.aggregate(avg=Avg('monthly_rent'))['avg'],
+    }
+
+    # --- Grouped summary 1: how many listings are in each status ---
+    # SQL: SELECT status, COUNT(id) FROM listing GROUP BY status
+    status_labels = dict(Listing.Status.choices)
+    by_status = [
+        {**row, 'label': status_labels.get(row['status'], row['status'])}
+        for row in (
+            Listing.objects
+            .values('status')
+            .annotate(total=Count('id'), avg_rent=Avg('monthly_rent'))
+            .order_by('-total', 'status')
+        )
+    ]
+
+    # --- Grouped summary 2: listings per lister (spans Listing -> lister) ---
+    by_lister = (
+        Listing.objects
+        .values('lister__username', 'lister__first_name', 'lister__last_name')
+        .annotate(total=Count('id'), avg_rent=Avg('monthly_rent'))
+        .order_by('-total', 'lister__username')
+    )
+
+    # --- Grouped summary 3: which listings get the most inquiries ---
+    # annotate() on the reverse relation 'inquiries' (Inquiry.listing related_name)
+    most_inquired = (
+        Listing.objects
+        .annotate(num_inquiries=Count('inquiries'))
+        .filter(num_inquiries__gt=0)
+        .order_by('-num_inquiries', 'title')
+    )
+
+    context = {
+        'totals': totals,
+        'by_status': by_status,
+        'by_lister': by_lister,
+        'most_inquired': most_inquired,
+    }
+    return render(request, 'listings/listing_insights.html', context)
