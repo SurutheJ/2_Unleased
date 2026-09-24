@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  {# Home page: welcome header + the newest available listings. #}
+  <div class="section-head">
+    <div>
+      <h2>Find your next sublease at UIUC</h2>
+      <div class="sub">{{ total_listings }} listing{{ total_listings|pluralize }} on Unleased</div>
+    </div>
+    <a class="pill" href="{% url 'listings:list' %}">Browse all listings &rarr;</a>
+  </div>
+
+  <h3 style="font-size:15px;margin:0 0 14px;">Newest available</h3>
+  <div class="grid">
+    {% for listing in featured %}
+      {% cycle 'g1' 'g2' 'g3' as tint silent %}
+      {% include "listings/partials/_listing_card.html" with tint=tint %}
+    {% empty %}
+      <div class="empty">
+        <div class="empty-icon">{% include "partials/_house_icon.html" %}</div>
+        <h3>No available listings right now</h3>
+        <p>Check back soon, or browse every listing including pending and filled ones.</p>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

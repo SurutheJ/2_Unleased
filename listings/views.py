@@ -16,6 +16,18 @@ LIST_TEMPLATE = 'listings/listing_list.html'
 # Function-based views
 # ---------------------------------------------------------------------------
 
+def home(request):
+    """
+    Home page (/): a welcome header, the total number of listings,
+    and the three newest listings that are still available.
+    """
+    context = {
+        'featured': Listing.objects.filter(status=Listing.Status.AVAILABLE)[:3],
+        'total_listings': Listing.objects.count(),
+    }
+    return render(request, 'listings/home.html', context)
+
+
 def listing_manual(request):
     """FBV 1: load the template by hand and wrap the result in HttpResponse."""
     template = loader.get_template(LIST_TEMPLATE)
