@@ -1,5 +1,5 @@
 <header class="topnav">
-  <a class="logo" href="{% url 'listings:cbv_generic' %}">
+  <a class="logo" href="{% url 'home' %}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M4 11.5L12 4l8 7.5"/>
       <path d="M6 10v9.2c0 .44.36.8.8.8H10v-4.5h4V20h3.2c.44 0 .8-.36.8-.8V10"/>
@@ -8,24 +8,21 @@
     unleased
   </a>
 
-  {# One tab per graded view. The tab for the page we are on is highlighted using the URL name. #}
+  {# Main navigation. Every href uses {% url %} with a route name, never a hard-coded path. #}
+  {# The tab for the current page is highlighted by comparing its URL name. #}
   <nav class="tabs" aria-label="Main">
     {% with current=request.resolver_match.view_name %}
-      <a class="tab {% if current == 'listings:manual' %}active{% endif %}" href="{% url 'listings:manual' %}">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-6 6 6 6"/><path d="M16 6l6 6-6 6"/></svg>
-        <span>HttpResponse FBV</span>
+      <a class="tab {% if current == 'home' %}active{% endif %}" href="{% url 'home' %}">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5L12 4l8 7.5"/><path d="M6 10v10h12V10"/></svg>
+        <span>Home</span>
       </a>
-      <a class="tab {% if current == 'listings:render' %}active{% endif %}" href="{% url 'listings:render' %}">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
-        <span>render() FBV</span>
+      <a class="tab {% if current == 'listings:list' or current == 'listings:detail' %}active{% endif %}" href="{% url 'listings:list' %}">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Browse</span>
       </a>
       <a class="tab {% if current == 'listings:cbv_base' %}active{% endif %}" href="{% url 'listings:cbv_base' %}">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
-        <span>Base CBV</span>
-      </a>
-      <a class="tab {% if current == 'listings:cbv_generic' %}active{% endif %}" href="{% url 'listings:cbv_generic' %}">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span>Generic CBV</span>
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+        <span>Available now</span>
       </a>
     {% endwith %}
   </nav>
