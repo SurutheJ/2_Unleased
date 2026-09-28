@@ -22,6 +22,8 @@
   table.summary td.num, table.summary th.num { text-align: right; }
   table.summary a:hover { text-decoration: underline; }
   .empty-row { color: var(--ink-soft); text-align: center; padding: 18px 6px !important; }
+  .chart-panel { margin-bottom: 30px; }
+  .chart-panel img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius-md); }
 </style>
 {% endblock %}
 
@@ -41,6 +43,17 @@
     <div class="stat"><div class="stat-value">{{ totals.inquiries }}</div><div class="stat-label">Inquiries sent</div></div>
     <div class="stat"><div class="stat-value">{% if totals.avg_rent %}${{ totals.avg_rent|floatformat:"0" }}{% else %}&ndash;{% endif %}</div><div class="stat-label">Average monthly rent</div></div>
   </div>
+
+  {# Server-rendered chart: same status GROUP BY as the table below, drawn with Matplotlib #}
+  <section class="panel chart-panel">
+    <h3>Listings by status (chart)</h3>
+    <p class="sub">Rendered server-side with Matplotlib from a Count('id') aggregation, served as a PNG.</p>
+    <img
+      src="{% url 'listings:insights_chart' %}"
+      alt="Bar chart of listing counts grouped by status: available, pending, and filled"
+      width="420" height="294"
+    >
+  </section>
 
   <div class="panels">
     {# Grouped summary 1 #}

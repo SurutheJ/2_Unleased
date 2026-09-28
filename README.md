@@ -20,6 +20,8 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
 │   ├── urls.py
 │   ├── wsgi.py / asgi.py
 ├── templates/                  # Project-wide templates: base.html + partials (navbar, footer)
+├── static/
+│   └── css/base.css            # Site-wide stylesheet, linked from templates/base.html
 ├── docs/
 │   ├── wireframes/             # UI wireframes/mockups
 │   ├── screenshots/            # Browser-output screenshots (Sections 2 & 3)
@@ -104,6 +106,17 @@ navbar links to **Home**, **Browse** (`/listings/`) and **Available now**
 card links to its own detail page at `/listings/<pk>/` through
 `Listing.get_absolute_url()`, so templates never hand-build listing URLs.
 
+## UI styling
+
+Page styling lives in one place, `static/css/base.css`, linked from
+`templates/base.html` with `{% load static %}` — not inlined per-template.
+It sets the color palette, layout/spacing, the `Poppins` display font used
+for the logo and headings, and a subtle gradient header band. In production
+(`settings/prod.py`), `ManifestStaticFilesStorage` renames each static file
+with a content hash on `collectstatic` (e.g. `base.css` → `base.<hash>.css`)
+so browsers can cache static files indefinitely without ever serving a
+stale one after a deploy.
+
 ## Search and insights
 
 **Search** (`/listings/search/`) is a public GET form that filters listings by
@@ -115,6 +128,21 @@ the private address of any accepted listing; it uses POST and `{% csrf_token %}`
 so the email never appears in the URL. **Insights** (`/listings/insights/`) shows
 ORM aggregations: totals (`count()`, `Avg`) and grouped summaries
 (`values().annotate(Count())`) by status, by lister, and by number of inquiries.
+It also embeds a server-rendered bar chart (`/listings/insights/chart.png`) of
+listing counts by status, generated with Matplotlib from that same
+status-grouped query — see "Data visualization" below.
+
+## Data visualization
+
+`/listings/insights/chart.png` (`listings:insights_chart`) is a Django view
+that aggregates `Listing` counts per status with the ORM, draws a Matplotlib
+bar chart (title, axis labels, and a legend mapping each bar's color to its
+status), and returns it as a PNG `HttpResponse`. The figure is drawn into an
+in-memory `BytesIO` buffer instead of a temp file, and the Matplotlib figure
+is explicitly closed with `plt.close(fig)` right after — otherwise every
+request to the page would leak that figure's memory for the life of the
+server process. The `<img>` tag on the Insights page points straight at this
+URL, so the chart always reflects the current database.
 
 ## Screenshots
 
@@ -161,6 +189,19 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 | POST inquiry lookup results (URL has no email) | `/listings/my-inquiries/` | [a3-s2-02-post-lookup.png](docs/screenshots/a3-s2-02-post-lookup.png) |
 | Aggregation summaries | `/listings/insights/` | [a3-s2-03-insights.png](docs/screenshots/a3-s2-03-insights.png) |
 | `{% empty %}` state for a search with no matches | `/listings/search/?q=zzz` | [a3-s2-04-empty-search.png](docs/screenshots/a3-s2-04-empty-search.png) |
+
+### Section 3: Static files & UI styling
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Home page with `static/css/base.css` applied (Poppins logo, gradient nav) | `/` | [section3-01-home-styled.png](docs/screenshots/section3-01-home-styled.png) |
+| Insights page with the same stylesheet, including the chart panel | `/listings/insights/` | [section3-02-insights-styled.png](docs/screenshots/section3-02-insights-styled.png) |
+
+### Section 4: Data visualization (Matplotlib)
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Bar chart of listings by status (title, axis labels, legend) served as a PNG | `/listings/insights/chart.png` | [section4-01-status-chart.png](docs/screenshots/section4-01-status-chart.png) |
 
 ## Branching strategy
 

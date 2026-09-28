@@ -41,3 +41,21 @@ CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+
+# ---- Static file cache busting ----
+# Appends a content hash to every static filename at `collectstatic` time
+# (e.g. css/base.css -> css/base.3f2a91c4d8e2.css) and rewrites every
+# {% static %} reference to match. Browsers can cache static files
+# forever since the URL itself changes whenever the file's contents do —
+# no manual version query strings to remember to bump.
+#
+# Uses the STORAGES setting (Django >=4.2) rather than the legacy
+# STATICFILES_STORAGE name, which newer Django versions ignore.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage',
+    },
+}
