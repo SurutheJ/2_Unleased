@@ -238,3 +238,80 @@ Aggregations (Insights page)
   What I learned: aggregate() squeezes the whole table into one answer, while
   values() + annotate() first splits rows into groups and then counts each group.
   The database does the math, so Python never has to loop over every listing.
+
+------------------------------------------------------------
+Section 3: Static Files & UI Styling
+------------------------------------------------------------
+Static file organization choice:
+  Went with a project-level static/ directory (static/css/base.css) rather
+  than an app-level static/listings/ folder, because the stylesheet styles
+  things shared across every app's pages (the nav, page shell, cards, footer)
+  — it isn't specific to listings or accounts. settings/base.py now has
+  STATICFILES_DIRS = [BASE_DIR / 'static'] (source files we author) and
+  STATIC_ROOT = BASE_DIR / 'staticfiles' (the collectstatic output for
+  deployment, already gitignored — same pattern as media/). If an app ever
+  needs its own scoped styles, that'd go in <app>/static/<app>/... instead,
+  following Django's namespacing convention so filenames can't collide.
+
+  This also resolves the concern noted in the Section 3: Templates entry
+  above ("a separate static CSS file would not load when DEBUG=False without
+  extra static-file setup") — that setup is what STATICFILES_DIRS/STATIC_ROOT
+  plus `python manage.py collectstatic` provides.
+
+What changed:
+  - templates/base.html no longer has an inline <style> block. It now does
+    {% load static %} and <link rel="stylesheet" href="{% static 'css/base.css' %}">.
+    Page-specific styles (e.g. the insights page's table/chart panel CSS)
+    stay inline in each template's {% block extra_head %}, since those aren't
+    shared.
+  - Visible UI changes in base.css: a Poppins display font for the logo and
+    section headings (loaded via @import in the CSS file itself), a subtle
+    pink gradient band behind the top nav, the active tab's underline now
+    uses the accent color instead of plain black, and card thumbnails lift
+    with a shadow on hover.
+
+Cache busting (bonus):
+  settings/prod.py sets the 'staticfiles' backend in STORAGES to
+  ManifestStaticFilesStorage (the modern STORAGES dict, not the legacy
+  STATICFILES_STORAGE name — tried that first and it silently did nothing
+  on the Django version actually installed here, since newer Django only
+  reads STORAGES). On `collectstatic`, this renames every static file with a
+  hash of its contents (verified: css/base.css -> css/base.73209adcd242.css)
+  and rewrites every {% static %} tag to point at the hashed name. The
+  upside: we can tell browsers to cache static files forever (they never go
+  stale, because a changed file gets a new URL automatically), without
+  needing a manual version query string that's easy to forget to bump. Only
+  enabled in prod, not dev.py — running collectstatic on every dev-server
+  reload would be annoying, and dev doesn't need long-lived caching anyway.
+
+------------------------------------------------------------
+Section 4: Data Visualization (Matplotlib)
+------------------------------------------------------------
+What was added:
+  listings/views.py: listing_status_chart(request), routed at
+  /listings/insights/chart.png (name=listings:insights_chart). Embedded on
+  the Insights page via a plain <img src="{% url 'listings:insights_chart' %}">.
+
+ORM aggregation:
+  Reuses the same GROUP BY as the Insights page's "by status" table:
+    Listing.objects.values('status').annotate(total=Count('id'))
+  Matplotlib never touches the database directly — it only receives the
+  three (label, count) pairs the ORM already computed.
+
+Chart generation:
+  A Matplotlib bar chart (one bar per status: available/pending/filled),
+  colored to match the same status colors used elsewhere in the UI
+  (static/css/base.css's .status--available/--pending/--filled badges), with
+  a title, x/y axis labels, bar-value labels, and a legend mapping each color
+  back to its status name.
+
+Memory awareness (BytesIO):
+  matplotlib.use('Agg') is set before importing pyplot, so it never tries to
+  open a display window — required on a server with no GUI. The figure is
+  drawn to an in-memory io.BytesIO buffer (fig.savefig(buffer, format='png'))
+  instead of a temp file on disk, which avoids filesystem I/O and leftover
+  files entirely. Immediately after, plt.close(fig) frees the figure from
+  Matplotlib's internal state. Without that close(), each request to the
+  chart URL would keep its figure alive in memory for as long as the server
+  process runs — a slow memory leak that would eventually crash the process
+  under real traffic.

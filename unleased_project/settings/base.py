@@ -104,6 +104,10 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+# Project-level static source (CSS/JS/images we author) vs. STATIC_ROOT
+# below, which is only the `collectstatic` output for deployment.
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Point Django to our custom user model

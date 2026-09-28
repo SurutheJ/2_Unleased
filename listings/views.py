@@ -1,3 +1,9 @@
+from io import BytesIO
+
+import matplotlib
+matplotlib.use('Agg')  # non-interactive backend: no display server needed, safe on any host
+import matplotlib.pyplot as plt
+
 from django.db.models import Avg, Count, Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -234,3 +240,63 @@ def listing_insights(request):
         'most_inquired': most_inquired,
     }
     return render(request, 'listings/listing_insights.html', context)
+
+
+# Matches the badge colors already used for each status in static/css/base.css,
+# so the chart and the rest of the UI agree on what each status "means".
+STATUS_COLORS = {
+    Listing.Status.AVAILABLE: '#17683A',
+    Listing.Status.PENDING: '#8A5A00',
+    Listing.Status.FILLED: '#9A2A18',
+}
+
+
+def listing_status_chart(request):
+    """
+    Renders a bar chart of listing counts per status as a PNG image.
+
+    The ORM does the aggregation (one GROUP BY query); matplotlib only
+    draws the numbers it's handed. The figure is written to an in-memory
+    BytesIO buffer rather than a temp file on disk, and explicitly closed
+    with plt.close(fig) afterwards — each request would otherwise leak
+    the figure's memory for the lifetime of the server process.
+    """
+    status_labels = dict(Listing.Status.choices)
+    counts = (
+        Listing.objects
+        .values('status')
+        .annotate(total=Count('id'))
+        .order_by('status')
+    )
+    # Always show all three statuses, even ones with zero listings right now.
+    totals_by_status = {row['status']: row['total'] for row in counts}
+    labels = [status_labels[s] for s in Listing.Status.values]
+    values = [totals_by_status.get(s, 0) for s in Listing.Status.values]
+    colors = [STATUS_COLORS[s] for s in Listing.Status.values]
+
+    fig, ax = plt.subplots(figsize=(5, 3.5), dpi=120)
+    bars = ax.bar(labels, values, color=colors)
+    ax.bar_label(bars, padding=3)
+    ax.set_title('Listings by status')
+    ax.set_xlabel('Status')
+    ax.set_ylabel('Number of listings')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.yaxis.get_major_locator().set_params(integer=True)
+    ax.legend(
+        handles=[
+            plt.Rectangle((0, 0), 1, 1, color=STATUS_COLORS[s])
+            for s in Listing.Status.values
+        ],
+        labels=labels,
+        title='Status',
+        loc='upper right',
+        frameon=False,
+    )
+    fig.tight_layout()
+
+    buffer = BytesIO()
+    fig.savefig(buffer, format='png')
+    plt.close(fig)  # free the figure's memory now that it's in `buffer`
+    buffer.seek(0)
+    return HttpResponse(buffer.getvalue(), content_type='image/png')

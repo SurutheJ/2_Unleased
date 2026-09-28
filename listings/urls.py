@@ -13,5 +13,6 @@ urlpatterns = [
     path('search/', views.listing_search, name='search'),      # GET search (public, shareable)
     path('my-inquiries/', views.InquiryLookupView.as_view(), name='inquiries'),  # POST search (private)
     path('insights/', views.listing_insights, name='insights'),  # aggregations
+    path('insights/chart.png', views.listing_status_chart, name='insights_chart'),  # matplotlib PNG
     path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),
 ]
