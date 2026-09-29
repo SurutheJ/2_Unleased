@@ -14,5 +14,7 @@ urlpatterns = [
     path('my-inquiries/', views.InquiryLookupView.as_view(), name='inquiries'),  # POST search (private)
     path('insights/', views.listing_insights, name='insights'),  # aggregations
     path('insights/chart.png', views.listing_status_chart, name='insights_chart'),  # matplotlib PNG
-    path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),
+    path('api/', views.listing_api, name='api'),                  # JSON API (JsonResponse)
+    path('api.txt', views.listing_api_text, name='api_text'),     # same data, HttpResponse/text
+    path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),  # GET show + POST inquire
 ]

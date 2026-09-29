@@ -315,3 +315,90 @@ Memory awareness (BytesIO):
   chart URL would keep its figure alive in memory for as long as the server
   process runs — a slow memory leak that would eventually crash the process
   under real traffic.
+
+------------------------------------------------------------
+A3 Section 5: Forms & User Input
+------------------------------------------------------------
+What was added:
+  - The listing detail page (/listings/<pk>/, ListingDetailView) got an
+    "Inquire about this listing" POST form (.edu email + message).
+    ListingDetailView is a generic DetailView with an added post() method,
+    so the same URL now handles GET (show the listing) and POST (create an
+    Inquiry) — one CBV, two HTTP methods.
+  - The GET search form (/listings/search/, from A3 Section 2) already
+    covered the "GET form" requirement, so nothing new was needed there —
+    it's referenced again here as the GET half of this section.
+
+Why the inquiry form is POST, not GET:
+  Submitting it creates a new Inquiry row — real data modification, not a
+  read. If it were GET, refreshing the confirmation page or a crawler
+  revisiting the URL could resubmit the same inquiry, and the seeker's
+  .edu email would sit in the URL/browser history/server logs the same way
+  we already ruled out for the "my inquiries" lookup in A3 Section 2.
+  {% csrf_token %} on the form protects it: Django rejects the POST with a
+  403 if the token is missing, which I verified with curl (no token -> 403,
+  valid token -> 200 and a real Inquiry row in the DB).
+
+CBV GET/POST implementation notes:
+  ListingDetailView.post() re-fetches self.object (get_object()), reads
+  edu_email/message from request.POST, looks up the seeker by
+  UnleasedUser.objects.filter(edu_email__iexact=...), and validates: email
+  must end in .edu, message can't be empty, the email must match an
+  existing account, and a seeker can't inquire about their own listing.
+  On success it calls Inquiry.objects.get_or_create(listing=, seeker=,
+  defaults={'message': ...}) — get_or_create (not create) means resubmitting
+  the form after a page refresh doesn't violate the
+  unique_inquiry_per_seeker_listing constraint or create a duplicate row.
+  Either way (error or success) it re-renders the same template via
+  self.get_context_data(...) + self.render_to_response(...), so the user
+  never leaves the listing page.
+
+Limitation (same one noted in A3 Section 2):
+  There's still no real login/session system, so "who is the seeker" is
+  determined by a typed .edu email rather than request.user. Anyone who
+  knows someone else's .edu email could submit an inquiry as them. This is
+  fine for demonstrating GET vs POST vs CSRF vs CBV method handling, but a
+  real version would require the seeker to be logged in first.
+
+------------------------------------------------------------
+A3 Section 6: Creating APIs
+------------------------------------------------------------
+What was added:
+  listing_api        (FBV, JsonResponse)   /listings/api/     name=listings:api
+  listing_api_text   (FBV, HttpResponse)   /listings/api.txt  name=listings:api_text
+  Both reuse a shared _filter_listings(request) helper for the query-param
+  filtering (q, max_rent, min_bedrooms, status — the same filters as
+  listing_search() from A3 Section 2), so the two endpoints are guaranteed
+  to agree on which listings match a given set of filters.
+
+How I'm planning on creating an API for this project:
+  Keep it as plain Django views returning JsonResponse rather than pulling
+  in Django REST Framework — the project doesn't need serializer classes,
+  pagination, or auth-token machinery yet, and a JsonResponse view is
+  enough to expose read-only listing data to another program. If the API
+  needs to grow (nested objects, POST-to-create-a-listing over the API,
+  pagination for hundreds of listings), that's the point where I'd
+  introduce DRF instead of hand-rolling more of this by hand.
+
+What kind of data I'm planning to serve:
+  For now, listing_api() serves public Listing fields only: id, title,
+  monthly_rent, bedrooms, bathrooms, status, the lister's username, and the
+  detail-page URL. It deliberately leaves out street_address and
+  unit_number — the same "private until an inquiry is accepted" rule the
+  HTML pages already follow (A3 Section 2) applies here too, so the JSON
+  API can't be used to route around that privacy rule. Longer-term, once
+  accounts has real auth, I'd add an authenticated endpoint that also
+  returns a seeker's own Inquiry statuses (mirroring "my inquiries") and
+  maybe a POST endpoint for creating a listing via API, but neither of
+  those exists yet.
+
+HttpResponse vs JsonResponse, and the MIME type difference:
+  listing_api_text() runs the exact same _filter_listings() queryset but
+  formats it as tab-separated plain text and returns it via a plain
+  HttpResponse(..., content_type='text/plain'). listing_api() hands a dict
+  to JsonResponse, which serializes it and sets Content-Type:
+  application/json for you — you never set that header by hand. Checked
+  both with `curl -i`: same filtered data, but the Content-Type response
+  header differs (text/plain vs application/json), and a browser opening
+  listing_api_text() shows raw lines of text while listing_api() shows (or
+  offers to download/format, depending on the browser) structured JSON.

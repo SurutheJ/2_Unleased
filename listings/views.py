@@ -5,12 +5,13 @@ matplotlib.use('Agg')  # non-interactive backend: no display server needed, safe
 import matplotlib.pyplot as plt
 
 from django.db.models import Avg, Count, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from django.views import View
 from django.views.generic import DetailView, ListView
 
+from accounts.models import UnleasedUser
 from .models import Inquiry, Listing
 
 # All four list views share ONE template. The views differ in how they fetch
@@ -78,9 +79,48 @@ class ListingListView(ListView):
 
 
 class ListingDetailView(DetailView):
-    """Generic DetailView (default template: listings/listing_detail.html)."""
+    """
+    Generic DetailView, adapted to also handle POST on the same URL
+    (/listings/<pk>/):
+      GET  -> the default DetailView behaviour: show the listing.
+      POST -> create an Inquiry for the seeker who submitted the
+              "Inquire about this listing" form on that page.
+
+    This is real data modification (a new Inquiry row), so it goes through
+    POST + {% csrf_token %}, not GET query params like listing_search().
+    """
     model = Listing
     context_object_name = 'listing'
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        edu_email = request.POST.get('edu_email', '').strip().lower()
+        message = request.POST.get('message', '').strip()
+
+        error = ''
+        sent = False
+        seeker = UnleasedUser.objects.filter(edu_email__iexact=edu_email).first()
+
+        if not edu_email.endswith('.edu'):
+            error = 'Please enter the .edu email you used on Unleased.'
+        elif not message:
+            error = 'Please include a short message for the lister.'
+        elif seeker is None:
+            error = 'No Unleased account found for that email — sign up first.'
+        elif seeker.pk == self.object.lister_id:
+            error = "You can't send an inquiry about your own listing."
+        else:
+            # get_or_create respects the unique_inquiry_per_seeker_listing
+            # constraint: resubmitting the form won't create duplicate rows.
+            Inquiry.objects.get_or_create(
+                listing=self.object,
+                seeker=seeker,
+                defaults={'message': message},
+            )
+            sent = True
+
+        context = self.get_context_data(inquiry_error=error, inquiry_sent=sent)
+        return self.render_to_response(context)
 
 
 # ---------------------------------------------------------------------------
@@ -300,3 +340,76 @@ def listing_status_chart(request):
     plt.close(fig)  # free the figure's memory now that it's in `buffer`
     buffer.seek(0)
     return HttpResponse(buffer.getvalue(), content_type='image/png')
+
+
+# ---------------------------------------------------------------------------
+# A3 Section 6: JSON APIs
+# ---------------------------------------------------------------------------
+
+def _filter_listings(request):
+    """Shared query-param filtering, reused by the API and its plain-text twin."""
+    q = request.GET.get('q', '').strip()
+    max_rent = request.GET.get('max_rent', '').strip()
+    min_bedrooms = request.GET.get('min_bedrooms', '').strip()
+    status = request.GET.get('status', '').strip()
+
+    results = Listing.objects.select_related('lister')
+    if q:
+        results = results.filter(
+            Q(title__icontains=q)
+            | Q(description__icontains=q)
+            | Q(building_name__icontains=q)
+        )
+    if max_rent.isdigit():
+        results = results.filter(monthly_rent__lte=max_rent)
+    if min_bedrooms.isdigit():
+        results = results.filter(bedrooms__gte=min_bedrooms)
+    if status in Listing.Status.values:
+        results = results.filter(status=status)
+    return results
+
+
+def listing_api(request):
+    """
+    Public JSON API (FBV): GET /listings/api/?q=...&max_rent=...&status=...
+
+    Same filters as listing_search(), but instead of rendering HTML for a
+    person, it returns machine-readable JSON for another program to consume.
+    JsonResponse serializes the dict to JSON and sets
+    Content-Type: application/json automatically.
+    """
+    results = _filter_listings(request)
+    data = {
+        'count': results.count(),
+        'results': [
+            {
+                'id': listing.id,
+                'title': listing.title,
+                'monthly_rent': str(listing.monthly_rent),
+                'bedrooms': listing.bedrooms,
+                'bathrooms': str(listing.bathrooms),
+                'status': listing.status,
+                'lister': listing.lister.username,
+                'url': listing.get_absolute_url(),
+            }
+            for listing in results
+        ],
+    }
+    return JsonResponse(data)
+
+
+def listing_api_text(request):
+    """
+    Same data and same query-param filters as listing_api(), but returned
+    with a plain HttpResponse as tab-separated text instead of JSON.
+
+    Compare this response's Content-Type header (text/plain) against
+    listing_api()'s (application/json) — same underlying queryset, two very
+    different responses depending on which HttpResponse subclass builds it.
+    """
+    results = _filter_listings(request)
+    lines = [
+        f"{listing.id}\t{listing.title}\t${listing.monthly_rent}/mo\t{listing.status}"
+        for listing in results
+    ]
+    return HttpResponse('\n'.join(lines) or 'No listings match.', content_type='text/plain')
