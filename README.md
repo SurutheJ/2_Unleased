@@ -132,6 +132,49 @@ It also embeds a server-rendered bar chart (`/listings/insights/chart.png`) of
 listing counts by status, generated with Matplotlib from that same
 status-grouped query — see "Data visualization" below.
 
+## Forms & user input
+
+Two forms demonstrate the GET/POST split, and one CBV handles both verbs on
+the same URL:
+
+- **GET form — search** (`/listings/search/`, already covered under
+  "Search and insights" above): filters live in the URL as query params, so
+  the page never modifies data and results are shareable/bookmarkable.
+- **POST form — send an inquiry** (`/listings/<pk>/`, `listings:detail`):
+  the listing detail page includes an "Inquire about this listing" form
+  (`.edu` email + message). Submitting it **creates** an `Inquiry` row —
+  real data modification — so it uses `method="post"` and
+  `{% csrf_token %}`, never GET query params. Django rejects the POST with
+  403 if the token is missing or invalid.
+- **CBV handling both GET and POST**: `ListingDetailView` (`listings/views.py`)
+  is a generic `DetailView` with an added `post()` method. `GET` renders the
+  listing as usual; `POST` validates the submitted email/message, looks up
+  the seeker by `.edu` email, and calls `Inquiry.objects.get_or_create(...)`
+  (which also respects the `unique_inquiry_per_seeker_listing` constraint,
+  so resubmitting the form can't create a duplicate inquiry).
+
+## Creating APIs
+
+Two endpoints in `listings/views.py` serve the same filtered `Listing` data,
+but through different `HttpResponse` subclasses — useful for comparing them
+directly:
+
+| Endpoint | URL name | Response type | Content-Type |
+|---|---|---|---|
+| `listing_api` | `listings:api` (`/listings/api/`) | `JsonResponse` | `application/json` |
+| `listing_api_text` | `listings:api_text` (`/listings/api.txt`) | `HttpResponse` | `text/plain` |
+
+Both are function-based views and accept the same query-param filters as
+`listing_search()` — `q`, `max_rent`, `min_bedrooms`, `status` — e.g.
+`/listings/api/?max_rent=800&status=available`. `listing_api()` builds a
+plain Python dict (`count` + a list of listing fields) and hands it to
+`JsonResponse`, which serializes it to JSON and sets the response header
+automatically. `listing_api_text()` runs the identical filtered queryset
+through `_filter_listings()` but formats it as tab-separated plain text
+inside a manually-constructed `HttpResponse`. Opening both URLs side by side
+shows the same underlying data, but the browser renders one as raw text and
+lets tools like `curl -i` show the different `Content-Type` headers.
+
 ## Data visualization
 
 `/listings/insights/chart.png` (`listings:insights_chart`) is a Django view
@@ -202,6 +245,21 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 | What it shows | URL | Screenshot |
 |---|---|---|
 | Bar chart of listings by status (title, axis labels, legend) served as a PNG | `/listings/insights/chart.png` | [section4-01-status-chart.png](docs/screenshots/section4-01-status-chart.png) |
+
+### A3 Section 5: Forms & User Input
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| GET search form with filters in the URL (see also Section 2 above) | `/listings/search/?max_rent=800` | [a3-s2-01-get-search.png](docs/screenshots/a3-s2-01-get-search.png) |
+| POST inquiry form on the listing detail page, with `{% csrf_token %}` visible in page source | `/listings/<pk>/` | [a3-s5-01-inquiry-form.png](docs/screenshots/a3-s5-01-inquiry-form.png) |
+| Successful POST: "Your inquiry was sent!" confirmation from the same CBV | `/listings/<pk>/` | [a3-s5-02-inquiry-sent.png](docs/screenshots/a3-s5-02-inquiry-sent.png) |
+
+### A3 Section 6: Creating APIs
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Raw JSON response (`Content-Type: application/json`) | `/listings/api/?max_rent=800` | [a3-s6-01-json-api.png](docs/screenshots/a3-s6-01-json-api.png) |
+| Same filtered data as plain text (`Content-Type: text/plain`) | `/listings/api.txt?max_rent=800` | [a3-s6-02-api-text.png](docs/screenshots/a3-s6-02-api-text.png) |
 
 ## Branching strategy
 
