@@ -1,3 +1,4 @@
+import csv
 import math
 from io import BytesIO
 
@@ -9,6 +10,7 @@ import requests
 from django.db.models import Avg, Count, Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils import timezone
 from django.template import loader
 from django.views import View
 from django.views.generic import DetailView, ListView
@@ -526,3 +528,122 @@ def listing_proximity_page(request):
     """HTML page: pick a listing, fetch listing_proximity() client-side, show the result."""
     context = {'listings': Listing.objects.select_related('lister')}
     return render(request, 'listings/listing_proximity.html', context)
+
+
+# ---------------------------------------------------------------------------
+# Part 3: CSV / JSON export + reports page
+# ---------------------------------------------------------------------------
+
+# Exports are public downloads, so street_address, lease_document and
+# raw_whatsapp_text are deliberately left out (same privacy rule as the
+# rest of the app: the address is only revealed after an accepted inquiry).
+EXPORT_FIELDS = [
+    'id', 'title', 'building_name', 'city', 'state', 'zip_code',
+    'monthly_rent', 'utilities_included', 'bedrooms', 'bathrooms',
+    'is_furnished', 'status', 'available_from', 'available_until',
+    'lister', 'is_property_verified',
+]
+
+
+def _export_rows():
+    """Listings ordered by id, as plain dicts of strings/bools/ints (shared by CSV and JSON)."""
+    listings = Listing.objects.select_related('lister').order_by('id')
+    return [
+        {
+            'id': l.id,
+            'title': l.title,
+            'building_name': l.building_name,
+            'city': l.city,
+            'state': l.state,
+            'zip_code': l.zip_code,
+            'monthly_rent': str(l.monthly_rent),
+            'utilities_included': l.utilities_included,
+            'bedrooms': l.bedrooms,
+            'bathrooms': str(l.bathrooms),
+            'is_furnished': l.is_furnished,
+            'status': l.status,
+            'available_from': l.available_from.isoformat(),
+            'available_until': l.available_until.isoformat(),
+            'lister': l.lister.username,
+            'is_property_verified': l.is_property_verified,
+        }
+        for l in listings
+    ]
+
+
+def _export_filename(extension):
+    """listings_YYYY-MM-DD_HH-MM.<ext>, in the project's local time zone."""
+    return f"listings_{timezone.localtime():%Y-%m-%d_%H-%M}.{extension}"
+
+
+def export_listings_csv(request):
+    """Download every listing as CSV: header row first, then one row per listing."""
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{_export_filename("csv")}"'
+    writer = csv.DictWriter(response, fieldnames=EXPORT_FIELDS)
+    writer.writeheader()
+    writer.writerows(_export_rows())
+    return response
+
+
+def export_listings_json(request):
+    """Download every listing as pretty-printed JSON with generated_at / record_count metadata."""
+    rows = _export_rows()
+    response = JsonResponse(
+        {
+            'generated_at': timezone.now().isoformat(),
+            'record_count': len(rows),
+            'listings': rows,
+        },
+        json_dumps_params={'indent': 2},
+    )
+    response['Content-Disposition'] = f'attachment; filename="{_export_filename("json")}"'
+    return response
+
+
+def listing_reports(request):
+    """
+    Reports page: totals line, two grouped summaries, and the export buttons.
+
+    Both grouped summaries use conditional aggregation so "active vs all"
+    comes from one query: Count('id') is every row in the group, and
+    Count('id', filter=Q(...)) only counts rows matching the condition.
+    """
+    status_labels = dict(Listing.Status.choices)
+    totals = {
+        'listings': Listing.objects.count(),
+        'inquiries': Inquiry.objects.count(),
+        'listers': UnleasedUser.objects.filter(listings__isnull=False).distinct().count(),
+        'avg_rent': Listing.objects.aggregate(avg=Avg('monthly_rent'))['avg'],
+    }
+
+    # Summary 1: listings per status (SQL GROUP BY), with average rent.
+    by_status = [
+        {**row, 'label': status_labels.get(row['status'], row['status'])}
+        for row in (
+            Listing.objects
+            .values('status')
+            .annotate(total=Count('id'), avg_rent=Avg('monthly_rent'))
+            .order_by('-total', 'status')
+        )
+    ]
+
+    # Summary 2: inquiries per listing, "active" (pending/accepted) vs all.
+    inquiries_per_listing = (
+        Listing.objects
+        .annotate(
+            all_inquiries=Count('inquiries'),
+            active_inquiries=Count(
+                'inquiries',
+                filter=~Q(inquiries__status=Inquiry.Status.DECLINED),
+            ),
+        )
+        .order_by('-all_inquiries', 'title')
+    )
+
+    context = {
+        'totals': totals,
+        'by_status': by_status,
+        'inquiries_per_listing': inquiries_per_listing,
+    }
+    return render(request, 'listings/reports.html', context)
