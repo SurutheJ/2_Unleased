@@ -20,5 +20,8 @@ urlpatterns = [
     path('api/proximity/', views.listing_proximity, name='api_proximity'),      # external geocoding API (keyless)
     path('charts/', views.vega_charts, name='vega_charts'),        # two embedded Vega-Lite charts
     path('proximity/', views.listing_proximity_page, name='proximity'),  # HTML page calling api_proximity via fetch()
+    path('reports/', views.listing_reports, name='reports'),                  # HTML report + export buttons
+    path('export/listings.csv', views.export_listings_csv, name='export_csv'),   # CSV download
+    path('export/listings.json', views.export_listings_json, name='export_json'),  # JSON download
     path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),  # GET show + POST inquire
 ]
