@@ -1,0 +1,26 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Monthly rent vs. bedroom count across all listings, read live from /listings/api/, drilling into its results array.",
+  "title": "Monthly rent vs. bedrooms",
+  "data": {
+    "url": "http://127.0.0.1:8000/listings/api/",
+    "format": {
+      "type": "json",
+      "property": "results",
+      "parse": {"monthly_rent": "number"}
+    }
+  },
+  "mark": "point",
+  "encoding": {
+    "x": {"field": "bedrooms", "type": "quantitative", "title": "Bedrooms"},
+    "y": {"field": "monthly_rent", "type": "quantitative", "title": "Monthly rent ($)"},
+    "color": {"field": "status", "type": "nominal", "title": "Status"},
+    "tooltip": [
+      {"field": "title", "type": "nominal"},
+      {"field": "monthly_rent", "type": "quantitative", "title": "Rent"},
+      {"field": "bedrooms", "type": "quantitative"}
+    ]
+  },
+  "width": 360,
+  "height": 300
+}

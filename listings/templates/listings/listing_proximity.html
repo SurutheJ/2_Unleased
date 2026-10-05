@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Distance from campus{% endblock %}
+
+{% block extra_head %}
+<style>
+  .proximity-box {
+    display: flex; gap: 10px; align-items: end; flex-wrap: wrap;
+    background: var(--bg-card); border-radius: var(--radius-md);
+    padding: 16px; margin-bottom: 18px; max-width: 620px;
+  }
+  .proximity-box div { flex: 1; min-width: 240px; }
+  .proximity-box label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+  .proximity-box select {
+    width: 100%; font: inherit; font-size: 13.5px;
+    padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  }
+  .btn {
+    font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    padding: 10px 16px; border-radius: 8px; border: 0; background: var(--accent); color: #fff;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn:disabled { opacity: 0.6; cursor: default; }
+  .note { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 22px; max-width: 620px; }
+  #result { max-width: 620px; }
+  #result .card {
+    border: 1px solid var(--line); border-radius: var(--radius-md); padding: 14px 16px;
+  }
+  #result .error { color: #9A2A18; font-weight: 600; font-size: 13.5px; }
+  #result .miles { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section-head">
+    <div>
+      <h2>Distance from campus</h2>
+      <div class="sub">Pick a listing — its address is geocoded live via OpenStreetMap's Nominatim API and compared to the Alma Mater.</div>
+    </div>
+    <span class="pill">External API (keyless)</span>
+  </div>
+
+  <div class="proximity-box">
+    <div>
+      <label for="listing-select">Listing</label>
+      <select id="listing-select">
+        {% for listing in listings %}
+          <option value="{{ listing.pk }}">{{ listing.title }} &mdash; {{ listing.city }}, {{ listing.state }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn" id="check-btn" type="button">Check distance</button>
+  </div>
+  <p class="note">
+    This calls our own <code>{% url 'listings:api_proximity' %}?listing_id=...</code> endpoint, which
+    geocodes the listing's private address server-side (never sent to your browser) and returns the
+    distance in miles, computed fresh on every request — nothing from the external API is stored.
+  </p>
+
+  <div id="result"></div>
+
+  <script>
+    const btn = document.getElementById('check-btn');
+    const select = document.getElementById('listing-select');
+    const result = document.getElementById('result');
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      result.innerHTML = '<div class="card">Looking up…</div>';
+      try {
+        const res = await fetch(`{% url 'listings:api_proximity' %}?listing_id=${select.value}`);
+        const data = await res.json();
+        if (!res.ok) {
+          result.innerHTML = `<div class="card error">${data.error || 'Something went wrong.'}</div>`;
+        } else {
+          result.innerHTML = `
+            <div class="card">
+              <div>${data.title}</div>
+              <div class="miles">${data.distance_from_campus_miles} mi</div>
+              <div class="note" style="margin:6px 0 0">from the Alma Mater, via ${data.geocoder}</div>
+            </div>`;
+        }
+      } catch (err) {
+        result.innerHTML = '<div class="card error">Network error reaching our own API.</div>';
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+{% endblock %}
