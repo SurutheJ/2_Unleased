@@ -1,12 +1,14 @@
+import math
 from io import BytesIO
 
 import matplotlib
 matplotlib.use('Agg')  # non-interactive backend: no display server needed, safe on any host
 import matplotlib.pyplot as plt
+import requests
 
 from django.db.models import Avg, Count, Q
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.template import loader
 from django.views import View
 from django.views.generic import DetailView, ListView
@@ -413,3 +415,114 @@ def listing_api_text(request):
         for listing in results
     ]
     return HttpResponse('\n'.join(lines) or 'No listings match.', content_type='text/plain')
+
+
+def listing_api_by_status(request):
+    """
+    Chart-ready JSON (FBV): GET /listings/api/by-status/
+
+    Same GROUP BY as the Insights page's "by status" table, but returned as
+    a flat JSON array (not wrapped in a {"results": [...]} envelope) so it
+    can be pointed at directly from a Vega-Lite spec's data.url. Always
+    includes all three statuses, even ones with zero listings right now, so
+    the bar chart doesn't silently drop a category.
+    """
+    status_labels = dict(Listing.Status.choices)
+    counts = (
+        Listing.objects
+        .values('status')
+        .annotate(total=Count('id'))
+        .order_by('status')
+    )
+    totals_by_status = {row['status']: row['total'] for row in counts}
+    data = [
+        {'status': status_labels[s], 'total': totals_by_status.get(s, 0)}
+        for s in Listing.Status.values
+    ]
+    return JsonResponse(data, safe=False)
+
+
+def vega_charts(request):
+    """Page embedding the two Vega-Lite charts, each reading a listings:api* endpoint directly."""
+    return render(request, 'listings/vega_charts.html')
+
+
+# ---------------------------------------------------------------------------
+# A4 Part 2: external API integration (keyless) + triangulation
+# ---------------------------------------------------------------------------
+
+# UIUC's Alma Mater statue — used as the fixed "campus center" reference point.
+CAMPUS_LAT = 40.1020
+CAMPUS_LON = -88.2272
+
+# Nominatim (OpenStreetMap) requires a descriptive User-Agent identifying the
+# app, not a browser string, as a condition of its free/keyless usage policy.
+GEOCODER_USER_AGENT = 'Unleased-DjangoCourseProject/1.0 (+https://github.com/SurutheJ/2_Unleased)'
+
+
+def _haversine_miles(lat1, lon1, lat2, lon2):
+    """Great-circle distance between two lat/lon points, in miles."""
+    earth_radius_miles = 3958.8
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+    a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
+    return earth_radius_miles * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+
+def listing_proximity(request):
+    """
+    PUBLIC JSON API (FBV): GET /listings/api/proximity/?listing_id=<pk>
+
+    Pulls one Listing from our own database (internal data), geocodes its
+    street address through Nominatim — a keyless public API — and returns
+    how far that listing is from the UIUC campus. The external geocode
+    (lat/lon) is only ever held in this request's local variables; it is
+    never written to the database, so re-running this view always makes a
+    fresh external call rather than reading a stale, stored result.
+
+    The street address itself is private (same rule as everywhere else in
+    this app — see listing_search()/InquiryLookupView): it is sent to the
+    geocoder server-side to compute a distance, but it is never echoed back
+    in the JSON response.
+    """
+    listing_id = request.GET.get('listing_id', '').strip()
+    if not listing_id.isdigit():
+        return JsonResponse({'error': 'Provide an existing listing via ?listing_id=<id>.'}, status=400)
+
+    listing = get_object_or_404(Listing, pk=listing_id)
+    full_address = f"{listing.street_address}, {listing.city}, {listing.state} {listing.zip_code}"
+
+    try:
+        geocode_response = requests.get(
+            'https://nominatim.openstreetmap.org/search',
+            params={'q': full_address, 'format': 'json', 'limit': 1},
+            headers={'User-Agent': GEOCODER_USER_AGENT},
+            timeout=5,
+        )
+        geocode_response.raise_for_status()
+    except requests.RequestException as exc:
+        return JsonResponse({'error': f'Could not reach the geocoding service: {exc}'}, status=502)
+
+    geocode_results = geocode_response.json()
+    if not geocode_results:
+        return JsonResponse({'error': 'That listing\'s address could not be geocoded.'}, status=404)
+
+    listing_lat = float(geocode_results[0]['lat'])
+    listing_lon = float(geocode_results[0]['lon'])
+    distance_miles = _haversine_miles(CAMPUS_LAT, CAMPUS_LON, listing_lat, listing_lon)
+
+    return JsonResponse({
+        'listing_id': listing.id,
+        'title': listing.title,
+        'building_name': listing.building_name,
+        'monthly_rent': str(listing.monthly_rent),
+        'distance_from_campus_miles': round(distance_miles, 2),
+        'geocoder': 'nominatim.openstreetmap.org',
+    })
+
+
+def listing_proximity_page(request):
+    """HTML page: pick a listing, fetch listing_proximity() client-side, show the result."""
+    context = {'listings': Listing.objects.select_related('lister')}
+    return render(request, 'listings/listing_proximity.html', context)

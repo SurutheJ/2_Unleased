@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Charts{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+<style>
+  .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; }
+  .chart-card { background: var(--bg-card); border-radius: var(--radius-md); padding: 18px; }
+  .chart-card h3 { margin: 0 0 4px; font-size: 15px; }
+  .chart-card .sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 14px; }
+  .chart-card code { background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11.5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section-head">
+    <div>
+      <h2>Charts</h2>
+      <div class="sub">Vega-Lite charts, each built from a live internal JSON API — not inline data.</div>
+    </div>
+    <span class="pill">Vega-Lite &middot; data.url</span>
+  </div>
+
+  <div class="chart-grid">
+    <section class="chart-card">
+      <h3>Listings by status (bar)</h3>
+      <p class="sub">Source: <code>{% url 'listings:api_by_status' %}</code></p>
+      <div id="chart-bar"></div>
+    </section>
+
+    <section class="chart-card">
+      <h3>Monthly rent vs. bedrooms (scatter)</h3>
+      <p class="sub">Source: <code>{% url 'listings:api' %}</code> (drills into its <code>results</code> array)</p>
+      <div id="chart-scatter"></div>
+    </section>
+  </div>
+
+  {# Specs match docs/vega-lite/*.vl.json, with the data.url made relative so #}
+  {# the charts work on whichever host this page is served from (localhost, PythonAnywhere, etc). #}
+  <script type="application/json" id="spec-bar">
+  {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Number of Unleased listings grouped by status.",
+    "data": { "url": "{% url 'listings:api_by_status' %}" },
+    "mark": "bar",
+    "encoding": {
+      "x": { "field": "status", "type": "nominal", "title": "Status" },
+      "y": { "field": "total", "type": "quantitative", "title": "Number of listings" },
+      "color": { "field": "status", "type": "nominal", "legend": null }
+    },
+    "width": 340,
+    "height": 280
+  }
+  </script>
+
+  <script type="application/json" id="spec-scatter">
+  {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Monthly rent vs. bedroom count across all listings.",
+    "data": {
+      "url": "{% url 'listings:api' %}",
+      "format": { "type": "json", "property": "results", "parse": { "monthly_rent": "number" } }
+    },
+    "mark": "point",
+    "encoding": {
+      "x": { "field": "bedrooms", "type": "quantitative", "title": "Bedrooms" },
+      "y": { "field": "monthly_rent", "type": "quantitative", "title": "Monthly rent ($)" },
+      "color": { "field": "status", "type": "nominal", "title": "Status" },
+      "tooltip": [
+        { "field": "title", "type": "nominal" },
+        { "field": "monthly_rent", "type": "quantitative", "title": "Rent" },
+        { "field": "bedrooms", "type": "quantitative" }
+      ]
+    },
+    "width": 340,
+    "height": 280
+  }
+  </script>
+
+  <script>
+    vegaEmbed('#chart-bar', JSON.parse(document.getElementById('spec-bar').textContent), {actions: false});
+    vegaEmbed('#chart-scatter', JSON.parse(document.getElementById('spec-scatter').textContent), {actions: false});
+  </script>
+{% endblock %}

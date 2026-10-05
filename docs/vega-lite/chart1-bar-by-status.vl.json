@@ -1,0 +1,16 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Number of Unleased listings grouped by status, read live from /listings/api/by-status/.",
+  "title": "Listings by status",
+  "data": {
+    "url": "http://127.0.0.1:8000/listings/api/by-status/"
+  },
+  "mark": "bar",
+  "encoding": {
+    "x": {"field": "status", "type": "nominal", "title": "Status"},
+    "y": {"field": "total", "type": "quantitative", "title": "Number of listings"},
+    "color": {"field": "status", "type": "nominal", "legend": null}
+  },
+  "width": 360,
+  "height": 300
+}

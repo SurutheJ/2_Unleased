@@ -402,3 +402,100 @@ HttpResponse vs JsonResponse, and the MIME type difference:
   header differs (text/plain vs application/json), and a browser opening
   listing_api_text() shows raw lines of text while listing_api() shows (or
   offers to download/format, depending on the browser) structured JSON.
+
+------------------------------------------------------------
+A4 Part 1: Internal API & Vega-Lite Charts
+------------------------------------------------------------
+What was added:
+  listing_api_by_status (FBV, JsonResponse)  /listings/api/by-status/
+    name=listings:api_by_status — chart-ready: a flat JSON array (not the
+    {"results": [...]} envelope listing_api() uses), one row per status,
+    always all 3 even at zero. Reuses the same values('status')
+    .annotate(total=Count('id')) GROUP BY already used on the Insights page.
+  vega_charts         (FBV, render())        /listings/charts/
+    name=listings:vega_charts — one page embedding two Vega-Lite charts via
+    vega-embed (CDN script tags, no npm/build step).
+
+Mandatory-but-ungraded Part 1.1 (internal API):
+  Reused listing_api() from A3 Section 6 instead of building a new one —
+  it already returns clean JSON from the real Listing model via GET, which
+  is exactly what Part 1.1 asks for. Only needed a second, more
+  chart-shaped endpoint (by-status) for the bar chart.
+
+Part 1.2 (the two charts):
+  1. Bar chart: listings grouped by status, data.url -> api_by_status.
+  2. Scatter chart: monthly_rent (y) vs bedrooms (x), colored by status,
+     data.url -> listing_api(), with format.property: "results" to drill
+     into the nested array, since listing_api() wraps its rows in
+     {"count": ..., "results": [...]} rather than returning a bare array.
+  Both specs use data.url, never inline data, per the assignment
+  requirement. Submitted standalone at docs/vega-lite/*.vl.json (absolute
+  localhost URLs, for grading outside the app); the copies embedded in
+  vega_charts.html use {% url %} so the page works on any deployed host
+  without hand-editing a hostname into the spec.
+
+Gotcha: monthly_rent is a string in the JSON.
+  listing_api() serializes Decimal rent as str(listing.monthly_rent) (JSON
+  has no native decimal type, and floats would round it). Vega-Lite's JSON
+  loader does NOT automatically convert that string field to a number, so
+  without format.parse: {"monthly_rent": "number"} in the scatter spec, the
+  y-axis would have treated "450.00", "620.00", etc. as categorical labels
+  instead of plotting them on a continuous scale. bedrooms didn't need
+  this — it's already a plain int in the response.
+
+------------------------------------------------------------
+A4 Part 2: External API Integration (Nominatim geocoding, keyless)
+------------------------------------------------------------
+What was added:
+  listing_proximity       (FBV, JsonResponse)  /listings/api/proximity/
+    name=listings:api_proximity — takes ?listing_id=<pk>, geocodes that
+    listing's address via Nominatim (OpenStreetMap's free/keyless
+    geocoder), and returns its Haversine distance in miles from the UIUC
+    Alma Mater statue (40.1020, -88.2272, hardcoded as CAMPUS_LAT/LON).
+  listing_proximity_page  (FBV, render())      /listings/proximity/
+    name=listings:proximity — a listing picker; "Check distance" calls
+    api_proximity with fetch() client-side and shows the mileage. Not
+    required by the spec (JSON alone would satisfy it), but it gives a
+    way to demo the external-API call from the browser instead of curl.
+
+Why Nominatim:
+  Keyless (no signup/API key), and it's a natural fit for the app: every
+  listing already has a real address, and "how far from campus" is a
+  question an actual sublease seeker would ask. Excluded Open-Meteo per
+  the assignment's own rule.
+
+requests.get() usage (per the spec's checklist):
+  params={'q': full_address, 'format': 'json', 'limit': 1} — query param
+  building, not string-concatenated into the URL.
+  headers={'User-Agent': GEOCODER_USER_AGENT} — Nominatim's usage policy
+  requires a descriptive User-Agent identifying the app (not a browser
+  string) as a condition of keyless/free use.
+  timeout=5 and .raise_for_status() — both present; raise_for_status()
+  turns a non-2xx response into an exception instead of silently returning
+  geocoder error HTML as if it were data.
+  except requests.RequestException — catches timeouts, DNS failures, and
+  non-2xx responses in one place, returned as a JSON {"error": ...} with
+  status 502 instead of a Django 500 stack trace page.
+
+Triangulation without storing external data:
+  The geocode result (lat/lon) only ever lives in local Python variables
+  inside listing_proximity() for the duration of one request — nothing is
+  written back to the Listing model or any new table. Every call re-
+  geocodes from scratch. Tradeoff: if Nominatim is slow/down, every request
+  pays that cost, since there's no cache; acceptable here given the low
+  traffic this project actually gets, but a real production version would
+  probably cache the lat/lon with a timestamp and a re-geocode-on-address-
+  change rule instead of hitting the external API on every single request.
+
+Privacy, carried over from A3 Section 2:
+  street_address is sent to Nominatim server-side (it has to be, to
+  compute a real distance) but is never included in the JSON response
+  that reaches the browser — same "private until accepted" rule the HTML
+  pages already follow, just enforced in a different view.
+
+Error handling verified:
+  ?listing_id=abc (non-numeric) -> 400 before any external call is made.
+  ?listing_id=9999 (no such listing) -> Django's own 404 from
+  get_object_or_404(), no external call made either.
+  A geocoder timeout/outage -> caught by except requests.RequestException,
+  returns 502 with a plain-English error instead of a crash.

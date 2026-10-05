@@ -36,6 +36,14 @@
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>
         <span>Insights</span>
       </a>
+      <a class="tab {% if current == 'listings:vega_charts' %}active{% endif %}" href="{% url 'listings:vega_charts' %}">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="1.5"/><circle cx="12" cy="10" r="1.5"/><circle cx="17" cy="14" r="1.5"/><path d="M7 17L12 10L17 14"/></svg>
+        <span>Charts</span>
+      </a>
+      <a class="tab {% if current == 'listings:proximity' %}active{% endif %}" href="{% url 'listings:proximity' %}">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z"/></svg>
+        <span>Nearby campus</span>
+      </a>
     {% endwith %}
   </nav>
 

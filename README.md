@@ -25,6 +25,7 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
 ├── docs/
 │   ├── wireframes/             # UI wireframes/mockups
 │   ├── screenshots/            # Browser-output screenshots (Sections 2 & 3)
+│   ├── vega-lite/              # Submitted Vega-Lite chart specs (A4 Part 1)
 │   ├── branching-strategy/     # How we use git branches as a team
 │   └── notes/notes.txt         # Weekly progress log (updated every week)
 ├── manage.py
@@ -175,6 +176,63 @@ inside a manually-constructed `HttpResponse`. Opening both URLs side by side
 shows the same underlying data, but the browser renders one as raw text and
 lets tools like `curl -i` show the different `Content-Type` headers.
 
+## Internal JSON API & Vega-Lite charts
+
+Two of the "Creating APIs" endpoints double as data sources for client-side
+charts, so they're chart-ready (flat JSON arrays or a `results` list) rather
+than built around an HTML response:
+
+| Endpoint | URL name | Returns |
+|---|---|---|
+| `listing_api` | `listings:api` (`/listings/api/`) | `{"count": N, "results": [...]}` — one row per listing |
+| `listing_api_by_status` | `listings:api_by_status` (`/listings/api/by-status/`) | `[{"status": ..., "total": ...}, ...]` — always all 3 statuses, even at 0 |
+
+**Charts page** (`/listings/charts/`, `listings:vega_charts`) embeds two
+[Vega-Lite](https://vega.github.io/vega-lite/) charts via `vega-embed`
+(loaded from a CDN), each pointed at one of the endpoints above through
+`data.url` — neither spec uses inline data:
+
+- **Bar chart**: listings grouped by status, from `listing_api_by_status`.
+- **Scatter chart**: monthly rent vs. bedroom count across every listing,
+  from `listing_api`'s `results` array (`format: {property: "results"}`).
+  `monthly_rent` is serialized as a string in the JSON (to keep `Decimal`
+  precision), so the spec adds `format.parse: {"monthly_rent": "number"}` —
+  without it, Vega-Lite would plot it as a categorical field.
+
+The two specs are also submitted standalone in
+[`docs/vega-lite/`](docs/vega-lite/) (`chart1-bar-by-status.vl.json`,
+`chart2-scatter-rent-vs-bedrooms.vl.json`), with absolute `data.url`s for
+grading outside this app; the versions embedded in `vega_charts.html` use
+`{% url %}`-generated relative URLs so the page works on any host.
+
+## External API integration: distance from campus
+
+**`listing_proximity`** (`listings:api_proximity`,
+`/listings/api/proximity/?listing_id=<pk>`) is a keyless external API
+integration: given one of our own `Listing` rows (internal data), it
+geocodes that listing's private street address through
+[Nominatim](https://nominatim.openstreetmap.org/) (OpenStreetMap's free,
+keyless geocoder) and returns the great-circle distance from that address to
+the UIUC Alma Mater statue, computed with the Haversine formula.
+
+- Calls `requests.get(..., params=..., timeout=5)` then
+  `.raise_for_status()`; `requests.RequestException` is caught and turned
+  into a `502` JSON error instead of a stack trace, so a geocoder outage or
+  timeout fails cleanly.
+- The external result (the geocoded lat/lon) is only ever held in local
+  Python variables for the duration of one request — it is **never written
+  to the database** — so every call re-geocodes from scratch instead of
+  trusting a stored value that could go stale if the address changes.
+- The street address itself follows the same privacy rule as the rest of
+  the app (see "Search and insights" above): it's sent to Nominatim
+  server-side to compute a distance, but it is never included in the JSON
+  response that reaches the browser.
+
+**`/listings/proximity/`** (`listings:proximity`) is a small HTML page with
+a listing picker; clicking "Check distance" calls `api_proximity` with
+`fetch()` client-side and renders the resulting mileage — a visual way to
+exercise the API without `curl`.
+
 ## Data visualization
 
 `/listings/insights/chart.png` (`listings:insights_chart`) is a Django view
@@ -260,6 +318,21 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 |---|---|---|
 | Raw JSON response (`Content-Type: application/json`) | `/listings/api/?max_rent=800` | [a3-s6-01-json-api.png](docs/screenshots/a3-s6-01-json-api.png) |
 | Same filtered data as plain text (`Content-Type: text/plain`) | `/listings/api.txt?max_rent=800` | [a3-s6-02-api-text.png](docs/screenshots/a3-s6-02-api-text.png) |
+
+### A4 Part 1: Internal API & Vega-Lite charts
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Chart-ready bar-chart JSON (always all 3 statuses) | `/listings/api/by-status/` | [a4-p1-01-by-status-json.png](docs/screenshots/a4-p1-01-by-status-json.png) |
+| Both Vega-Lite charts rendered on the Charts page | `/listings/charts/` | [a4-p1-02-vega-charts.png](docs/screenshots/a4-p1-02-vega-charts.png) |
+
+### A4 Part 2: External API integration
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| `listing_proximity` JSON: internal listing + externally-geocoded distance | `/listings/api/proximity/?listing_id=5` | [a4-p2-01-proximity-json.png](docs/screenshots/a4-p2-01-proximity-json.png) |
+| Error handling: invalid/missing `listing_id` | `/listings/api/proximity/?listing_id=abc` | [a4-p2-02-proximity-error.png](docs/screenshots/a4-p2-02-proximity-error.png) |
+| HTML page calling the API client-side with `fetch()` | `/listings/proximity/` | [a4-p2-03-proximity-page.png](docs/screenshots/a4-p2-03-proximity-page.png) |
 
 ## Branching strategy
 
