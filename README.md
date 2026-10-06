@@ -249,6 +249,11 @@ stored), because PythonAnywhere's free tier does not let the server make HTTP
 requests back to itself. The Charts page shows both the live embedded charts
 and these PNG versions, with alt text and captions.
 
+The public read-only APIs (`/listings/api/`, `/listings/api.txt`,
+`/listings/api/by-status/`, `/listings/api/proximity/`) and the spec endpoints
+send `Access-Control-Allow-Origin: *`, so other sites, like the online
+Vega-Lite editor, are allowed to load them.
+
 ## External API integration: distance from campus
 
 **`listing_proximity`** (`listings:api_proximity`,

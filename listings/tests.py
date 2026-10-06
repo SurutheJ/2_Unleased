@@ -64,6 +64,12 @@ class RouteSmokeTests(TestCase):
                 self.assertTrue(spec['data']['url'].startswith('http'))
         self.assertEqual(self.client.get('/vega-lite/chart9.png').status_code, 404)
 
+    def test_public_apis_allow_cross_origin(self):
+        for url in [reverse('listings:api'), reverse('listings:api_by_status'),
+                    reverse('vega_chart_spec', args=['chart1'])]:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url)['Access-Control-Allow-Origin'], '*')
+
     def test_proximity_api_rejects_missing_listing_id(self):
         response = self.client.get(reverse('listings:api_proximity'))
         self.assertEqual(response.status_code, 400)

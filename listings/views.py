@@ -1,4 +1,5 @@
 import csv
+from functools import wraps
 import json
 import math
 from io import BytesIO
@@ -22,6 +23,23 @@ from django.views.generic import DetailView, ListView
 
 from accounts.models import UnleasedUser
 from .models import Inquiry, Listing
+
+
+def allow_cross_origin(view):
+    """
+    Add Access-Control-Allow-Origin: * to a public, read-only API response.
+
+    Browsers block a page on one site (e.g. the online Vega-Lite editor at
+    vega.github.io) from reading JSON from another site unless that site says
+    it's allowed. These endpoints only expose public listing data, so any
+    origin may read them. No cookies or private data are involved.
+    """
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        response = view(request, *args, **kwargs)
+        response['Access-Control-Allow-Origin'] = '*'
+        return response
+    return wrapped
 
 # All four list views share ONE template. The views differ in how they fetch
 # and pass the data; the page itself looks the same. `view_label` is only a
@@ -378,6 +396,7 @@ def _filter_listings(request):
     return results
 
 
+@allow_cross_origin
 def listing_api(request):
     """
     Public JSON API (FBV): GET /listings/api/?q=...&max_rent=...&status=...
@@ -407,6 +426,7 @@ def listing_api(request):
     return JsonResponse(data)
 
 
+@allow_cross_origin
 def listing_api_text(request):
     """
     Same data and same query-param filters as listing_api(), but returned
@@ -424,6 +444,7 @@ def listing_api_text(request):
     return HttpResponse('\n'.join(lines) or 'No listings match.', content_type='text/plain')
 
 
+@allow_cross_origin
 def listing_api_by_status(request):
     """
     Chart-ready JSON (FBV): GET /listings/api/by-status/
@@ -486,6 +507,7 @@ def _vega_spec(request, chart):
     return spec, config
 
 
+@allow_cross_origin
 def vega_chart_spec(request, chart):
     """
     GET /vega-lite/<chart>.json: the chart's Vega-Lite spec.
@@ -546,6 +568,7 @@ def _haversine_miles(lat1, lon1, lat2, lon2):
     return earth_radius_miles * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+@allow_cross_origin
 def listing_proximity(request):
     """
     PUBLIC JSON API (FBV): GET /listings/api/proximity/?listing_id=<pk>
