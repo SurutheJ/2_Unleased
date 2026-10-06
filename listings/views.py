@@ -1,4 +1,5 @@
 import csv
+import json
 import math
 from io import BytesIO
 
@@ -6,10 +7,14 @@ import matplotlib
 matplotlib.use('Agg')  # non-interactive backend: no display server needed, safe on any host
 import matplotlib.pyplot as plt
 import requests
+import vl_convert
 
+from django.conf import settings
 from django.db.models import Avg, Count, Q
+from django.http import Http404
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.utils import timezone
 from django.template import loader
 from django.views import View
@@ -447,6 +452,75 @@ def listing_api_by_status(request):
 def vega_charts(request):
     """Page embedding the two Vega-Lite charts, each reading a listings:api* endpoint directly."""
     return render(request, 'listings/vega_charts.html')
+
+
+# ---------------------------------------------------------------------------
+# A4 Part 1: dedicated chart endpoints (/vega-lite/chart1.png, chart1.json, ...)
+# ---------------------------------------------------------------------------
+
+# The .vl.json files in docs/vega-lite/ (built in the Vega-Lite editor) are the
+# single source of truth for both charts. Each entry names the internal API the
+# chart reads from: the route (for data.url) and the view function behind it.
+VEGA_SPEC_DIR = settings.BASE_DIR / 'docs' / 'vega-lite'
+VEGA_CHARTS = {
+    'chart1': {
+        'file': 'chart1-bar-by-status.vl.json',
+        'api_route': 'listings:api_by_status',
+        'api_view': listing_api_by_status,
+    },
+    'chart2': {
+        'file': 'chart2-scatter-rent-vs-bedrooms.vl.json',
+        'api_route': 'listings:api',
+        'api_view': listing_api,
+    },
+}
+
+
+def _vega_spec(request, chart):
+    """Load a chart's spec and point data.url at THIS server's internal API."""
+    config = VEGA_CHARTS.get(chart)
+    if config is None:
+        raise Http404(f'No chart named {chart!r}.')
+    spec = json.loads((VEGA_SPEC_DIR / config['file']).read_text())
+    spec['data']['url'] = request.build_absolute_uri(reverse(config['api_route']))
+    return spec, config
+
+
+def vega_chart_spec(request, chart):
+    """
+    GET /vega-lite/<chart>.json: the chart's Vega-Lite spec.
+
+    data.url is the absolute URL of the internal API on whichever host serves
+    this (localhost or PythonAnywhere), so this link can be pasted straight
+    into the online Vega-Lite editor and the chart loads live data.
+    """
+    spec, _ = _vega_spec(request, chart)
+    return JsonResponse(spec, json_dumps_params={'indent': 2})
+
+
+def vega_chart_png(request, chart):
+    """
+    GET /vega-lite/<chart>.png: the same Vega-Lite chart rendered to a PNG on
+    the server (with vl-convert), returned with HttpResponse as image/png.
+
+    The browser-embedded charts let the browser fetch data.url. A server-side
+    render can't make an HTTP request back to its own site (PythonAnywhere's
+    free tier blocks that), so instead we call the very same internal API view
+    the URL points to and hand its JSON rows to the renderer for this one
+    request. Nothing is stored; the spec files themselves still use data.url.
+    The PNG is built in memory and sent as bytes, never written to disk.
+    """
+    spec, config = _vega_spec(request, chart)
+    api_payload = json.loads(config['api_view'](request).content)
+
+    data_format = spec['data'].get('format', {})
+    rows = api_payload[data_format['property']] if 'property' in data_format else api_payload
+    spec['data'] = {'values': rows}
+    if 'parse' in data_format:
+        spec['data']['format'] = {'parse': data_format['parse']}
+
+    png_bytes = vl_convert.vegalite_to_png(spec, scale=2)
+    return HttpResponse(png_bytes, content_type='image/png')
 
 
 # ---------------------------------------------------------------------------

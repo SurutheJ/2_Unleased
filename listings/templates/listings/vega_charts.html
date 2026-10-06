@@ -12,6 +12,12 @@
   .chart-card h3 { margin: 0 0 4px; font-size: 15px; }
   .chart-card .sub { font-size: 12px; color: var(--ink-soft); margin: 0 0 14px; }
   .chart-card code { background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 11.5px; }
+  .chart-links { font-size: 12.5px; margin: 12px 0 0; }
+  .chart-links a { font-weight: 600; text-decoration: underline; margin-right: 14px; }
+  .png-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; margin-top: 34px; }
+  .png-grid figure { margin: 0; background: var(--bg-card); border-radius: var(--radius-md); padding: 18px; }
+  .png-grid img { max-width: 100%; height: auto; background: #fff; border-radius: 8px; }
+  .png-grid figcaption { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; }
 </style>
 {% endblock %}
 
@@ -19,7 +25,7 @@
   <div class="section-head">
     <div>
       <h2>Charts</h2>
-      <div class="sub">Vega-Lite charts, each built from a live internal JSON API — not inline data.</div>
+      <div class="sub">Vega-Lite charts, each built from a live internal JSON API, not inline data.</div>
     </div>
     <span class="pill">Vega-Lite &middot; data.url</span>
   </div>
@@ -29,13 +35,39 @@
       <h3>Listings by status (bar)</h3>
       <p class="sub">Source: <code>{% url 'listings:api_by_status' %}</code></p>
       <div id="chart-bar"></div>
+      <p class="chart-links">
+        <a href="{% url 'vega_chart_png' 'chart1' %}">chart1.png</a>
+        <a href="{% url 'vega_chart_spec' 'chart1' %}">chart1.json (spec)</a>
+      </p>
     </section>
 
     <section class="chart-card">
       <h3>Monthly rent vs. bedrooms (scatter)</h3>
       <p class="sub">Source: <code>{% url 'listings:api' %}</code> (drills into its <code>results</code> array)</p>
       <div id="chart-scatter"></div>
+      <p class="chart-links">
+        <a href="{% url 'vega_chart_png' 'chart2' %}">chart2.png</a>
+        <a href="{% url 'vega_chart_spec' 'chart2' %}">chart2.json (spec)</a>
+      </p>
     </section>
+  </div>
+
+  {# The same two charts rendered to PNG on the server, from the dedicated endpoints. #}
+  <div class="section-head" style="margin-top:34px;margin-bottom:0;">
+    <div>
+      <h2>Image versions</h2>
+      <div class="sub">Rendered on the server from the same specs and APIs, served at <code>/vega-lite/chart1.png</code> and <code>/vega-lite/chart2.png</code>.</div>
+    </div>
+  </div>
+  <div class="png-grid">
+    <figure>
+      <img src="{% url 'vega_chart_png' 'chart1' %}" alt="Bar chart of how many Unleased listings are available, pending and filled" loading="lazy">
+      <figcaption>chart1.png: listings by status (bar)</figcaption>
+    </figure>
+    <figure>
+      <img src="{% url 'vega_chart_png' 'chart2' %}" alt="Scatter plot of monthly rent against number of bedrooms for every listing, colored by status" loading="lazy">
+      <figcaption>chart2.png: monthly rent vs. bedrooms (scatter)</figcaption>
+    </figure>
   </div>
 
   {# Specs match docs/vega-lite/*.vl.json, with the data.url made relative so #}
