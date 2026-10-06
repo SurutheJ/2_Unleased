@@ -87,6 +87,29 @@ ALLOWED_HOSTS=your-domain.com \
 python manage.py check --deploy
 ```
 
+## Static files and deployment (PythonAnywhere)
+
+- **Static files:** our CSS lives in `static/css/base.css` (`STATICFILES_DIRS`).
+  `base.html` loads it with `{% load static %}` and `{% static 'css/base.css' %}`,
+  so every page that extends `base.html` is styled. `collectstatic` copies it,
+  plus the admin assets, into `staticfiles/` (`STATIC_ROOT`). That folder is
+  gitignored and is rebuilt on the server.
+- **Production check locally:**
+  ```
+  export DJANGO_SETTINGS_MODULE=unleased_project.settings.prod ALLOWED_HOSTS=127.0.0.1 SECURE_SSL_REDIRECT=False
+  python manage.py collectstatic --noinput
+  python manage.py runserver --insecure
+  ```
+  (`--insecure` lets runserver serve the collected files with `DEBUG=False`;
+  on PythonAnywhere the web tab's static mapping serves them instead.)
+- **Database:** for this initial deploy `db.sqlite3` is committed on purpose,
+  so the server starts with the seed listings and the instructor admin account
+  (`tester`). We will move to Postgres afterwards.
+- **Python:** use Python 3.13 (or 3.11+) for the virtualenv; `matplotlib==3.11.0`
+  in `requirements.txt` does not support older versions.
+- **Route check:** `python manage.py test listings` loads every page and API
+  route and fails if any of them is broken.
+
 ## Environment variables
 
 See `.env.example` for the full list. Summary:

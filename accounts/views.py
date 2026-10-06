@@ -1,3 +1,1 @@
-from django.shortcuts import render
-
-# Create your views here.
+# accounts has no views yet: login/signup pages arrive with authentication in A5.
