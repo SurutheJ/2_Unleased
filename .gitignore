@@ -17,7 +17,9 @@ env/
 ENV/
 
 # ---- Django ----
-db.sqlite3
+# db.sqlite3 is intentionally NOT ignored: A4 requires committing it so the
+# initial PythonAnywhere deploy starts with our seed data. (Revisit when we
+# move to Postgres.)
 db.sqlite3-journal
 media/
 staticfiles/
