@@ -3,7 +3,7 @@
   "description": "Number of Unleased listings grouped by status, read live from /listings/api/by-status/.",
   "title": "Listings by status",
   "data": {
-    "url": "http://127.0.0.1:8000/listings/api/by-status/"
+    "url": "https://parulmudaliar.pythonanywhere.com/listings/api/by-status/"
   },
   "mark": "bar",
   "encoding": {
