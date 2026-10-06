@@ -3,7 +3,7 @@
   "description": "Monthly rent vs. bedroom count across all listings, read live from /listings/api/, drilling into its results array.",
   "title": "Monthly rent vs. bedrooms",
   "data": {
-    "url": "http://127.0.0.1:8000/listings/api/",
+    "url": "https://parulmudaliar.pythonanywhere.com/listings/api/",
     "format": {
       "type": "json",
       "property": "results",
