@@ -16,10 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from listings.views import home
+from listings.views import home, vega_chart_png, vega_chart_spec
 
 urlpatterns = [
     path('', home, name='home'),
     path('admin/', admin.site.urls),
     path('listings/', include('listings.urls')),
+    # A4 Part 1: dedicated chart endpoints, e.g. /vega-lite/chart1.png and /vega-lite/chart1.json
+    path('vega-lite/<slug:chart>.png', vega_chart_png, name='vega_chart_png'),
+    path('vega-lite/<slug:chart>.json', vega_chart_spec, name='vega_chart_spec'),
 ]

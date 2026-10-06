@@ -54,6 +54,16 @@ class RouteSmokeTests(TestCase):
         self.assertIn('attachment', csv_response['Content-Disposition'])
         self.assertIn('attachment', json_response['Content-Disposition'])
 
+    def test_vega_chart_endpoints(self):
+        for chart in ['chart1', 'chart2']:
+            with self.subTest(chart=chart):
+                png = self.client.get(reverse('vega_chart_png', args=[chart]))
+                self.assertEqual(png.status_code, 200)
+                self.assertEqual(png['Content-Type'], 'image/png')
+                spec = self.client.get(reverse('vega_chart_spec', args=[chart])).json()
+                self.assertTrue(spec['data']['url'].startswith('http'))
+        self.assertEqual(self.client.get('/vega-lite/chart9.png').status_code, 404)
+
     def test_proximity_api_rejects_missing_listing_id(self):
         response = self.client.get(reverse('listings:api_proximity'))
         self.assertEqual(response.status_code, 400)

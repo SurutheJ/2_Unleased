@@ -109,6 +109,8 @@ python manage.py check --deploy
   in `requirements.txt` does not support older versions.
 - **Route check:** `python manage.py test listings` loads every page and API
   route and fails if any of them is broken.
+- **Live site:** https://parulmudaliar.pythonanywhere.com (PythonAnywhere user
+  `ParulMudaliar`, teacher access given to `mohitg27`).
 
 ## Environment variables
 
@@ -228,6 +230,25 @@ The two specs are also submitted standalone in
 grading outside this app; the versions embedded in `vega_charts.html` use
 `{% url %}`-generated relative URLs so the page works on any host.
 
+**Dedicated chart endpoints** (project-level routes in `unleased_project/urls.py`):
+
+| URL | Returns |
+|---|---|
+| `/vega-lite/chart1.png` | Bar chart (listings by status) as a PNG image (`image/png`) |
+| `/vega-lite/chart2.png` | Scatter chart (rent vs. bedrooms) as a PNG image |
+| `/vega-lite/chart1.json` | The bar chart's Vega-Lite spec, with `data.url` set to this server's API |
+| `/vega-lite/chart2.json` | The scatter chart's Vega-Lite spec |
+
+The `.json` endpoints serve the specs from `docs/vega-lite/` with an absolute
+`data.url` for whichever host you're on, so
+`https://parulmudaliar.pythonanywhere.com/vega-lite/chart1.json` can be opened
+directly in the online Vega-Lite editor. The `.png` endpoints render the same
+specs on the server with `vl-convert-python`: the view calls the same internal
+API view that `data.url` points to and renders its rows in memory (nothing is
+stored), because PythonAnywhere's free tier does not let the server make HTTP
+requests back to itself. The Charts page shows both the live embedded charts
+and these PNG versions, with alt text and captions.
+
 ## External API integration: distance from campus
 
 **`listing_proximity`** (`listings:api_proximity`,
@@ -255,6 +276,22 @@ the UIUC Alma Mater statue, computed with the Haversine formula.
 a listing picker; clicking "Check distance" calls `api_proximity` with
 `fetch()` client-side and renders the resulting mileage — a visual way to
 exercise the API without `curl`.
+
+## CSV & JSON exports and reports
+
+**Reports page** (`/listings/reports/`, `listings:reports`) shows a totals
+line (total listings, inquiries, listers and average rent), two grouped
+summaries (listings by status with average rent, and inquiries per listing,
+active vs. all) in tables with headers and `{% empty %}` rows, and visible
+**Download CSV** and **Download JSON** buttons.
+
+| Export | URL | Details |
+|---|---|---|
+| CSV | `/listings/export/listings.csv` | `text/csv`, header row first, listings ordered by id, file named `listings_YYYY-MM-DD_HH-MM.csv` |
+| JSON | `/listings/export/listings.json` | Pretty-printed (`indent=2`) with `generated_at` (ISO timestamp), `record_count` and `listings: [...]`, file named `listings_YYYY-MM-DD_HH-MM.json` |
+
+Private fields (street address, lease document, raw WhatsApp text) are left out
+of both exports.
 
 ## Data visualization
 
@@ -348,6 +385,9 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 |---|---|---|
 | Chart-ready bar-chart JSON (always all 3 statuses) | `/listings/api/by-status/` | [a4-p1-01-by-status-json.png](docs/screenshots/a4-p1-01-by-status-json.png) |
 | Both Vega-Lite charts rendered on the Charts page | `/listings/charts/` | [a4-p1-02-vega-charts.png](docs/screenshots/a4-p1-02-vega-charts.png) |
+| Bar chart served as a PNG | `/vega-lite/chart1.png` | [a4-p1-03-chart1-png.png](docs/screenshots/a4-p1-03-chart1-png.png) |
+| Scatter chart served as a PNG | `/vega-lite/chart2.png` | [a4-p1-04-chart2-png.png](docs/screenshots/a4-p1-04-chart2-png.png) |
+| Spec opened in the online Vega-Lite editor via the deployed API | `/vega-lite/chart1.json` | [a4-p1-05-vega-editor.png](docs/screenshots/a4-p1-05-vega-editor.png) |
 
 ### A4 Part 2: External API integration
 
@@ -356,6 +396,22 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 | `listing_proximity` JSON: internal listing + externally-geocoded distance | `/listings/api/proximity/?listing_id=5` | [a4-p2-01-proximity-json.png](docs/screenshots/a4-p2-01-proximity-json.png) |
 | Error handling: invalid/missing `listing_id` | `/listings/api/proximity/?listing_id=abc` | [a4-p2-02-proximity-error.png](docs/screenshots/a4-p2-02-proximity-error.png) |
 | HTML page calling the API client-side with `fetch()` | `/listings/proximity/` | [a4-p2-03-proximity-page.png](docs/screenshots/a4-p2-03-proximity-page.png) |
+
+### A4 Part 3: CSV & JSON exports and reports
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Reports page: totals, two grouped summaries, download buttons | `/listings/reports/` | [a4-p3-01-reports.png](docs/screenshots/a4-p3-01-reports.png) |
+| Downloaded CSV opened (header row + ordered rows) | `/listings/export/listings.csv` | [a4-p3-02-csv-export.png](docs/screenshots/a4-p3-02-csv-export.png) |
+| Downloaded JSON (metadata + listings) | `/listings/export/listings.json` | [a4-p3-03-json-export.png](docs/screenshots/a4-p3-03-json-export.png) |
+
+### A4 Part 4: Deployment (PythonAnywhere)
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Styled home page on the deployed site | `https://parulmudaliar.pythonanywhere.com/` | [a4-p4-01-deployed-home.png](docs/screenshots/a4-p4-01-deployed-home.png) |
+| Internal API on the deployed site | `/listings/api/by-status/` | [a4-p4-02-deployed-api.png](docs/screenshots/a4-p4-02-deployed-api.png) |
+| Vega-Lite charts on the deployed site | `/listings/charts/` | [a4-p4-03-deployed-charts.png](docs/screenshots/a4-p4-03-deployed-charts.png) |
 
 ## Branching strategy
 

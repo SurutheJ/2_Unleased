@@ -35,6 +35,9 @@ if not ALLOWED_HOSTS:
 # Safe defaults for an app served over HTTPS. Toggle off with env vars if
 # a specific deploy target (e.g. behind a load balancer that already
 # terminates TLS) needs different behavior.
+# PythonAnywhere terminates HTTPS at its proxy and passes X-Forwarded-Proto,
+# so request.build_absolute_uri() (used for the Vega-Lite spec URLs) gives https://.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True') == 'True'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
