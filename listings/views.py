@@ -18,6 +18,9 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.template import loader
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import redirect_to_login
 from django.views import View
 from django.views.generic import DetailView, ListView
 
@@ -39,6 +42,24 @@ def allow_cross_origin(view):
         response = view(request, *args, **kwargs)
         response['Access-Control-Allow-Origin'] = '*'
         return response
+    return wrapped
+
+
+def api_login_required(view):
+    """
+    Like @login_required, but for JSON APIs: a logged-out request gets a
+    401 JSON error instead of being redirected to the HTML login page,
+    which a script or chart could not use anyway.
+    """
+    @wraps(view)
+    def wrapped(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse(
+                {'error': 'Authentication required. Log in to use this API.',
+                 'login_url': request.build_absolute_uri(reverse('account_login'))},
+                status=401,
+            )
+        return view(request, *args, **kwargs)
     return wrapped
 
 # All four list views share ONE template. The views differ in how they fetch
@@ -120,28 +141,25 @@ class ListingDetailView(DetailView):
     context_object_name = 'listing'
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        edu_email = request.POST.get('edu_email', '').strip().lower()
-        message = request.POST.get('message', '').strip()
+        # Anyone can view a listing, but sending an inquiry needs an account.
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path())
 
+        self.object = self.get_object()
+        message = request.POST.get('message', '').strip()
         error = ''
         sent = False
-        seeker = UnleasedUser.objects.filter(edu_email__iexact=edu_email).first()
 
-        if not edu_email.endswith('.edu'):
-            error = 'Please enter the .edu email you used on Unleased.'
-        elif not message:
+        if not message:
             error = 'Please include a short message for the lister.'
-        elif seeker is None:
-            error = 'No Unleased account found for that email — sign up first.'
-        elif seeker.pk == self.object.lister_id:
+        elif request.user.pk == self.object.lister_id:
             error = "You can't send an inquiry about your own listing."
         else:
             # get_or_create respects the unique_inquiry_per_seeker_listing
             # constraint: resubmitting the form won't create duplicate rows.
             Inquiry.objects.get_or_create(
                 listing=self.object,
-                seeker=seeker,
+                seeker=request.user,
                 defaults={'message': message},
             )
             sent = True
@@ -212,48 +230,28 @@ def listing_search(request):
     return render(request, 'listings/listing_search.html', context)
 
 
-class InquiryLookupView(View):
+class InquiryLookupView(LoginRequiredMixin, View):
     """
-    PRIVATE search, submitted with POST: "Track my inquiries".
+    "My inquiries": the logged-in seeker's own inquiries and their status.
 
-    A seeker types their .edu email to see the inquiries they have sent and
-    whether each one was accepted. This is personal data (an email address,
-    and for accepted inquiries the listing's private street address), so it
-    should NOT end up in the URL, browser history, bookmarks or server logs.
-    POST sends the email in the request body instead, and {% csrf_token %}
-    protects the form. Refreshing or sharing the page does not replay it.
+    Before A5 this page looked inquiries up by a typed .edu email (sent with
+    POST so it stayed out of the URL), which meant anyone who knew someone's
+    email could see their inquiries. Now it requires login and only ever
+    shows request.user's own inquiries, so there is nothing to type or leak.
+    Accepted inquiries still reveal the listing's private street address.
     """
     template_name = 'listings/inquiry_lookup.html'
 
     def get(self, request):
-        # First visit: just show the empty form.
-        return render(request, self.template_name, {'submitted': False})
-
-    def post(self, request):
-        email = request.POST.get('edu_email', '').strip().lower()
-        error = ''
-        inquiries = Inquiry.objects.none()
-
-        if not email.endswith('.edu'):
-            error = 'Please enter the .edu email you used on Unleased.'
-        else:
-            # Relationship-spanning lookup: Inquiry -> seeker (UnleasedUser).
-            # We never show the email back in a URL; it only lives in this request.
-            inquiries = (
-                Inquiry.objects
-                .filter(seeker__edu_email__iexact=email)
-                .select_related('listing')
-            )
-
-        context = {
-            'submitted': True,
-            'email': email,
-            'error': error,
-            'inquiries': inquiries,
-        }
-        return render(request, self.template_name, context)
+        inquiries = (
+            Inquiry.objects
+            .filter(seeker=request.user)        # only your own
+            .select_related('listing')
+        )
+        return render(request, self.template_name, {'inquiries': inquiries})
 
 
+@login_required
 def listing_insights(request):
     """
     Insights page: summary numbers computed by the database with the ORM.
@@ -318,6 +316,7 @@ STATUS_COLORS = {
 }
 
 
+@login_required
 def listing_status_chart(request):
     """
     Renders a bar chart of listing counts per status as a PNG image.
@@ -396,7 +395,7 @@ def _filter_listings(request):
     return results
 
 
-@allow_cross_origin
+@api_login_required
 def listing_api(request):
     """
     Public JSON API (FBV): GET /listings/api/?q=...&max_rent=...&status=...
@@ -426,7 +425,7 @@ def listing_api(request):
     return JsonResponse(data)
 
 
-@allow_cross_origin
+@api_login_required
 def listing_api_text(request):
     """
     Same data and same query-param filters as listing_api(), but returned
@@ -447,6 +446,9 @@ def listing_api_text(request):
 @allow_cross_origin
 def listing_api_by_status(request):
     """
+    THE PUBLIC API (A5 Part 3): no login needed, open to other sites (CORS).
+    Every other JSON API in this file requires login.
+
     Chart-ready JSON (FBV): GET /listings/api/by-status/
 
     Same GROUP BY as the Insights page's "by status" table, but returned as
@@ -470,6 +472,7 @@ def listing_api_by_status(request):
     return JsonResponse(data, safe=False)
 
 
+@login_required
 def vega_charts(request):
     """Page embedding the two Vega-Lite charts, each reading a listings:api* endpoint directly."""
     return render(request, 'listings/vega_charts.html')
@@ -488,11 +491,13 @@ VEGA_CHARTS = {
         'file': 'chart1-bar-by-status.vl.json',
         'api_route': 'listings:api_by_status',
         'api_view': listing_api_by_status,
+        'public': True,      # built on the public API
     },
     'chart2': {
         'file': 'chart2-scatter-rent-vs-bedrooms.vl.json',
         'api_route': 'listings:api',
         'api_view': listing_api,
+        'public': False,     # built on a protected API, so login required
     },
 }
 
@@ -516,7 +521,9 @@ def vega_chart_spec(request, chart):
     this (localhost or PythonAnywhere), so this link can be pasted straight
     into the online Vega-Lite editor and the chart loads live data.
     """
-    spec, _ = _vega_spec(request, chart)
+    spec, config = _vega_spec(request, chart)
+    if not config['public'] and not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required for this chart.'}, status=401)
     return JsonResponse(spec, json_dumps_params={'indent': 2})
 
 
@@ -533,6 +540,8 @@ def vega_chart_png(request, chart):
     The PNG is built in memory and sent as bytes, never written to disk.
     """
     spec, config = _vega_spec(request, chart)
+    if not config['public'] and not request.user.is_authenticated:
+        return HttpResponse('Log in to view this chart.', status=401, content_type='text/plain')
     api_payload = json.loads(config['api_view'](request).content)
 
     data_format = spec['data'].get('format', {})
@@ -568,7 +577,7 @@ def _haversine_miles(lat1, lon1, lat2, lon2):
     return earth_radius_miles * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-@allow_cross_origin
+@api_login_required
 def listing_proximity(request):
     """
     PUBLIC JSON API (FBV): GET /listings/api/proximity/?listing_id=<pk>
@@ -621,6 +630,7 @@ def listing_proximity(request):
     })
 
 
+@login_required
 def listing_proximity_page(request):
     """HTML page: pick a listing, fetch listing_proximity() client-side, show the result."""
     context = {'listings': Listing.objects.select_related('lister')}
@@ -673,6 +683,7 @@ def _export_filename(extension):
     return f"listings_{timezone.localtime():%Y-%m-%d_%H-%M}.{extension}"
 
 
+@login_required
 def export_listings_csv(request):
     """Download every listing as CSV: header row first, then one row per listing."""
     response = HttpResponse(content_type='text/csv')
@@ -683,6 +694,7 @@ def export_listings_csv(request):
     return response
 
 
+@login_required
 def export_listings_json(request):
     """Download every listing as pretty-printed JSON with generated_at / record_count metadata."""
     rows = _export_rows()
@@ -698,6 +710,7 @@ def export_listings_json(request):
     return response
 
 
+@login_required
 def listing_reports(request):
     """
     Reports page: totals line, two grouped summaries, and the export buttons.

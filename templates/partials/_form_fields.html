@@ -1,0 +1,14 @@
+{# Renders every visible field of a Django/allauth form with its label, help text and errors. #}
+{% for field in form.visible_fields %}
+  {% if field.field.widget.input_type == "checkbox" %}
+    <label class="auth-check">{{ field }} {{ field.label }}</label>
+  {% else %}
+    <div class="auth-field">
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<div class="auth-help">{{ field.help_text|safe }}</div>{% endif %}
+      {% for error in field.errors %}<div class="auth-error">{{ error }}</div>{% endfor %}
+    </div>
+  {% endif %}
+{% endfor %}
+{% for field in form.hidden_fields %}{{ field }}{% endfor %}

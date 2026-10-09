@@ -42,48 +42,34 @@
 {% block content %}
   <div class="section-head">
     <div>
-      <h2>Track my inquiries</h2>
-      <div class="sub">See the status of the inquiries you sent to listers.</div>
+      <h2>My inquiries</h2>
+      <div class="sub">Inquiries you've sent as <b>{{ user.username }}</b>, and whether each lister has replied.</div>
     </div>
-    <span class="pill">Private search (POST)</span>
+    <span class="pill">Login required</span>
   </div>
 
-  {# method="post": the email goes in the request body, not the URL. #}
-  <form class="lookup-form" method="post" action="{% url 'listings:inquiries' %}">
-    {% csrf_token %}
-    <div>
-      <label for="edu_email">Your .edu email</label>
-      <input id="edu_email" name="edu_email" type="email" required placeholder="netid@illinois.edu" value="{{ email }}">
-    </div>
-    <button class="btn" type="submit">Look up</button>
-  </form>
-  <p class="note">Your email is sent privately and is never added to the page address, so it does not show up in your browser history or in a shared link.</p>
-
-  {% if error %}<p class="error">{{ error }}</p>{% endif %}
-
-  {% if submitted and not error %}
-    <ul class="inq-list">
-      {% for inquiry in inquiries %}
-        <li class="inq">
-          <div class="inq-top">
-            <a href="{{ inquiry.listing.get_absolute_url }}">{{ inquiry.listing.title }}</a>
-            <span class="tag tag--{{ inquiry.status }}">{{ inquiry.get_status_display }}</span>
-          </div>
-          <p>Sent {{ inquiry.created_at|date:"M j, Y" }} &middot; ${{ inquiry.listing.monthly_rent|floatformat:"0" }}/mo</p>
-          {% if inquiry.status == 'accepted' %}
-            {# The private address is only revealed once the lister accepts. #}
-            <p class="address">Address: {{ inquiry.listing.street_address }}{% if inquiry.listing.unit_number %}, Unit {{ inquiry.listing.unit_number }}{% endif %}, {{ inquiry.listing.city }}, {{ inquiry.listing.state }}</p>
-          {% else %}
-            <p>The address will appear here once the lister accepts your inquiry.</p>
-          {% endif %}
-        </li>
-      {% empty %}
-        <li class="empty">
-          <div class="empty-icon">{% include "partials/_house_icon.html" %}</div>
-          <h3>No inquiries found</h3>
-          <p>We could not find any inquiries sent from that email. Check the spelling, or <a href="{% url 'listings:search' %}"><u>search listings</u></a> to send your first one.</p>
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+  {# Only request.user's own inquiries are ever loaded (see InquiryLookupView). #}
+  <ul class="inq-list">
+    {% for inquiry in inquiries %}
+      <li class="inq">
+        <div class="inq-top">
+          <a href="{{ inquiry.listing.get_absolute_url }}">{{ inquiry.listing.title }}</a>
+          <span class="tag tag--{{ inquiry.status }}">{{ inquiry.get_status_display }}</span>
+        </div>
+        <p>Sent {{ inquiry.created_at|date:"M j, Y" }} &middot; ${{ inquiry.listing.monthly_rent|floatformat:"0" }}/mo</p>
+        {% if inquiry.status == 'accepted' %}
+          {# The private address is only revealed once the lister accepts. #}
+          <p class="address">Address: {{ inquiry.listing.street_address }}{% if inquiry.listing.unit_number %}, Unit {{ inquiry.listing.unit_number }}{% endif %}, {{ inquiry.listing.city }}, {{ inquiry.listing.state }}</p>
+        {% else %}
+          <p>The address will appear here once the lister accepts your inquiry.</p>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li class="empty">
+        <div class="empty-icon">{% include "partials/_house_icon.html" %}</div>
+        <h3>No inquiries yet</h3>
+        <p>When you message a lister from a listing page, it shows up here. <a href="{% url 'listings:search' %}"><u>Search listings</u></a> to send your first one.</p>
+      </li>
+    {% endfor %}
+  </ul>
 {% endblock %}

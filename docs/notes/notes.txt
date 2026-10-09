@@ -499,3 +499,39 @@ Error handling verified:
   get_object_or_404(), no external call made either.
   A geocoder timeout/outage -> caught by except requests.RequestException,
   returns 502 with a plain-English error instead of a crash.
+
+------------------------------------------------------------
+A5 Part 1: Internal Django authentication (Parul)
+------------------------------------------------------------
+What was added:
+  - django-allauth for username/password login, with custom login, signup
+    and logout templates (templates/account/) that extend base.html.
+    allauth was chosen (instead of Django's built-in LoginView) because
+    Part 2 adds Google OAuth through allauth too, so the same pages get a
+    "Continue with Google" button without being rebuilt.
+  - Settings: LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL, login by
+    username or email, Django's password validators, logout by POST only.
+  - Protected pages with @login_required / LoginRequiredMixin, and protected
+    APIs with @api_login_required (401 JSON instead of a redirect).
+  - Navbar hides protected tabs until login and shows Log in/Sign up or
+    Hi, name/Log out.
+
+Problems we hit and how we fixed them:
+  - UnleasedUser.edu_email was required and unique, but signup only fills in
+    `email`. The second new user would have crashed on the unique rule
+    (two empty strings). Fix: edu_email is now nullable, and a pre_save
+    signal (accounts/signals.py) copies the email into it and marks .edu
+    addresses as verified.
+  - db.sqlite3 was committed for A4. With real signups on production, every
+    git pull would overwrite production users, so it is gitignored again.
+    On the server, back up db.sqlite3 before pulling this change, because
+    git deletes a file it stops tracking.
+  - "My inquiries" used to look inquiries up by a typed email, so anyone
+    knowing an email could read someone else's inquiries. It now requires
+    login and only shows request.user's own inquiries. Sending an inquiry
+    also uses request.user instead of a typed email.
+
+Which API is public and why:
+  /listings/api/by-status/ stays public: it only returns counts per status
+  (no personal data) and it feeds the public Vega-Lite bar chart. Every other
+  JSON API requires login.

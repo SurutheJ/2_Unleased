@@ -102,13 +102,15 @@ python manage.py check --deploy
   ```
   (`--insecure` lets runserver serve the collected files with `DEBUG=False`;
   on PythonAnywhere the web tab's static mapping serves them instead.)
-- **Database:** for this initial deploy `db.sqlite3` is committed on purpose,
-  so the server starts with the seed listings and the instructor admin account
-  (`tester`). We will move to Postgres afterwards.
+- **Database:** `db.sqlite3` was committed only for the A4 initial deploy. Since
+  A5 it is gitignored again, because the production copy now holds real user
+  accounts that a `git pull` must never overwrite. Each machine keeps its own
+  database (`python manage.py migrate` + `python seed_data.py` locally). We will
+  move to Postgres afterwards.
 - **Python:** use Python 3.13 (or 3.11+) for the virtualenv; `matplotlib==3.11.0`
   in `requirements.txt` does not support older versions.
 - **Route check:** `python manage.py test listings` loads every page and API
-  route and fails if any of them is broken.
+  route, and checks which ones are public and which require login.
 - **Live site:** https://parulmudaliar.pythonanywhere.com (PythonAnywhere user
   `ParulMudaliar`, teacher access given to `mohitg27`).
 
@@ -123,6 +125,39 @@ See `.env.example` for the full list. Summary:
 | `ALLOWED_HOSTS` | Comma-separated list of hostnames Django will serve |
 | `DJANGO_SETTINGS_MODULE` | Which settings module to load (`unleased_project.settings.dev` or `.prod`) |
 | `MAPS_API_KEY` | Placeholder third-party API key, read the same way real secrets will be |
+
+## Authentication (A5 Part 1)
+
+Login uses [django-allauth](https://docs.allauth.org/) with custom templates
+in `templates/account/` styled like the rest of the site:
+
+| Page | URL | Notes |
+|---|---|---|
+| Log in | `/accounts/login/` | Username **or** email + password, "Remember me" |
+| Sign up | `/accounts/signup/` | Email, username, password (Django's password rules apply) |
+| Log out | `/accounts/logout/` | A POST form with CSRF; visiting the URL alone does not log you out |
+
+Settings (`unleased_project/settings/base.py`): `LOGIN_URL = 'account_login'`,
+`LOGIN_REDIRECT_URL = 'home'`, `LOGOUT_REDIRECT_URL = 'home'`. A logged-out
+visitor who opens a protected page is sent to the login page and brought back
+to that page afterwards (`?next=`).
+
+Anyone can sign up, but `.edu` emails are marked as verified students:
+`accounts/signals.py` copies the signup email into `UnleasedUser.edu_email` and
+sets `is_edu_verified=True` for `.edu` addresses.
+
+**What needs login**
+
+| Public (no login) | Login required |
+|---|---|
+| Home, Browse, Available now, Search, listing detail pages | My inquiries, sending an inquiry, Insights (+ its chart image), Charts, Nearby campus, Reports, CSV/JSON exports |
+| **`/listings/api/by-status/`**, the one public API | `/listings/api/`, `/listings/api.txt`, `/listings/api/proximity/` (return **401 JSON** when logged out) |
+| `/vega-lite/chart1.png` / `.json` (built on the public API) | `/vega-lite/chart2.png` / `.json` (built on a protected API) |
+
+Pages use `@login_required` / `LoginRequiredMixin`; APIs use an
+`@api_login_required` decorator (`listings/views.py`) so scripts get a JSON
+error instead of an HTML login page. The navbar only shows the protected tabs
+once you are logged in, and shows Log in / Sign up or Hi, *name* / Log out.
 
 ## Navigation and URLs
 
@@ -148,10 +183,10 @@ stale one after a deploy.
 **Search** (`/listings/search/`) is a public GET form that filters listings by
 keyword, max rent, min bedrooms, status and lister name; the filters live in the
 URL, so a search link can be bookmarked or shared and always loads the same
-results. **My inquiries** (`/listings/my-inquiries/`) is a POST form where a
-seeker enters their `.edu` email to see the status of inquiries they sent, and
-the private address of any accepted listing; it uses POST and `{% csrf_token %}`
-so the email never appears in the URL. **Insights** (`/listings/insights/`) shows
+results. **My inquiries** (`/listings/my-inquiries/`) shows the status of the
+inquiries you sent, and the private address of any accepted listing. (In A3 it
+was a POST form where you typed a `.edu` email; since A5 it requires login and
+only ever shows `request.user`'s own inquiries.) **Insights** (`/listings/insights/`) shows
 ORM aggregations: totals (`count()`, `Avg`) and grouped summaries
 (`values().annotate(Count())`) by status, by lister, and by number of inquiries.
 It also embeds a server-rendered bar chart (`/listings/insights/chart.png`) of
@@ -168,14 +203,15 @@ the same URL:
   the page never modifies data and results are shareable/bookmarkable.
 - **POST form — send an inquiry** (`/listings/<pk>/`, `listings:detail`):
   the listing detail page includes an "Inquire about this listing" form
-  (`.edu` email + message). Submitting it **creates** an `Inquiry` row —
+  (a message; since A5 the sender is the logged-in user, and logged-out
+  visitors see a "Log in to send an inquiry" button instead). Submitting it **creates** an `Inquiry` row —
   real data modification — so it uses `method="post"` and
   `{% csrf_token %}`, never GET query params. Django rejects the POST with
   403 if the token is missing or invalid.
 - **CBV handling both GET and POST**: `ListingDetailView` (`listings/views.py`)
   is a generic `DetailView` with an added `post()` method. `GET` renders the
-  listing as usual; `POST` validates the submitted email/message, looks up
-  the seeker by `.edu` email, and calls `Inquiry.objects.get_or_create(...)`
+  listing as usual; `POST` requires login, validates the message, uses
+  `request.user` as the seeker, and calls `Inquiry.objects.get_or_create(...)`
   (which also respects the `unique_inquiry_per_seeker_listing` constraint,
   so resubmitting the form can't create a duplicate inquiry).
 

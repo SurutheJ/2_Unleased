@@ -55,6 +55,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',          # required by django-allauth
+    # Authentication (A5): username/password login now, Google OAuth next
+    'allauth',
+    'allauth.account',
     # Unleased apps
     'accounts',
     'listings',
@@ -68,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'unleased_project.urls'
@@ -96,7 +101,12 @@ DATABASES = {
     }
 }
 
-AUTH_PASSWORD_VALIDATORS = []
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Chicago'
@@ -112,3 +122,34 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Point Django to our custom user model
 AUTH_USER_MODEL = 'accounts.UnleasedUser'
+
+
+# ---------------------------------------------------------------------------
+# Authentication (A5) - django-allauth
+# ---------------------------------------------------------------------------
+AUTHENTICATION_BACKENDS = [
+    # Username/password login (also used by the /admin/ login)
+    'django.contrib.auth.backends.ModelBackend',
+    # allauth: lets users log in with username OR email, and (Part 2) Google
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1  # django.contrib.sites, needed by allauth
+
+# Where @login_required / LoginRequiredMixin send logged-out users,
+# and where users land after logging in or out.
+LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'home'
+
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}     # log in with either one
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'   # no email server yet; .edu check is in accounts/signals.py
+ACCOUNT_LOGOUT_ON_GET = False         # logging out needs a POST (with CSRF), not just a link
+ACCOUNT_SESSION_REMEMBER = None       # show the "Remember me" checkbox
+
+# No mail server: any email allauth would send (e.g. password reset) is
+# printed to the console instead of failing.
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

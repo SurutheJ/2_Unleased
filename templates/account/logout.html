@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Log out{% endblock %}
+
+{% block content %}
+  <div class="auth-card">
+    <h2>Log out</h2>
+    <p class="auth-sub">Are you sure you want to log out{% if user.is_authenticated %}, {{ user.username }}{% endif %}?</p>
+    {# Logging out changes state, so it is a POST with a CSRF token, not a plain link. #}
+    <form method="post" action="{% url 'account_logout' %}">
+      {% csrf_token %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+      <button class="auth-btn" type="submit">Log out</button>
+    </form>
+    <p class="auth-foot"><a href="{% url 'home' %}">Cancel and go home</a></p>
+  </div>
+{% endblock %}
