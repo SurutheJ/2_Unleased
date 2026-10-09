@@ -57,7 +57,7 @@ a { color: inherit; text-decoration: none; }
   padding-bottom: 12px;
 }
 .logo svg { width: 26px; height: 26px; }
-.tabs { display: flex; gap: 32px; }
+.tabs { display: flex; gap: 22px; }
 .tab {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   padding: 6px 2px 12px;
@@ -175,3 +175,63 @@ a { color: inherit; text-decoration: none; }
   .tabs { gap: 20px; }
   .page { padding: 24px 20px 48px; }
 }
+
+/* ---------- Authentication (A5) ---------- */
+.tab span { white-space: nowrap; }   /* "Available now" stays on one line */
+.nav-auth { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; white-space: nowrap; flex-shrink: 0; }
+.nav-auth form { margin: 0; }
+.nav-user { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+.nav-link { font-size: 13px; font-weight: 600; }
+.nav-link:hover { text-decoration: underline; }
+.nav-btn {
+  font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  padding: 8px 14px; border-radius: var(--radius-pill);
+  border: 1px solid var(--line); background: #fff; color: var(--ink);
+}
+.nav-btn:hover { background: var(--bg-card); }
+.nav-btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.nav-btn--primary:hover { background: var(--accent-dark); }
+
+.flash-list { list-style: none; padding: 0; margin: 0 0 18px; }
+.flash { background: #E8F4EC; color: #17683A; border-radius: var(--radius-md); padding: 10px 14px; font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+.flash--error, .flash--warning { background: #FBEAE6; color: #9A2A18; }
+
+.auth-card {
+  max-width: 420px; margin: 20px auto 40px; padding: 28px 28px 22px;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: #fff;
+}
+.auth-card h2 { margin: 0 0 6px; font-size: 21px; letter-spacing: -0.01em; }
+.auth-sub { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 20px; line-height: 1.5; }
+.auth-sub a, .auth-foot a { color: var(--accent-dark); font-weight: 600; text-decoration: underline; }
+.auth-field { margin-bottom: 14px; }
+.auth-field label { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 5px; }
+.auth-field input {
+  width: 100%; font: inherit; font-size: 14px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff;
+}
+.auth-field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.auth-help { font-size: 11.5px; color: var(--ink-soft); margin-top: 5px; line-height: 1.45; }
+.auth-help ul { margin: 4px 0 0; padding-left: 18px; }
+.auth-error { font-size: 12.5px; color: #9A2A18; font-weight: 600; margin-top: 5px; }
+.auth-error--box { background: #FBEAE6; border-radius: 8px; padding: 10px 12px; margin: 0 0 16px; }
+.auth-check { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 2px 0 16px; }
+.auth-btn {
+  width: 100%; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  padding: 11px 16px; border: 0; border-radius: 8px; background: var(--accent); color: #fff;
+}
+.auth-btn:hover { background: var(--accent-dark); }
+.auth-foot { text-align: center; font-size: 13px; margin: 16px 0 0; }
+
+/* Navbar fits on narrower laptop windows: tighter tabs, then wrap the
+   account area onto its own row instead of pushing it off-screen. */
+@media (max-width: 1400px) {
+  .tabs { gap: 14px; }
+  .tab { font-size: 12px; }
+  .nav-user { display: none; }   /* keep just the Log out button */
+}
+@media (max-width: 1150px) {
+  .topnav { flex-wrap: wrap; justify-content: center; row-gap: 4px; }
+  .nav-auth { width: 100%; justify-content: center; }
+}
+.auth-help a { color: var(--accent-dark); font-weight: 600; text-decoration: underline; }
+

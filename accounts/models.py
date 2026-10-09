@@ -23,7 +23,10 @@ class UnleasedUser(AbstractUser):
     )
     edu_email = models.EmailField(
         unique=True,
-        help_text="Must be a .edu address. Used for university verification.",
+        null=True,      # NULL (not "") when unknown, so the unique rule never
+        blank=True,     # clashes between two users who have no email yet
+        help_text="Filled from the account email on save (see accounts/signals.py). "
+                  ".edu addresses are marked as verified.",
     )
     is_edu_verified = models.BooleanField(
         default=False,

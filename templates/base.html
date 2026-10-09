@@ -13,6 +13,12 @@
     {% include "partials/_navbar.html" %}
 
     <main class="page">
+      {# One-time notices, e.g. "Successfully signed in as ..." from allauth. #}
+      {% if messages %}
+        <ul class="flash-list">
+          {% for message in messages %}<li class="flash flash--{{ message.tags }}">{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
       {% block content %}{% endblock %}
     </main>
 

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+  <div class="auth-card">
+    <h2>Log in to Unleased</h2>
+    <p class="auth-sub">Use your username or email. New here? <a href="{% url 'account_signup' %}{% if redirect_field_value %}?{{ redirect_field_name }}={{ redirect_field_value|urlencode }}{% endif %}">Create an account</a>.</p>
+
+    {% if form.non_field_errors %}
+      <div class="auth-error auth-error--box">{% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post" action="{% url 'account_login' %}">
+      {% csrf_token %}
+      {% include "partials/_form_fields.html" %}
+      {% if redirect_field_value %}<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">{% endif %}
+      <button class="auth-btn" type="submit">Log in</button>
+    </form>
+
+    {# A5 Part 2: the "Continue with Google" button goes here. #}
+    {% block social_login %}{% endblock %}
+
+  </div>
+{% endblock %}

@@ -51,6 +51,17 @@
     {% endwith %}
   </nav>
 
-  {# Spacer so the tabs stay centered next to the logo, like the mockup. #}
-  <div aria-hidden="true" style="width:110px"></div>
+  {# Account area: who is logged in + log out, or log in / sign up links. #}
+  <div class="nav-auth">
+    {% if user.is_authenticated %}
+      <span class="nav-user" title="{{ user.email }}">Hi, {{ user.first_name|default:user.username }}</span>
+      <form method="post" action="{% url 'account_logout' %}">
+        {% csrf_token %}
+        <button class="nav-btn" type="submit">Log out</button>
+      </form>
+    {% else %}
+      <a class="nav-link" href="{% url 'account_login' %}">Log in</a>
+      <a class="nav-btn nav-btn--primary" href="{% url 'account_signup' %}">Sign up</a>
+    {% endif %}
+  </div>
 </header>
