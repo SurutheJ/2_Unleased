@@ -15,7 +15,7 @@
   }
   .inquiry-box textarea { resize: vertical; min-height: 70px; }
   .inquiry-box .btn {
-    margin-top: 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    display: inline-block; margin-top: 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
     padding: 10px 16px; border-radius: 8px; border: 0; background: var(--accent); color: #fff;
   }
   .inquiry-box .btn:hover { background: var(--accent-dark); }
@@ -66,15 +66,22 @@
     {% if inquiry_sent %}
       <p class="success">Your inquiry was sent! Track its status from <a href="{% url 'listings:inquiries' %}">My inquiries</a>.</p>
     {% else %}
-      {% if inquiry_error %}<p class="error">{{ inquiry_error }}</p>{% endif %}
-      <form method="post" action="">
-        {% csrf_token %}
-        <label for="edu_email">Your .edu email</label>
-        <input id="edu_email" name="edu_email" type="email" required placeholder="netid@illinois.edu">
-        <label for="message">Message to the lister</label>
-        <textarea id="message" name="message" required placeholder="Hi! I'm interested in this place..."></textarea>
-        <button class="btn" type="submit">Send inquiry</button>
-      </form>
+      {% if not user.is_authenticated %}
+        {# Viewing is public; contacting the lister needs an account. #}
+        <p><a class="btn" href="{% url 'account_login' %}?next={{ request.path|urlencode }}">Log in to send an inquiry</a></p>
+        <p style="font-size:12.5px;color:var(--ink-soft);">New here? <a href="{% url 'account_signup' %}?next={{ request.path|urlencode }}"><u>Create an account</u></a>.</p>
+      {% elif user.pk == listing.lister_id %}
+        <p style="font-size:13px;color:var(--ink-soft);">This is your listing.</p>
+      {% else %}
+        {% if inquiry_error %}<p class="error">{{ inquiry_error }}</p>{% endif %}
+        <form method="post" action="">
+          {% csrf_token %}
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:0;">Sending as <b>{{ user.username }}</b> ({{ user.email }})</p>
+          <label for="message">Message to the lister</label>
+          <textarea id="message" name="message" required placeholder="Hi! I'm interested in this place..."></textarea>
+          <button class="btn" type="submit">Send inquiry</button>
+        </form>
+      {% endif %}
     {% endif %}
   </div>
 {% endblock %}
