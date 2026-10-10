@@ -3,4 +3,4 @@ python-dotenv==1.2.2
 matplotlib==3.11.0
 requests==2.34.2
 vl-convert-python==1.9.0.post1
-django-allauth==65.19.7
+django-allauth[socialaccount]==65.19.7

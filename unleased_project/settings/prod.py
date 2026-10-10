@@ -38,6 +38,9 @@ if not ALLOWED_HOSTS:
 # PythonAnywhere terminates HTTPS at its proxy and passes X-Forwarded-Proto,
 # so request.build_absolute_uri() (used for the Vega-Lite spec URLs) gives https://.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Google only accepts https:// redirect URIs for a real domain, so any URL
+# allauth builds without a request (e.g. in emails) must be https too.
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True') == 'True'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

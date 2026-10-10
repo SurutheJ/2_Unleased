@@ -125,6 +125,7 @@ See `.env.example` for the full list. Summary:
 | `ALLOWED_HOSTS` | Comma-separated list of hostnames Django will serve |
 | `DJANGO_SETTINGS_MODULE` | Which settings module to load (`unleased_project.settings.dev` or `.prod`) |
 | `MAPS_API_KEY` | Placeholder third-party API key, read the same way real secrets will be |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth client for "Continue with Google". Leave empty to hide the button |
 
 ## Authentication (A5 Part 1)
 
@@ -158,6 +159,71 @@ Pages use `@login_required` / `LoginRequiredMixin`; APIs use an
 `@api_login_required` decorator (`listings/views.py`) so scripts get a JSON
 error instead of an HTML login page. The navbar only shows the protected tabs
 once you are logged in, and shows Log in / Sign up or Hi, *name* / Log out.
+
+## Authentication (A5 Part 2): Google OAuth
+
+Login and signup have a **Continue with Google** button, built with
+django-allauth's Google provider (`allauth.socialaccount.providers.google`).
+It is a POST form with a CSRF token (`templates/partials/_google_button.html`)
+included from `templates/account/login.html` and `signup.html`.
+
+**The Google keys live in `.env`, not in the admin panel.**
+`settings/base.py` reads `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and
+registers the Google app itself through `SOCIALACCOUNT_PROVIDERS['google']['APP']`.
+Do **not** also add a "Social application" for Google in `/admin/`: allauth
+would then find two Google apps and fail with `MultipleObjectsReturned`.
+If the two variables are empty, the button is simply hidden and everything
+else keeps working.
+
+**Setup (one time, in Google Cloud Console)**
+
+1. Create a project, then *APIs & Services -> OAuth consent screen*: choose
+   **External**, fill in the app name and your email. The default scopes
+   (`openid`, `email`, `profile`) are all we ask for.
+2. *APIs & Services -> Credentials -> Create credentials -> OAuth client ID*,
+   type **Web application**.
+3. Under **Authorized redirect URIs** add **both** (they must match exactly,
+   including the trailing slash):
+
+   | Where | Redirect URI |
+   |---|---|
+   | Localhost | `http://localhost:8000/accounts/google/login/callback/` |
+   | Production | `https://parulmudaliar.pythonanywhere.com/accounts/google/login/callback/` |
+
+   Open the local site at `localhost:8000`, not `127.0.0.1:8000` (Google treats
+   them as different hosts), or add the `127.0.0.1` URI too.
+4. Copy the client ID and secret into `.env` (see `.env.example`).
+5. While the consent screen is in **Testing** mode only the test users you list
+   can sign in. Add your teammates' Google accounts as test users, or click
+   **Publish app** (no Google review is needed for these basic scopes).
+
+**Deploying it on PythonAnywhere**
+
+1. `git pull`, then `pip install -r requirements.txt` (this now installs
+   `django-allauth[socialaccount]`, which brings in PyJWT).
+2. Put the same `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in the `.env` file
+   next to `manage.py` on the server (`settings/base.py` loads it).
+3. `python manage.py migrate` (creates the `socialaccount` tables) and
+   `python manage.py collectstatic`.
+4. Reload the web app from the PythonAnywhere *Web* tab.
+
+`settings/prod.py` already trusts PythonAnywhere's `X-Forwarded-Proto` header,
+so the redirect URI sent to Google is `https://...`, matching step 3.
+The server-side calls Google makes during login go to `oauth2.googleapis.com`
+and `www.googleapis.com`; both fall under the `.googleapis.com` entry on
+PythonAnywhere's free-account allowlist.
+
+**What happens on login:** Google returns a verified email. A new user is created
+automatically (`SOCIALACCOUNT_AUTO_SIGNUP`), and `accounts/signals.py` fills
+`edu_email` and sets `is_edu_verified=True` when the address ends in `.edu`.
+If an account with that email already exists (for example from a password
+signup), Google signs the person into it instead of failing
+(`SOCIALACCOUNT_EMAIL_AUTHENTICATION`), since Google has already verified the address.
+
+Troubleshooting: `redirect_uri_mismatch` means the URI in Google Cloud Console
+differs from the one in the error page (check `http` vs `https`, the host, and
+the trailing slash). "Access blocked: app has not completed verification" means
+the Google account is not on the test-user list.
 
 ## Navigation and URLs
 
@@ -453,6 +519,13 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 | Styled home page on the deployed site | `https://parulmudaliar.pythonanywhere.com/` | [a4-p4-01-deployed-home.png](docs/screenshots/a4-p4-01-deployed-home.png) |
 | Internal API on the deployed site | `/listings/api/by-status/` | [a4-p4-02-deployed-api.png](docs/screenshots/a4-p4-02-deployed-api.png) |
 | Vega-Lite charts on the deployed site | `/listings/charts/` | [a4-p4-03-deployed-charts.png](docs/screenshots/a4-p4-03-deployed-charts.png) |
+
+### A5 Part 2: Google OAuth
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| "Continue with Google" on the login page | `/accounts/login/` | [a5-p2-01-login-google-button.png](docs/screenshots/a5-p2-01-login-google-button.png) |
+| "Continue with Google" on the signup page | `/accounts/signup/` | [a5-p2-02-signup-google-button.png](docs/screenshots/a5-p2-02-signup-google-button.png) |
 
 ## Branching strategy
 
