@@ -535,3 +535,64 @@ Which API is public and why:
   /listings/api/by-status/ stays public: it only returns counts per status
   (no personal data) and it feeds the public Vega-Lite bar chart. Every other
   JSON API requires login.
+
+------------------------------------------------------------
+A5 Part 2: Google OAuth (django-allauth)
+------------------------------------------------------------
+What was added:
+  - allauth.socialaccount + allauth.socialaccount.providers.google in
+    INSTALLED_APPS, and `python manage.py migrate` for the socialaccount tables.
+  - A "Continue with Google" button on /accounts/login/ and /accounts/signup/
+    (templates/partials/_google_button.html, a POST form with CSRF).
+  - requirements.txt now pins django-allauth[socialaccount]. Plain
+    django-allauth does not install PyJWT, which the Google callback needs.
+    It happened to be installed on one laptop, so everything worked there;
+    a clean PythonAnywhere install would have failed at the callback step.
+
+Keys are in .env, not the admin panel (teammate's note):
+  settings/base.py reads GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET with the same
+  get_env() helper as SECRET_KEY and passes them to allauth through
+  SOCIALACCOUNT_PROVIDERS['google']['APP']. Nothing secret is committed;
+  .env.example only has placeholders. Because the app is defined in settings
+  there must be NO Google "Social application" row in the admin, otherwise
+  allauth sees two apps and raises MultipleObjectsReturned. If the variables
+  are empty the button is hidden, so a machine without keys still runs.
+
+Redirect URIs (Google Cloud Console, Credentials -> OAuth client):
+  http://localhost:8000/accounts/google/login/callback/
+  https://parulmudaliar.pythonanywhere.com/accounts/google/login/callback/
+  Both are needed: the redirect_uri allauth sends must match one of them
+  exactly. prod.py already sets SECURE_PROXY_SSL_HEADER, so behind
+  PythonAnywhere's proxy Django builds an https:// URI; I also set
+  ACCOUNT_DEFAULT_HTTP_PROTOCOL='https' in prod.py for URLs built without a request.
+
+What was tested, and what was not:
+  - Tested with dummy credentials (no real Google call): no keys -> no button;
+    with keys -> button on both pages, and POST /accounts/google/login/ redirects
+    to accounts.google.com with the right client_id and scope. The redirect_uri
+    was http://localhost:8000/... under settings.dev and
+    https://parulmudaliar.pythonanywhere.com/... under settings.prod behind
+    X-Forwarded-Proto: https.
+  - Simulated the callback by handing allauth a fake Google profile (throwaway
+    in-memory test database): a new gmail user is created and logged in with
+    edu_email filled and is_edu_verified=False; a new @illinois.edu user gets
+    is_edu_verified=True; a Google login whose email matches an existing
+    password-signup account signs into that account (no duplicate user) and
+    links the Google identity to it.
+  - NOT tested: the real round trip (Google consent screen -> callback -> logged in).
+    That needs real credentials, so it still has to be confirmed by logging in
+    once on localhost and once on the live PythonAnywhere site.
+
+Problems to watch for in production:
+  - PythonAnywhere free accounts can only make outbound requests to an allowlist
+    (that is why the chart PNGs are rendered in-process). The callback calls
+    oauth2.googleapis.com and www.googleapis.com; both are covered by the
+    ".googleapis.com" entry on their allowlist.
+  - The OAuth consent screen starts in Testing mode: only listed test users can
+    sign in. Add teammates as test users or publish the app.
+  - On the server: pip install -r requirements.txt, put the keys in the server's
+    .env, run migrate and collectstatic, then reload the web app.
+  - Existing users: with SOCIALACCOUNT_EMAIL_AUTHENTICATION on, a Google login
+    with the same email as a password-signup account signs into that account
+    (Google verifies the email). Without it the user would get an error page.
+

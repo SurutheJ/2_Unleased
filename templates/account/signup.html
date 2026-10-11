@@ -18,7 +18,6 @@
       <button class="auth-btn" type="submit">Sign up</button>
     </form>
 
-    {# A5 Part 2: the "Continue with Google" button goes here. #}
-    {% block social_login %}{% endblock %}
+    {% include "partials/_google_button.html" %}
   </div>
 {% endblock %}

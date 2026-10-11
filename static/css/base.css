@@ -222,6 +222,16 @@ a { color: inherit; text-decoration: none; }
 .auth-btn:hover { background: var(--accent-dark); }
 .auth-foot { text-align: center; font-size: 13px; margin: 16px 0 0; }
 
+/* "Continue with Google" (A5 Part 2) */
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0 14px; color: var(--ink-soft); font-size: 12px; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.google-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  padding: 10px 16px; border: 1px solid #dadce0; border-radius: 8px; background: #fff; color: #3c4043;
+}
+.google-btn:hover { background: #f7f8f8; border-color: #c6c9cc; }
+
 /* Navbar fits on narrower laptop windows: tighter tabs, then wrap the
    account area onto its own row instead of pushing it off-screen. */
 @media (max-width: 1400px) {

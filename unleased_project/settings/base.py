@@ -56,9 +56,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',          # required by django-allauth
-    # Authentication (A5): username/password login now, Google OAuth next
+    # Authentication (A5): username/password login + Google OAuth
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     # Unleased apps
     'accounts',
     'listings',
@@ -153,3 +155,38 @@ ACCOUNT_SESSION_REMEMBER = None       # show the "Remember me" checkbox
 # No mail server: any email allauth would send (e.g. password reset) is
 # printed to the console instead of failing.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# ---------------------------------------------------------------------------
+# Google OAuth (A5 Part 2)
+# ---------------------------------------------------------------------------
+# The Google client ID/secret live in .env (locally) or the host's real
+# environment / a .env file next to manage.py (PythonAnywhere) - never in the
+# admin panel, never in git. Because the app is defined here in settings,
+# do NOT also add a "Social application" for Google in /admin/ (allauth would
+# then find two Google apps and raise MultipleObjectsReturned).
+GOOGLE_CLIENT_ID = get_env('GOOGLE_CLIENT_ID', default='')
+GOOGLE_CLIENT_SECRET = get_env('GOOGLE_CLIENT_SECRET', default='')
+GOOGLE_LOGIN_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        # Only register the app when both values are present, so a machine
+        # without Google keys still runs (the button is simply hidden).
+        **({
+            'APP': {
+                'client_id': GOOGLE_CLIENT_ID,
+                'secret': GOOGLE_CLIENT_SECRET,
+                'key': '',
+            },
+        } if GOOGLE_LOGIN_ENABLED else {}),
+    },
+}
+
+# Google has already verified the address, so an existing local account with
+# the same email is signed in instead of failing with "email already in use".
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
