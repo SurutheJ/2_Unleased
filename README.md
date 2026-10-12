@@ -351,10 +351,46 @@ stored), because PythonAnywhere's free tier does not let the server make HTTP
 requests back to itself. The Charts page shows both the live embedded charts
 and these PNG versions, with alt text and captions.
 
-The public read-only APIs (`/listings/api/`, `/listings/api.txt`,
-`/listings/api/by-status/`, `/listings/api/proximity/`) and the spec endpoints
-send `Access-Control-Allow-Origin: *`, so other sites, like the online
-Vega-Lite editor, are allowed to load them.
+**Only `/listings/api/by-status/` is actually public** (see "What needs
+login" above — every other JSON API requires login as of A5). It and the
+chart-spec/PNG endpoints send `Access-Control-Allow-Origin: *`, so other
+sites — like the online Vega-Lite editor — are allowed to load them without
+a login session. `chart1` (the bar chart) is built on this public endpoint,
+so `/vega-lite/chart1.png` and `/vega-lite/chart1.json` work for anyone,
+logged in or not. `chart2` (the scatter chart) is built on the protected
+`listing_api`, so its PNG/spec endpoints return `401` when logged out —
+intentional, to demonstrate a protected chart next to a public one.
+
+## A5 Part 3: public API, reused three different ways
+
+**3.1 — the one public endpoint.** `listing_api_by_status`
+(`/listings/api/by-status/`) is the API made public for this assignment: no
+`@login_required`/`@api_login_required`, `GET`-only, clean JSON backed by the
+real `Listing` table, deployed at
+`https://parulmudaliar.pythonanywhere.com/listings/api/by-status/`. Every
+other API in the app still requires login.
+
+**3.2/3.3 — the Vega-Lite chart.** `chart1` (the bar chart described above)
+is built entirely on this public endpoint and uses `data.url`, never inline
+data, so it's pasteable straight into the
+[online Vega-Lite editor](https://vega.github.io/editor/) with no login. The
+exact spec is submitted as a `.txt` file at
+[`docs/vega-lite/chart1-bar-by-status.vl.txt`](docs/vega-lite/chart1-bar-by-status.vl.txt)
+(identical content to the `.vl.json` next to it — just the extension the
+assignment asks for), with `data.url` already pointing at the production
+endpoint.
+
+**3.4 — three alternative uses of the same public API**, all in
+[`docs/alt-api-uses/`](docs/alt-api-uses/), each calling the exact same
+`https://parulmudaliar.pythonanywhere.com/listings/api/by-status/` URL:
+
+| Use | File | What it does |
+|---|---|---|
+| Python script | [`use1_python_script.py`](docs/alt-api-uses/use1_python_script.py) | Fetches the JSON with `requests`, prints a count + percentage-share table per status, and reports the most common status. Verified against the live production API (see output in that file's companion screenshot). |
+| Google Sheets (Apps Script) | [`use2_google_sheets_apps_script.gs`](docs/alt-api-uses/use2_google_sheets_apps_script.gs) | A few lines of Apps Script (`UrlFetchApp.fetch` + `JSON.parse`) that write the same data as a normal two-column table directly into a spreadsheet — Sheets has no built-in JSON importer, so this is the standard way to pull JSON in. |
+| Notebook statistical analysis | [`use3_notebook_stats.ipynb`](docs/alt-api-uses/use3_notebook_stats.ipynb) (plain-`.py` mirror: [`use3_notebook_stats.py`](docs/alt-api-uses/use3_notebook_stats.py)) | Computes a 95% confidence interval for the proportion of `Available` listings (normal approximation to the binomial — the same math behind a poll's margin of error). Executed against the live API; outputs are baked into the notebook. |
+
+Screenshots for all three are listed in the "Screenshots" section below.
 
 ## External API integration: distance from campus
 
@@ -526,6 +562,17 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 |---|---|---|
 | "Continue with Google" on the login page | `/accounts/login/` | [a5-p2-01-login-google-button.png](docs/screenshots/a5-p2-01-login-google-button.png) |
 | "Continue with Google" on the signup page | `/accounts/signup/` | [a5-p2-02-signup-google-button.png](docs/screenshots/a5-p2-02-signup-google-button.png) |
+
+### A5 Part 3: Public API, Vega-Lite, and 3 alternative uses
+
+| What it shows | URL | Screenshot |
+|---|---|---|
+| Public endpoint, no login, on production | `https://parulmudaliar.pythonanywhere.com/listings/api/by-status/` | [a5-p3-01-public-api.png](docs/screenshots/a5-p3-01-public-api.png) |
+| Protected endpoint returning 401 when logged out, for contrast | `https://parulmudaliar.pythonanywhere.com/listings/api/` | [a5-p3-02-protected-401.png](docs/screenshots/a5-p3-02-protected-401.png) |
+| `chart1`'s spec pasted into the online Vega-Lite editor, rendering from the production URL | [vega.github.io/editor](https://vega.github.io/editor/) | [a5-p3-03-vega-editor.png](docs/screenshots/a5-p3-03-vega-editor.png) |
+| Use #1: Python script output | `docs/alt-api-uses/use1_python_script.py` | [a5-p3-04-use1-python.png](docs/screenshots/a5-p3-04-use1-python.png) |
+| Use #2: Google Sheets populated by the Apps Script | `docs/alt-api-uses/use2_google_sheets_apps_script.gs` | [a5-p3-05-use2-sheets.png](docs/screenshots/a5-p3-05-use2-sheets.png) |
+| Use #3: notebook statistical analysis output | `docs/alt-api-uses/use3_notebook_stats.ipynb` | [a5-p3-06-use3-notebook.png](docs/screenshots/a5-p3-06-use3-notebook.png) |
 
 ## Branching strategy
 
