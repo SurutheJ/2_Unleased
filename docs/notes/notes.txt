@@ -596,3 +596,75 @@ Problems to watch for in production:
     with the same email as a password-signup account signs into that account
     (Google verifies the email). Without it the user would get an error page.
 
+------------------------------------------------------------
+A5 Part 3: Public API, Vega-Lite, and 3 Alternative Uses
+------------------------------------------------------------
+What was already true going into this part (from A4, now re-checked):
+  listing_api_by_status() (/listings/api/by-status/) was already the one
+  endpoint without a login decorator and already had @allow_cross_origin,
+  so it was already "the public API" in spirit. A5 Part 1/2 then added
+  @login_required / @api_login_required to every OTHER view and API in
+  listings/views.py, which made the public/protected split real instead of
+  accidental. Confirmed against the live production site:
+    curl https://parulmudaliar.pythonanywhere.com/listings/api/by-status/
+      -> 200, Access-Control-Allow-Origin: *, real JSON, no cookies needed.
+    curl https://parulmudaliar.pythonanywhere.com/listings/api/
+      -> 401 {"error": "Authentication required...", "login_url": ...}
+  So 3.1 needed no new code — just verifying the existing split actually
+  holds on the deployed site, not only locally.
+
+3.2/3.3: which chart had to stay public.
+  docs/vega-lite/chart1-bar-by-status.vl.json (the bar chart) already had
+  data.url pointing at the production by-status endpoint from A4. That is
+  the one this part's grading depends on, since the grader pastes it into
+  vega.github.io/editor with no login session — it must work standalone.
+  chart2 (the scatter) deliberately stayed on the now-protected listing_api
+  on purpose (see VEGA_CHARTS['chart2']['public'] = False in views.py) to
+  show a protected chart next to a public one, not as an oversight.
+  Added docs/vega-lite/chart1-bar-by-status.vl.txt: identical content to
+  the .vl.json, just renamed, because the assignment specifically asks for
+  "the full Vega-Lite script in a .txt file" for whoever is grading to
+  copy-paste into the editor directly.
+
+3.4: three alternative uses, all pointed at the same public URL
+(https://parulmudaliar.pythonanywhere.com/listings/api/by-status/):
+  1. docs/alt-api-uses/use1_python_script.py — plain requests.get(), no
+     extra dependencies. Prints counts, a percentage-share table, and the
+     most common status. Run against the live API while writing this:
+       Available  4  80.0%   Pending  1  20.0%   Filled  0  0.0%
+       Total listings across all statuses: 5
+     Point: this is the simplest possible consumer — anyone with Python and
+     requests installed can use Unleased's data without ever touching
+     Django, a login page, or even knowing it's a Django site.
+  2. docs/alt-api-uses/use2_google_sheets_apps_script.gs — Google Sheets
+     has no built-in JSON importer (IMPORTDATA only does CSV/TSV), so this
+     is a few lines of Apps Script: UrlFetchApp.fetch(url) + JSON.parse(),
+     then sheet.appendRow() per status. Paste into Extensions -> Apps
+     Script on a blank Sheet, click Run, authorize once, and a Status/Total
+     table appears. Point: shows the same public data reaching a
+     completely non-technical tool a lister or investor might actually use,
+     not just another Python environment.
+  3. docs/alt-api-uses/use3_notebook_stats.ipynb (+ a .py mirror with the
+     identical code, for running outside Jupyter) — goes a step further
+     than just displaying the numbers: computes a 95% confidence interval
+     for the proportion of listings that are "Available", using the normal
+     approximation to a binomial proportion (same math as a poll's margin
+     of error). With n=5 (today's real seed data) that interval come out
+     wide ([44.9%, 100.0%]), which is itself the right takeaway — the
+     notebook's last markdown cell says explicitly that the interval would
+     narrow automatically as more real listings exist, with zero code
+     changes on either side, since it always re-fetches from the same URL.
+     Deliberately used Python's stdlib (math) instead of pandas/scipy so it
+     needs nothing beyond requests to run, since those heavier packages
+     are not part of this project's requirements.txt and would be an
+     unnecessary install just for one demo notebook.
+
+What's NOT committed here (teammates still need to do this themselves):
+  The six A5 Part 3 screenshots (public API response, protected 401 for
+  contrast, the production spec open in the online Vega-Lite editor, and
+  one screenshot per alternative use showing it actually running) — see the
+  "A5 Part 3" table in README.md for the exact filenames expected in
+  docs/screenshots/. None of this needed new Django code to be captured,
+  just running the three scripts/notebook and opening two URLs + the
+  online editor.
+
