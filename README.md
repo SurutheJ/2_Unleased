@@ -374,8 +374,10 @@ other API in the app still requires login.
 is built entirely on this public endpoint and uses `data.url`, never inline
 data, so it's pasteable straight into the
 [online Vega-Lite editor](https://vega.github.io/editor/) with no login. The
-exact spec is submitted as a `.txt` file at
-[`docs/vega-lite/chart1-bar-by-status.vl.txt`](docs/vega-lite/chart1-bar-by-status.vl.txt)
+exact spec is submitted as
+[`docs/vega-lite/group-2-vega-lite-API-demo.txt`](docs/vega-lite/group-2-vega-lite-API-demo.txt),
+the file name the assignment asks for (also kept as
+[`chart1-bar-by-status.vl.txt`](docs/vega-lite/chart1-bar-by-status.vl.txt))
 (identical content to the `.vl.json` next to it — just the extension the
 assignment asks for), with `data.url` already pointing at the production
 endpoint.
