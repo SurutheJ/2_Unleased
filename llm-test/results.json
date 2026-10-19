@@ -1,0 +1,161 @@
+{
+  "Ultra-Light (<1B)": {
+    "HuggingFaceTB/SmolLM2-360M-Instruct": {
+      "load_time_s": 1.5531868934631348,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 2.478464126586914,
+          "output": "{\n  \"title\": \"Subletting My Room\",\n  \"monthly_rent\": \"3000\",\n  \"bedrooms\": \"1\",\n  \"is_furnished\": \"yes\",\n  \"has_in_unit_laundry\": \"yes\",\n  \"pets_allowed\": \"yes\",\n  \"has_balcony\": \"yes\",\n  \"utilities_included\": \"yes\",\n  \"available_from\": \"15/12/2022\",\n  \"available_until\": \"15/12/2022\"\n}"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 2.4380407333374023,
+          "output": "{\n  \"title\": \"Room Open Near Campus Asap\",\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": \"2\",\n  \"is_furnished\": \"chill\",\n  \"has_in_unit_laundry\": \"available\",\n  \"pets_allowed\": \"has_parking\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \""
+        },
+        "messy_listing": {
+          "gen_time_s": 1.5607521533966064,
+          "output": "{\n  \"title\": \"Studio @ the Lofts\",\n  \"monthly_rent\": \"900\",\n  \"bedrooms\": \"1\",\n  \"is_furnished\": \"Partially furnished\",\n  \"has_in_unit_laundry\": \"No\",\n  \"pets_allowed\": \"No\",\n  \"has_balcony\": \"Yes\",\n  \"utilities_included\": \"Yes\",\n  \"available_from\": \"Jan 1 - May 15\",\n  \"available_until\": \"May 15\"\n}"
+        }
+      }
+    },
+    "Qwen/Qwen2.5-0.5B-Instruct": {
+      "load_time_s": 3.0899789333343506,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 3.7433931827545166,
+          "output": "```json\n{\n  \"title\": \"Subletting Room\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"dec 15 thru aug 1\",\n  \"available_until\": null\n}\n```"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 2.2515368461608887,
+          "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+        },
+        "messy_listing": {
+          "gen_time_s": 2.2818539142608643,
+          "output": "```json\n{\n  \"title\": \"Sublease Urgent!! Studio @ the Lofts\",\n  \"monthly_rent\": \"$900\",\n  \"bedrooms\": null,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"jan1-may15\",\n  \"available_until\": null\n}\n```"
+        }
+      }
+    },
+    "HuggingFaceTB/SmolLM2-135M-Instruct": {
+      "load_time_s": 16.58216094970703,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 1.593825101852417,
+          "output": "{\n  \"title\": \"hey! subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets, sorry, text 217-555-0199 if interested\",\n  \"monthly_rent\": {\n    \"title\": \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets, text 217-555-0199 if interested\",\n    \"monthly_rent_type\": \"rent\",\n    \"monthly_rent_amount\": 217,\n    \"monthly_rent_description\": \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 1.1479930877685547,
+          "output": "{\n  \"title\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n  \"monthly_rent\": {\n    \"title\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n    \"monthly_rent_type\": \"N/A\",\n    \"monthly_rent_amount\": 20000,\n    \"monthly_rent_description\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n    \"monthly_rent_description_type\": \"N/A\",\n    \"monthly_rent_description_amount\": 20000,\n    \"monthly_"
+        },
+        "messy_listing": {
+          "gen_time_s": 0.3464031219482422,
+          "output": "{\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts, $900 (utilities incl), avail jan1-may15, AC + balcony, NO pets, furnished partially (bed+desk only)\"\n}"
+        }
+      }
+    }
+  },
+  "Small (1B-3B)": {
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
+      "load_time_s": 76.36211895942688,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 8.403723955154419,
+          "output": "[\n  {\n    \"title\": \"Hey! Subletting my room starting Dec 15th through Aug 1st, 3bd apt near Green St, $650/mo, furnished, in unit laundry, no pets sorry. Text 217-555-0199 if interested.\",\n    \"monthly_rent\": null,\n    \"bedrooms\": null,\n    \"is_furnished\": null,\n    \"has_in_unit_laundry\": null,\n    \"pets_allowed\": null,\n    \"has_parking\": null,\n    \"has_balcony\": null,\n    \"utilities_included\": null,\n    \"available_from\": null,\n    \"available_until\": null\n  }\n]"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 8.811909914016724,
+          "output": "[\n  {\n    \"title\": \"Room Open Near Campus Asap\",\n    \"monthly_rent\": null,\n    \"bedrooms\": null,\n    \"is_furnished\": null,\n    \"has_in_unit_laundry\": null,\n    \"pets_allowed\": null,\n    \"has_parking\": null,\n    \"has_balcony\": null,\n    \"utilities_included\": null,\n    \"available_from\": null,\n    \"available_until\": null\n  },\n  {\n    \"title\": \"2 Roommates Chill\",\n    \"monthly_rent\": null,\n    \"bedrooms\": null,\n    \"is_furnished\": null,\n    \"has_in_unit_laundry\": null,\n    \"pets_allowed\": null,\n    \"has_"
+        },
+        "messy_listing": {
+          "gen_time_s": 3.596156120300293,
+          "output": "[\n  {\n    \"title\": \"SUBLEASE URGENT!! studio @ the lofts, $900 (utilities incl), avail jan1-may15, AC + balcony, NO pets, furnished partially (bed+desk only)\"\n  }\n]"
+        }
+      }
+    },
+    "Qwen/Qwen2.5-1.5B-Instruct": {
+      "load_time_s": 168.79518914222717,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 6.859665870666504,
+          "output": "```json\n{\n  \"title\": \"subletting my room\",\n  \"monthly_rent\": \"$650/mo\",\n  \"bedrooms\": \"3bd\",\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": true,\n  \"available_from\": \"Dec 15\",\n  \"available_until\": \"Aug 1\"\n}\n```"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 6.669012069702148,
+          "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": false,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": false,\n  \"utilities_included\": false,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+        },
+        "messy_listing": {
+          "gen_time_s": 6.754371166229248,
+          "output": "```json\n{\n  \"title\": \"studio\",\n  \"monthly_rent\": \"$900\",\n  \"bedrooms\": 1,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}\n```"
+        }
+      }
+    },
+    "HuggingFaceTB/SmolLM2-1.7B-Instruct": {
+      "load_time_s": 150.30032587051392,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 5.086107015609741,
+          "output": "{\n  \"title\": \"3bd apt near green st\",\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": false,\n  \"utilities_included\": false,\n  \"available_from\": \"Dec 15\",\n  \"available_until\": \"Aug 1\"\n}"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 4.490565061569214,
+          "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+        },
+        "messy_listing": {
+          "gen_time_s": 4.867883920669556,
+          "output": "{\n  \"title\": \"studio @ the lofts\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": 0,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": false,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}"
+        }
+      }
+    }
+  },
+  "Medium (3B-7B)": {
+    "Qwen/Qwen2.5-3B-Instruct": {
+      "load_time_s": 249.42820000648499,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 75.48874998092651,
+          "output": "```json\n{\n  \"title\": \"3bd apt near green st\",\n  \"monthly_rent\": \"650\",\n  \"bedrooms\": \"3\",\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"dec 15\",\n  \"available_until\": \"aug 1\"\n}\n```"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 7.25944709777832,
+          "output": "```json\n{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+        },
+        "messy_listing": {
+          "gen_time_s": 78.53253769874573,
+          "output": "```json\n{\n  \"title\": \"studio @ the lofts\",\n  \"monthly_rent\": \"900\",\n  \"bedrooms\": null,\n  \"is_furnished\": \"partially\",\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}\n```"
+        }
+      }
+    },
+    "microsoft/Phi-3-mini-4k-instruct": {
+      "load_time_s": 283.04976511001587,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 1323.434396982193,
+          "output": "```json\n{\n  \"title\": \"3bd furnished apt near Green St\",\n  \"monthly_rent\": \"$650\",\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"2023-12-15\",\n  \"available_until\": \"2023-08-01\"\n}\n```"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 10.605278968811035,
+          "output": "```json\n{\n  \"title\": null,\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"cat friendly\",\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+        },
+        "messy_listing": {
+          "gen_time_s": 13.80952501296997,
+          "output": "```json\n\n{\n\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts\",\n\n  \"monthly_rent\": \"900\",\n\n  \"bedrooms\": null,\n\n  \"is_furnished\": \"partially\",\n\n  \"has_in_unit_laundry\": null,\n\n  \"pets_allowed\": \"NO\",\n\n  \"has_parking\": null,\n\n  \"has_balcony\": \"AC + balcony\",\n\n  \"utilities_included\": \"utilities incl\",\n\n  \"available_from\": \"jan1\",\n\n  \"available_until\": \"may15\"\n\n}\n\n```"
+        }
+      }
+    },
+    "microsoft/Phi-3.5-mini-instruct": {
+      "load_time_s": 343.52011704444885,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 13.235454082489014,
+          "output": "```json\n{\n  \"title\": null,\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"2023-12-15\",\n  \"available_until\": \"2023-08-01\"\n}\n```"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 11.051857948303223,
+          "output": "```json\n{\n  \"title\": null,\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"cat friendly\",\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+        },
+        "messy_listing": {
+          "gen_time_s": 11.851017951965332,
+          "output": "```json\n{\n  \"title\": \"SUBLEASE\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": null,\n  \"is_furnished\": \"partially\",\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"NO\",\n  \"has_parking\": null,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}\n```"
+        }
+      }
+    }
+  }
+}
