@@ -30,6 +30,19 @@ static_root/
 # ---- Jupyter ----
 .ipynb_checkpoints/
 
+# ---- LLM model weights (INFO 490 A6) ----
+# Hugging Face caches/downloads these locally via transformers; multi-GB
+# binary weight files must never be committed, only the notebook/code that
+# fetches them.
+*.bin
+*.safetensors
+*.pt
+*.gguf
+*.onnx
+llm-test/models/
+llm-test/.cache/
+huggingface_cache/
+
 # ---- IDE ----
 .idea/
 .vscode/
