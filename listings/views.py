@@ -25,6 +25,7 @@ from django.views import View
 from django.views.generic import DetailView, ListView
 
 from accounts.models import UnleasedUser
+from . import ai_external, ai_local
 from .models import Inquiry, Listing
 
 
@@ -757,3 +758,63 @@ def listing_reports(request):
         'inquiries_per_listing': inquiries_per_listing,
     }
     return render(request, 'listings/reports.html', context)
+
+
+# ---------------------------------------------------------------------------
+# A6 Part 2: AI listing assistant (local Hugging Face model + Gemini API)
+# ---------------------------------------------------------------------------
+
+@login_required
+def ai_assistant(request):
+    """
+    Paste an informal sublease message; a local Hugging Face model extracts
+    the listing fields, then the Gemini API writes a description from the
+    validated fields. Nothing is saved: the page only previews the result.
+
+    Guardrails live in listings/ai_local.py (input cleaning, output
+    validation) and listings/ai_external.py (timeouts, fallback). The view
+    adds POST + CSRF, login, and a per-user cooldown.
+    """
+    context = {'max_chars': settings.AI_MAX_MESSAGE_CHARS, 'message': ''}
+    if request.method != 'POST':
+        return render(request, 'listings/ai_assistant.html', context)
+
+    raw = request.POST.get('message', '')
+    context['message'] = raw[:settings.AI_MAX_MESSAGE_CHARS * 2]
+
+    now = timezone.now().timestamp()
+    wait = settings.AI_COOLDOWN_SECONDS - (now - request.session.get('ai_last_request', 0))
+    if wait > 0:
+        context['error'] = f'Please wait {int(wait) + 1} more second(s) before trying again.'
+        return render(request, 'listings/ai_assistant.html', context, status=429)
+    request.session['ai_last_request'] = now
+
+    cleaned = ai_local.clean_message(raw)
+    context['notes'] = cleaned.notes
+    if len(cleaned.text) < 10:
+        context['error'] = 'Please paste a sublease message of at least a few words.'
+        return render(request, 'listings/ai_assistant.html', context, status=400)
+
+    if cleaned.suspicious:
+        context['error'] = ('That message looks like it is trying to give the AI instructions, so it was not processed. '
+                            'Paste only the sublease message itself.')
+        return render(request, 'listings/ai_assistant.html', context, status=400)
+
+    try:
+        reply = ai_local.run_local_model(cleaned.text)
+    except ai_local.LocalModelUnavailable as exc:
+        context['error'] = str(exc)
+        return render(request, 'listings/ai_assistant.html', context, status=503)
+
+    parsed = ai_local.parse_model_output(reply)
+    if parsed is None:
+        context['error'] = ('The model did not return readable JSON, so nothing was extracted. '
+                            'Try rewording the message, or fill the listing in by hand.')
+        return render(request, 'listings/ai_assistant.html', context, status=422)
+
+    fields, warnings = ai_local.validate_fields(parsed, cleaned.text)
+    context['fields'] = [(name, fields[name]) for name in ai_local.FIELD_NAMES]
+    context['warnings'] = warnings
+    context['found_count'] = sum(1 for value in fields.values() if value is not None)
+    context['description'] = ai_external.generate_description(fields)
+    return render(request, 'listings/ai_assistant.html', context)
