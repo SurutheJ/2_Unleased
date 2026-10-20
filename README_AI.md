@@ -159,7 +159,9 @@ unavailable model, escaped output, nothing saved), and every Gemini failure mode
 **What was and was not run for real**
 - Run for real: the local model on this Mac, through both a script and the actual page (logged in with a
   headless browser). Results for the team's three test messages plus two injection attempts are in
-  `docs/screenshots/a6-p2-01-ai-assistant.png` and the notes entry.
+  `docs/screenshots/a6-p2-01-ai-assistant.png` (earlier Qwen model, with a live Gemini description) and
+  `docs/screenshots/a6-p2-02-ai-assistant-granite-fallback.png` (current Granite model; Gemini's daily limit
+  was used up, so it shows the template fallback with its notice), plus the notes entry.
 - Gemini was also run for real with a free-tier key (about 12 s for the first call, about 2 s after) and
   returns a sensible description from the validated fields. The error paths (timeout, HTTP errors, blocked or
   cut-off replies, missing key) are tested with mocks, because they are hard to trigger on demand.
