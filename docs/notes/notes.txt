@@ -748,3 +748,289 @@ Not done / to confirm:
   - The deployed PythonAnywhere site cannot run the local model (torch does not fit the
     free quota); the whole pipeline has only been run on a developer machine.
 
+
+------------------------------------------------------------
+A6 Part 3: Production Reflection
+------------------------------------------------------------
+Based on the final Part 1 notebook (all 15 models run, Route A)
+and the shipped Django feature (granite-4.0-micro + Gemini API).
+
+Every number below is labeled:
+  [MEASURED]  from our own runs (llm-test/ai_prototype.ipynb, README_AI.md)
+  [PUBLISHED] from a price list or model card, linked under "Sources" at the end
+  [ESTIMATE]  our own arithmetic from stated assumptions, so it can be redone
+
+Prices were looked up in October 2026 and change often. Check them again before
+relying on them.
+
+What the app does (context for every answer below): a logged-in user pastes an
+informal sublease message. A local Hugging Face model (ibm-granite/granite-4.0-micro,
+zero-shot prompt) extracts 11 listing fields. Code validates them. Then the Google
+Gemini API writes a short description from the validated fields only.
+
+============================================================
+1. The Size vs. Quality Trade-off
+============================================================
+
+1a. What we measured. Task: extract 11 fields from 3 fixed WhatsApp-style messages
+(one clear, one ambiguous, one messy). All 15 models ran locally on a 16 GB Apple
+Silicon Mac. We capped every model at 4B parameters so all 15 could run without a
+cloud GPU. [MEASURED]
+
+ Tier (notebook)     Model                     Load     Avg gen   What we saw
+ -----------------   -----------------------   ------   -------   ------------------------------
+ 1 Ultra-Light <0.5B SmolLM2-135M-Instruct     1.2 s    1.2 s     Weakest; duplicated/malformed JSON
+                     SmolLM2-360M-Instruct     1.0 s    1.8 s     Repetition loop on the ambiguous message
+                     Qwen2.5-0.5B-Instruct     1.6 s    1.4 s     Clean JSON; got both implicit cues
+ 2 Light 0.5-1.6B    Qwen3-0.6B                58.2 s   3.5 s     Thinking model: no JSON within budget
+                     TinyLlama-1.1B-Chat       2.9 s    3.6 s     Mostly null; weak field coverage
+                     Qwen2.5-1.5B-Instruct     4.0 s    3.7 s     Right zero-shot; worse with examples
+ 3 Small 1.6-2.5B    SmolLM2-1.7B-Instruct     3.8 s    4.8 s     Got parking, missed the pets cue
+                     Qwen3-1.7B                154.3 s  8.0 s     Thinking model: no JSON within budget
+                     Granite-3.3-2B-Instruct   203.9 s  7.2 s     Best coverage in its tier
+ 4 Medium 2.5-3.5B   Qwen2.5-3B-Instruct       9.1 s    7.3 s     Both cues right; clean JSON
+                     SmolLM3-3B                312.9 s  14.0 s    Thinking style: JSON not finished
+                     Granite-4.0-Micro         269.8 s  8.1 s     Fully correct, stable across all prompts
+ 5 Large 3.5-4B      Phi-3.5-mini-instruct     13.7 s   14.3 s    Good coverage; "negotiable" as rent
+                     Phi-4-mini-instruct       305.0 s  9.6 s     Partial on pets; mostly null
+                     Qwen3-4B-Instruct-2507    265.8 s  9.1 s     Cleanest in its tier
+
+Route A (prompt engineering) on the best model of each tier: [MEASURED]
+  - Granite-4.0-micro and Qwen3-4B-Instruct-2507 gave the same correct answers with
+    zero, one, few, and many examples.
+  - Qwen2.5-1.5B got worse with more examples (it lost pets_allowed).
+  - Granite-3.3-2B got better with examples (they fixed its string-vs-boolean format).
+  - We ship Granite-4.0-micro with zero-shot: same reliability, shorter prompt, lower
+    latency.
+
+1b. The sweet spot: Small to Medium (about 1.6B to 3.5B), specifically the
+non-thinking Qwen2.5 and IBM Granite models. [MEASURED]
+  - Going smaller (under 0.5B) cost reliability: missed fields and a repetition loop.
+  - Going bigger (3.5B to 4B) did not reliably buy accuracy. Phi-3.5-mini and Phi-4-mini
+    made value-type errors that smaller Qwen2.5 and Granite models did not make.
+  - The biggest surprise was architecture, not size: all three "thinking" models
+    (Qwen3-0.6B, Qwen3-1.7B, SmolLM3-3B) wrote a long reasoning trace first and ran out
+    of our 200-token budget before any JSON.
+  - Trade-off we accepted for Granite-4.0-micro: about a 6.8 GB download (Qwen2.5-1.5B is
+    3.1 GB), about 16 s for the first request, then 7 to 8 s per message (Qwen was
+    about 4 s). It is more reliable but slower. [MEASURED, README_AI.md]
+
+1c. Was a massive model significantly better than a smaller one for our task?
+We can answer only inside the range we tested (135M to 4B). We did not run anything
+larger than 4B, so we have no measured evidence about 8B, 14B, 32B, or 70B models.
+Inside the tested range:
+  - Larger was not automatically better. The 3B-class Granite beat the 3.8B Phi
+    models, and a 0.5B Qwen2.5 model handled the ambiguous message cleanly while
+    several 3B+ models did not.
+  - Prompting and validation mattered more than size. Code that only keeps a value when
+    the message supports it (grounding) and range-checks every field fixed the
+    "invented yes/no" problem without needing a bigger model.
+  - A larger model might help on the messiest messages, but that is an expectation, not
+    a result. Our task is narrow (fill 11 known fields from one short message), which is
+    the kind of task where small models are usually enough.
+
+1d. Expected cost to run each model on a server, 24 hours a day, 730 hours a month.
+[ESTIMATE from PUBLISHED prices and MEASURED speeds]
+
+How it works: 16-bit weights take about 2 GB per billion parameters. Every tested
+model fits in 64 GB of RAM (and in a 24 GB GPU), so the hardware cost is the same for
+all of them: $588 a month for a 16-core, 64 GB CPU server (AWS m7i.4xlarge, $0.806/h),
+or $966 a month with a 24 GB GPU (AWS g6.4xlarge, $1.323/h). The difference between
+models is speed: a slower model serves fewer requests from the same server, so each
+request costs more. Parameter counts are approximate (model cards); Granite-4.0-micro
+uses its measured 6.8 GB download.
+
+ Model                 Params  fp16 mem  Avg gen  Requests/day   Cost per 1,000 requests
+                       (B)     (GB)      (s)      per worker     on the $588 CPU server
+ -------------------   ------  --------  -------  -------------  -----------------------
+ SmolLM2-135M          0.14    0.3       1.2      72,000         $0.27
+ SmolLM2-360M          0.36    0.7       1.8      48,000         $0.41
+ Qwen2.5-0.5B          0.49    1.0       1.4      61,714         $0.32
+ Qwen3-0.6B            0.6     1.2       3.5      24,685         $0.79 (no JSON in budget)
+ TinyLlama-1.1B        1.1     2.2       3.6      24,000         $0.82
+ Qwen2.5-1.5B          1.54    3.1       3.7      23,351         $0.84
+ SmolLM2-1.7B          1.7     3.4       4.8      18,000         $1.09
+ Qwen3-1.7B            1.7     3.4       8.0      10,800         $1.82 (no JSON in budget)
+ Granite-3.3-2B        2.5     5.0       7.2      12,000         $1.63
+ Qwen2.5-3B            3.09    6.2       7.3      11,835         $1.66
+ SmolLM3-3B            3.08    6.2       14.0     6,171          $3.18 (JSON not finished)
+ Granite-4.0-micro *   3.4     6.8       8.1      10,666         $1.84
+ Phi-3.5-mini          3.82    7.6       14.3     6,041          $3.25
+ Phi-4-mini            3.84    7.7       9.6      9,000          $2.18
+ Qwen3-4B-2507         4.02    8.0       9.1      9,494          $2.07
+
+ * the model we ship. "Requests/day per worker" assumes one request at a time,
+ busy all day (100% utilization), which a real server never reaches. Speeds were
+ measured on a laptop GPU (MPS); a cloud CPU would differ, and we did not measure it.
+
+For reference, models bigger than we tested (not run by us, memory is the 16-bit
+weights plus 20%): [ESTIMATE]
+ Llama-3.1-8B   19 GB   fits 1x 24 GB L4              about $966/month
+ Qwen2.5-14B    35 GB   1x A100 80 GB (RunPod $1.39/h) about $1,015/month
+ Qwen2.5-32B    78 GB   2x A100 80 GB (tight on 1)     about $2,029/month
+ Llama-3.1-70B  169 GB  2x H100 80 GB ($2.89/h each)   about $4,219/month
+ A 70B model costs about 7 times the CPU server we would need for the 3B model we
+ ship, before any quality gain is proven for our task.
+
+============================================================
+2. Cost & Scaling: 10,000 daily users
+============================================================
+
+Recommendation: move the heavy work to an API. Keep the local model only as an
+optional fallback and for development and offline use. Reasons, with numbers:
+
+Assumptions [ESTIMATE]: 30% of the 10,000 daily users use the AI assistant, 2 requests
+each = 6,000 requests/day = 180,000/month. An extraction request is about 450 input
++ 150 output tokens. A description request is about 200 input + 500 output tokens
+(output includes hidden "thinking" tokens; our runs saw 400 to 1,200 before any text).
+
+Option A: keep the local model (granite-4.0-micro) on our own server.
+  - Fixed cost whether anyone uses it or not: $588/month for a 16-core, 64 GB CPU
+    server, or $966/month with a GPU. [ESTIMATE from PUBLISHED prices]
+  - Speed: 7 to 8 s per message on a GPU laptop, 9 s on CPU only. [MEASURED] One process
+    can serve at most about 10,800 requests/day (at 8 s each, never idle).
+  - Peak load: if half the day's requests land in 4 hours, that is 0.21 requests/s. At
+    8 s each, about 1.7 requests are in progress at once. Our code runs one generation
+    at a time behind a lock, so we would need at least 2 worker processes. Each loads its
+    own 6.8 GB copy, so 13.6 GB of RAM before Django itself. Users would wait in a
+    queue during bursts.
+  - Hosting limits we already hit: PythonAnywhere's free 512 MB disk cannot hold torch,
+    let alone 6.8 GB of weights (README_AI.md). On a laptop, accelerate's automatic device
+    placement offloaded the model to disk and had not finished one message after 19
+    minutes; we had to pick one device explicitly. [MEASURED]
+  - Cost per request: $1.84 per 1,000 requests even at 100% utilization on the CPU
+    server (table 1d). That is about 5 times Gemini Flash-Lite and about 53 times
+    Groq's Llama 3.1 8B (table below).
+
+Option B: API per-token pricing, 180,000 requests/month. [PUBLISHED prices x ESTIMATE volume]
+
+ Provider / model                                   Extraction  Description  Total/month
+ ------------------------------------------------   ----------  -----------  -----------
+ Groq Llama 3.1 8B ($0.05 in / $0.08 out)           $6          $9           $15
+ Gemini 3.1 Flash-Lite ($0.25 / $1.50)              $61         $144         $205
+ Gemini 3.8 Flash, to Dec 31 2026 ($0.75 / $3.75)   $162        $365         $527
+ Gemini 3.8 Flash, from Jan 1 2027 ($1.50 / $7.50)  $324        $729         $1,053
+
+ (Prices are per 1M tokens. The Groq prices come from a third-party article that did
+ not date them, so check groq.com/pricing.)
+
+Reading the table: at 6,000 requests/day the API costs between $15 and $1,053 a
+month depending on the model, against a fixed $588 to $966 for a server. Description
+generation costs more than extraction because of output and thinking tokens, so
+limiting thinking (we already set thinkingLevel low) and caching descriptions
+matter more than which extraction model we pick.
+
+Break-even, cost per request: [ESTIMATE]
+ Extraction cost per 1,000 requests:
+   Gemini 3.1 Flash-Lite $0.34 | Gemini 3.8 Flash $0.90 (now), $1.80 (2027) | Groq 8B $0.03
+   Our CPU server running Granite at full load: $1.84
+ A server only wins if each request takes it less time than this (at 100% utilization):
+   vs Flash-Lite: CPU server 1.5 s, GPU server 0.9 s per request
+   vs Gemini 3.8 Flash (now): CPU server 4.0 s, GPU server 2.4 s per request
+   vs Groq 8B: CPU server 0.15 s, GPU server 0.09 s per request
+ Granite takes 8 s per request on our hardware. So the CPU server loses to every API
+ listed. A GPU would need to be about 9 times faster than our measured speed to match
+ Flash-Lite, and we did not measure a GPU server. Idle hours make this worse.
+ One published analysis found self-hosting a 70B model roughly matched Groq's price
+ only at about 85% utilization, and cost about twice as much at typical utilization.
+
+Free tier note: Gemini's free tier covers our current low volume at $0, but during
+development we hit HTTP 503 ("high demand"), 429 per-minute limits, and the daily
+limit (README_AI.md), so it cannot carry 6,000 requests/day. Google's pricing page also
+says free-tier content may be used to improve Google's products, so use the paid tier
+once real users' listings are involved.
+
+============================================================
+3. Hybrid Potential
+============================================================
+
+The local model and the API can share the work so each does what it is cheapest and
+safest at. Our app already does one version of this:
+
+  1. The local model extracts fields. Raw text, phone numbers, and emails never leave our
+     server (they are masked before the model runs).
+  2. Code validates and grounds the fields, so a wrong or invented value is dropped
+     before it costs any API tokens.
+  3. Only the validated fields go to Gemini, which writes the description.
+  4. If Gemini is busy, out of quota, or returns a cut-off reply, the app falls back to a
+     template description instead of failing.
+
+More ways to lower cost while keeping quality:
+  - Cascade: send a message to a cheap model first and call a stronger or paid model only
+    when validation fails (a missing rent, a bad date, unparseable output). Clear
+    messages would never reach the expensive step.
+  - Cache: the same validated fields give the same description, so store it and reuse it
+    instead of paying again.
+  - Right-size the API: a cheap small model for extraction fallbacks (Groq 8B costs about
+    $6 per 180,000 requests) and a stronger model only for the customer-facing text.
+  - Cap output and thinking tokens, since output tokens cost the most.
+  - Rate-limit per user (we already use a 5 s cooldown) so one user cannot run up the
+    bill.
+  - Use the local model for privacy-sensitive steps only (masking, extraction), and
+    move the bulk volume to an API.
+
+Example monthly bill at 6,000 requests/day [ESTIMATE]:
+  - All API (Flash-Lite for both steps): $61 + $144 = $205.
+  - Hybrid (Granite extraction on our own server, Flash-Lite for descriptions): $144 in
+    API fees plus the server. If the model needs its own server, add $588 and the
+    hybrid costs more than all-API. If the web server already has spare memory and CPU,
+    the local step is nearly free, but at 8 s per message it needs at least 2 workers
+    at peak.
+Honest conclusion: at our size, all-API is cheapest. The hybrid is worth keeping for
+privacy (contact details stay local), as protection against API outages and free-tier
+limits, and because the local model is what our Route A research selected.
+
+============================================================
+4. Cost Comparison: self-hosted pre-trained model vs paid API
+============================================================
+
+Server in the question: 16 CPU cores, a 16-core-class GPU, 64 GB RAM, 1 TB disk. We
+use AWS g6.4xlarge as the closest match (16 vCPU, 64 GB RAM, one 24 GB L4 GPU):
+$1.323/h = about $966/month, plus about 1 TB of storage (not included here).
+[PUBLISHED price, ESTIMATE monthly total]
+
+It is acceptable (and often better) to run the pre-trained model ourselves when:
+  - Data must not leave our servers (contact details, private listings, university
+    policy), and masking is not enough.
+  - Volume is high and steady, and the server stays busy. At $966/month, a GPU beats
+    Gemini Flash-Lite only if it answers in under about 0.9 s per request when full,
+    and Gemini Flash (3.8) at about 2.4 s. Idle hours are still paid.
+  - We need a custom or fine-tuned model, a fixed output format, or a model version
+    that will not change under us.
+  - We need to work offline, in development, or in a classroom setting.
+  - We want a predictable bill instead of per-token surprises.
+
+It is better to switch to a paid API when:
+  - Traffic is low or spiky. A server bills 24 hours a day; an API bills only for use.
+    At our 6,000 requests/day the API costs $15 to $205 a month for the same work that
+    a server bills at $588 to $966.
+  - We need quality beyond what our hardware can hold. A 70B model needs about
+    $4,200/month in hardware (table 1d); an API gives access without owning it.
+  - Our hosting cannot hold the model (PythonAnywhere's 512 MB quota, a 6.8 GB
+    download on first use, 16 s before the first answer).
+  - We want less operations work: no GPU drivers, patches, scaling, or on-call.
+  - We need low latency under bursts: our local path processes one request at a time
+    and each takes 7 to 9 s.
+  - A comparable-size API model is cheap enough (a small Groq or Flash-Lite model
+    costs cents per thousand requests).
+
+Rule of thumb: divide the monthly server cost by the API cost per request to get the
+requests per month you need to break even, then check the server can answer that many.
+For our workload that number is about 1.7 million requests/month (CPU server vs
+Flash-Lite) to 28 million (GPU server vs Groq 8B), and one worker running Granite can
+serve only about 320,000 a month. Self-hosting does not pay at our size.
+
+============================================================
+Sources
+============================================================
+- Gemini API pricing: https://ai.google.dev/gemini-api/docs/pricing
+- Cloud GPU hourly prices (RunPod A100/H100, others):
+  https://www.hostinger.com/tutorials/?p=158956
+- Groq per-token prices and self-hosting break-even:
+  https://www.spheron.network/blog/groq-api-pricing-2026-cost-per-token-vs-gpu-rental/
+- AWS g6.4xlarge ($1.323/h): https://instances.vantage.sh/aws/ec2/g6.4xlarge
+- AWS m7i.4xlarge ($0.806/h): https://instances.vantage.sh/aws/ec2/m7i.4xlarge
+- Granite-4.0-micro model card: https://huggingface.co/ibm-granite/granite-4.0-micro
+- Granite-3.3-2B model card: https://huggingface.co/ibm-granite/granite-3.3-2b-instruct
+- Our measurements: llm-test/ai_prototype.ipynb, llm-test/results.json,
+  llm-test/route_a_results.json, README_AI.md (model choice, speed, Gemini quota)
