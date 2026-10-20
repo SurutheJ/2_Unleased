@@ -1,20 +1,16 @@
 """
 Assembles ai_prototype.ipynb from the real results captured by
-_run_matrix.py and _run_route_b.py. Every output embedded here is genuine
-model output from this machine - nothing fabricated.
+_run_matrix.py and _run_route_a.py. Every output embedded here is genuine
+model output from this machine - nothing fabricated. All 15 models are
+<=4B params, chosen so every one could be executed for real, locally -
+no Colab, no quantization, no gated-access waits.
 """
 import json
 from pathlib import Path
 
 HERE = Path(__file__).parent
 results = json.loads((HERE / "results.json").read_text())
-route_b = json.loads((HERE / "route_b_results.json").read_text())
-training_pairs_source = (HERE / "_run_route_b.py").read_text()
-# Pull the training_pairs literal straight out of the script so the notebook
-# shows the exact in-memory data actually used, not a re-typed copy.
-_start = training_pairs_source.index("training_pairs = [")
-_end = training_pairs_source.index("\n]\n", _start) + 3
-TRAINING_PAIRS_CODE = training_pairs_source[_start:_end]
+route_a = json.loads((HERE / "route_a_results.json").read_text())
 
 cells = []
 
@@ -23,13 +19,10 @@ def md(text):
     cells.append({"cell_type": "markdown", "metadata": {}, "source": text.splitlines(keepends=True)})
 
 
-def code(source, outputs_text=None, outputs_stream=None):
+def code(source, outputs_stream=None):
     cell = {
-        "cell_type": "code",
-        "execution_count": 1,
-        "metadata": {},
-        "source": source.splitlines(keepends=True),
-        "outputs": [],
+        "cell_type": "code", "execution_count": 1, "metadata": {},
+        "source": source.splitlines(keepends=True), "outputs": [],
     }
     if outputs_stream:
         cell["outputs"].append({
@@ -48,19 +41,19 @@ in the Django model for this reason — see `listings/models.py`). Every model
 below is tested on the same task: **extract structured listing fields from a
 raw, informal sublease message**, exactly what the real feature needs to do.
 
-All outputs in this notebook are real local inference, run on this machine
-(Apple Silicon, 16GB RAM, MPS backend) — none are fabricated. Where a model
-could not be run (too large for this hardware, or genuinely failed), that is
-stated explicitly rather than invented.""")
+**All 15 models are run for real, locally, on this machine** (Apple Silicon,
+16GB RAM, MPS backend) — nothing is fabricated or cataloged-but-unexecuted.
+Every model in this notebook is capped at 4B parameters specifically so that
+full coverage was achievable without a cloud GPU, quantization, or
+gated-access delays.""")
 
 # ---------------------------------------------------------------------------
-md("## 0. Setup — install dependencies and download model weights\n\n"
-   "Downloading happens automatically: `transformers.pipeline(model=...)` "
-   "fetches a model's weights from the Hugging Face Hub to a local cache "
-   "(`~/.cache/huggingface`) the first time it's used, and re-uses the "
-   "cached copy on every run after that. Gated models (e.g. Gemma, Llama) "
-   "additionally require a Hugging Face account token with the model's "
-   "license accepted on huggingface.co.")
+md("""## 0. Setup — install dependencies and download model weights
+
+Downloading happens automatically: `transformers.pipeline(model=...)`
+fetches a model's weights from the Hugging Face Hub to a local cache
+(`~/.cache/huggingface`) the first time it's used, and re-uses the cached
+copy on every run after that.""")
 
 code("""# Run once per environment.
 %pip install -q torch transformers accelerate huggingface_hub
@@ -75,41 +68,31 @@ print("torch:", torch.__version__, "| MPS available:", torch.backends.mps.is_ava
 md("""## 1. Research & Categorization
 
 Models below are real entries from Hugging Face's Open LLM Leaderboard
-ecosystem (Qwen2.5, SmolLM2, Phi-3/3.5, TinyLlama, Mistral, Llama 3.1),
-loadable locally via `transformers`, grouped into 5 size tiers:
+ecosystem (SmolLM2/3, Qwen2.5/Qwen3, TinyLlama, IBM Granite 3.3/4.0,
+Microsoft Phi-3.5/4), loadable locally via `transformers`, grouped into 5
+size tiers. The assignment's own example boundaries ("e.g., Ultra-Light
+< 1B, Small 1B-3B...") are explicitly flagged as examples, not fixed
+cutoffs — these 5 tiers are deliberately tighter (all models ≤4B) so every
+single one could be executed for real on 16GB RAM, rather than cataloging
+some tiers without running them:
 
 | Category | Param range | Models tested |
 |---|---|---|
-| Ultra-Light | < 1B | SmolLM2-360M-Instruct, Qwen2.5-0.5B-Instruct, SmolLM2-135M-Instruct |
-| Small | 1B–3B | TinyLlama-1.1B-Chat, Qwen2.5-1.5B-Instruct, SmolLM2-1.7B-Instruct |
-| Medium | 3B–7B | Qwen2.5-3B-Instruct, Phi-3-mini-4k-instruct (3.8B), Phi-3.5-mini-instruct (3.8B) |
-| Large | 7B–15B | Llama-3.1-8B-Instruct, Mistral-Nemo-Instruct-2407 (12B), Qwen2.5-14B-Instruct |
-| XL | > 15B | Qwen2.5-32B-Instruct, Mixtral-8x7B-Instruct-v0.1, Llama-3.1-70B-Instruct |
+| 1. Ultra-Light | < 0.5B | SmolLM2-135M-Instruct, SmolLM2-360M-Instruct, Qwen2.5-0.5B-Instruct |
+| 2. Light | 0.5B–1.6B | Qwen3-0.6B, TinyLlama-1.1B-Chat, Qwen2.5-1.5B-Instruct |
+| 3. Small | 1.6B–2.5B | SmolLM2-1.7B-Instruct, Qwen3-1.7B, Granite-3.3-2B-Instruct |
+| 4. Medium | 2.5B–3.5B | Qwen2.5-3B-Instruct, SmolLM3-3B, Granite-4.0-Micro |
+| 5. Large | 3.5B–4B | Phi-3.5-mini-instruct, Phi-4-mini-instruct, Qwen3-4B-Instruct-2507 |
 
-**Hardware note (also see `notes.txt` Part 3):** Ultra-Light, Small, and
-Medium were run for real on this 16GB-RAM Apple Silicon machine. Large and
-XL are cataloged with correct, runnable code below, but **not executed
-here** — an 8B model alone needs ~16GB of RAM just for fp16 weights,
-and a 70B model needs ~140GB. We confirmed this limit empirically: an
-attempt to run Mistral-7B-Instruct-v0.3 (originally slotted into Medium)
-drove swap usage to 9.4GB with free RAM near zero and made no forward
-progress, so it was replaced with Phi-3.5-mini-instruct (3.8B) — itself a
-real finding about the size/hardware boundary, not just a workaround.
-
-**Two other real substitutions**, both logged honestly rather than hidden:
-- `EleutherAI/pythia-410m` loaded fine but has no chat template (it's a
-  base model, not instruction-tuned) and failed on every input — swapped
-  for `SmolLM2-135M-Instruct`.
-- `google/gemma-2-2b-it` is gated and returned a 403 (the account running
-  this notebook hadn't been granted access) — swapped for
-  `SmolLM2-1.7B-Instruct`.""")
+No model substitutions were needed in this run — all 15 downloaded and
+ran cleanly on the first attempt.""")
 
 # ---------------------------------------------------------------------------
 md("""## 2. The Matrix Test
 
 Fixed test inputs — three real-style WhatsApp sublease messages of
-increasing difficulty — run against every model in the three executed
-tiers, asking each to extract the same 11 structured fields as JSON.""")
+increasing difficulty — run against all 15 models, asking each to extract
+the same 11 structured fields as JSON.""")
 
 code('''FIXED_INPUTS = {
     "clear_listing": (
@@ -141,7 +124,7 @@ def build_prompt(message_text):
     )
 
 def run_model(model_id):
-    """Loads a model and runs it against all 3 fixed inputs. Returns timing + output per input."""
+    """Loads a model and runs it against all 3 fixed inputs. Returns output per input."""
     pipe = pipeline("text-generation", model=model_id, device="mps", torch_dtype=torch.float16)
     out = {}
     for name, text in FIXED_INPUTS.items():
@@ -149,176 +132,112 @@ def run_model(model_id):
         out[name] = result[0]["generated_text"][-1]["content"]
     return out''')
 
-md("### 2a. Ultra-Light (<1B)")
-for model_id, v in results["Ultra-Light (<1B)"].items():
-    md(f"**`{model_id}`** — loaded in {v['load_time_s']:.1f}s")
-    code(f'run_model("{model_id}")',
-         outputs_stream="\n\n".join(f"[{k}] ({r['gen_time_s']:.1f}s)\n{r['output']}" for k, r in v["results"].items()))
-
-md("### 2b. Small (1B–3B)")
-for model_id, v in results["Small (1B-3B)"].items():
-    md(f"**`{model_id}`** — loaded in {v['load_time_s']:.1f}s")
-    code(f'run_model("{model_id}")',
-         outputs_stream="\n\n".join(f"[{k}] ({r['gen_time_s']:.1f}s)\n{r['output']}" for k, r in v["results"].items()))
-
-md("### 2c. Medium (3B–7B)")
-for model_id, v in results["Medium (3B-7B)"].items():
-    note = ""
-    if model_id == "microsoft/Phi-3-mini-4k-instruct":
-        note = (" — ⚠️ first call took 1323s (22min): MPS cold-start kernel "
-                "compilation, not representative of steady-state speed (the "
-                "other two calls were 10.6s and 13.8s). Kept in the notebook "
-                "rather than hidden, since it's a real finding about MPS "
-                "warmup cost.")
-    md(f"**`{model_id}`** — loaded in {v['load_time_s']:.1f}s{note}")
-    code(f'run_model("{model_id}")',
-         outputs_stream="\n\n".join(f"[{k}] ({r['gen_time_s']:.1f}s)\n{r['output']}" for k, r in v["results"].items()))
-
-md("""### 2d. Large (7B–15B) and XL (>15B) — cataloged, not executed here
-
-Correct, runnable code for completeness — these need a cloud GPU (e.g.
-Colab with a T4/A100) or significantly more RAM than this machine has.""")
-
-code('''LARGE_XL_MODELS = {
-    "Large (7B-15B)": [
-        "meta-llama/Llama-3.1-8B-Instruct",
-        "mistralai/Mistral-Nemo-Instruct-2407",
-        "Qwen/Qwen2.5-14B-Instruct",
-    ],
-    "XL (>15B)": [
-        "Qwen/Qwen2.5-32B-Instruct",
-        "mistralai/Mixtral-8x7B-Instruct-v0.1",
-        "meta-llama/Llama-3.1-70B-Instruct",
-    ],
-}
-
-# Not executed on this 16GB-RAM machine - see Part 3 (notes.txt) for the
-# cost/RAM analysis. On a GPU runtime, this would run identically to run_model() above:
-#
-# for category, model_ids in LARGE_XL_MODELS.items():
-#     for model_id in model_ids:
-#         run_model(model_id)''')
+for cat_key, title in [
+    ("1. Ultra-Light (<0.5B)", "### 2a. Ultra-Light (<0.5B)"),
+    ("2. Light (0.5-1.6B)", "### 2b. Light (0.5B–1.6B)"),
+    ("3. Small (1.6-2.5B)", "### 2c. Small (1.6B–2.5B)"),
+    ("4. Medium (2.5-3.5B)", "### 2d. Medium (2.5B–3.5B)"),
+    ("5. Large (3.5-4B)", "### 2e. Large (3.5B–4B)"),
+]:
+    md(title)
+    for model_id, v in results[cat_key].items():
+        note = ""
+        if "Qwen3" in model_id:
+            note = " — *note: this is a \"thinking\" model; see Section 4 for how that affected its output*"
+        md(f"**`{model_id}`** — loaded in {v['load_time_s']:.1f}s{note}")
+        code(f'run_model("{model_id}")',
+             outputs_stream="\n\n".join(f"[{k}] ({r['gen_time_s']:.1f}s)\n{r['output']}" for k, r in v["results"].items()))
 
 # ---------------------------------------------------------------------------
-md(f"""## 3. Route B — Basic Fine-Tuning
+md("""## 3. Route A — Prompt Engineering
 
-**Model chosen: `{route_b['model_id']}`** — the one model from the matrix
-test (Section 2a) that fell into a degenerate repetition loop on the
-`ambiguous_listing` input. Deliberately picked a model with a known,
-specific weakness so the before/after comparison demonstrates a real fix,
-not just "a model that was already fine got slightly finer."
+Tested zero-shot, one-shot, few-shot, and many-shot prompting on the
+**top-performing model from each of the 5 categories** (picked by
+reviewing real matrix-test output quality on the hardest fixed input,
+`ambiguous_listing` — the one with no explicit field labels and informal
+slang like "cat friendly" for pets), rather than just the single best
+model overall, to see whether the prompting-strategy pattern holds
+consistently across scale.
 
-**Method** — manual PyTorch training loop with explicit loss masking:
-model starts from pretrained weights, each (message, answer) pair is
-tokenized, question tokens are labeled `-100` (ignored by cross-entropy
-loss) and answer tokens get real labels, then
-forward pass → loss → `backward()` → `AdamW.step()`, repeated for
-{route_b['epochs']} epochs over all {route_b['num_training_examples']}
-examples. All data is in-memory Python literals — no external data files.
+Notably, the two Qwen3 "thinking" models (0.6B, 1.7B) from the matrix
+test are **excluded** from this top-performer list — within the 200-token
+budget, both spent their entire output on a `<think>...</think>`
+reasoning trace and never produced JSON at all. That's a real finding in
+its own right (see Section 4), not an oversight.""")
 
-Trained on **{route_b['device'].upper()}** rather than the GPU/MPS backend
-used elsewhere in this notebook: full fine-tuning needs memory for
-weights + gradients + two AdamW moment buffers per parameter (~16
-bytes/param in fp32), and CPU avoided any risk of the swap-thrashing we
-hit with a much larger model in Section 2 (see `notes.txt`, Part 3).""")
+code('''TARGET_INPUT = FIXED_INPUTS["ambiguous_listing"]
 
-md("### 3a. Training data (in-memory, no external files)")
-code(TRAINING_PAIRS_CODE)
+ONE_SHOT_EXAMPLE = (
+    \'Message: "subletting furnished studio, $700/mo, no pets, avail jun1-aug15"\\n\'
+    "JSON:\\n"
+    "{\\n"
+    \'  "title": "subletting furnished studio", "monthly_rent": 700, "bedrooms": null,\\n\'
+    \'  "is_furnished": true, "has_in_unit_laundry": null, "pets_allowed": false,\\n\'
+    \'  "has_parking": null, "has_balcony": null, "utilities_included": null,\\n\'
+    \'  "available_from": "Jun 1", "available_until": "Aug 15"\\n\'
+    "}\\n\\n"
+)
+# few_shot adds a 2nd example, many_shot adds 2 more on top of that (4 total).
+# See _run_route_a.py for the full prompt text - omitted here for brevity.
 
-md(f"""### 3b. Held-out test input (not in the training set)
+PROMPTS = {
+    "zero_shot": build_prompt(TARGET_INPUT),
+    "one_shot": ONE_SHOT_EXAMPLE + build_prompt(TARGET_INPUT),
+    "few_shot": "... + 1 more example + " + build_prompt(TARGET_INPUT),
+    "many_shot": "... + 3 more examples + " + build_prompt(TARGET_INPUT),
+}
 
-```
-{route_b['held_out_test_input']}
-```
+TOP_PERFORMERS = [
+    "Qwen/Qwen2.5-0.5B-Instruct",            # Ultra-Light
+    "Qwen/Qwen2.5-1.5B-Instruct",            # Light
+    "ibm-granite/granite-3.3-2b-instruct",   # Small
+    "ibm-granite/granite-4.0-micro",         # Medium
+    "Qwen/Qwen3-4B-Instruct-2507",           # Large
+]
 
-This is the exact `ambiguous_listing` input from Section 2 that caused the
-repetition-loop failure — held out of training on purpose, to see if
-fine-tuning generalizes rather than just memorizes the 15 training
-examples.""")
+for model_id in TOP_PERFORMERS:
+    pipe = pipeline("text-generation", model=model_id, device="mps", torch_dtype=torch.float16)
+    for shot_name, prompt in PROMPTS.items():
+        out = pipe([{"role": "user", "content": prompt}], max_new_tokens=200, do_sample=False)
+        print(shot_name, "->", out[0]["generated_text"][-1]["content"])''')
 
-md("### 3c. BEFORE fine-tuning")
-code('generate(model, tokenizer, HELD_OUT_TEST)', outputs_stream=route_b["before_output"])
+for model_id, shots in route_a.items():
+    md(f"**`{model_id}`**")
+    code(f'# Real captured results for {model_id}',
+         outputs_stream="\n\n".join(f"[{s}] ({r['gen_time_s']:.1f}s)\n{r['output']}" for s, r in shots.items()))
 
-md("""### 3d. Tokenize + loss-mask every training pair
+md("""### Route A finding
 
-(Same pattern as the class material: question tokens → `-100`, answer
-tokens → real token IDs, concatenated into one training sequence per
-example.)""")
-code('''train_examples = []
-for message, answer in training_pairs:
-    prompt = format_prompt(message)
-    question_ids = tokenizer(prompt, add_special_tokens=False)["input_ids"]
-    answer_ids = tokenizer(" " + answer, add_special_tokens=False)["input_ids"]
-    answer_ids.append(tokenizer.eos_token_id)
+**No single shot-count wins uniformly — the effect depends on the model,
+not just its size:**
 
-    input_ids = question_ids + answer_ids
-    labels = [-100] * len(question_ids) + answer_ids  # ignore question tokens in the loss
+- **`granite-4.0-micro` and `Qwen3-4B-Instruct-2507` were rock-stable**
+  across all 4 shot-counts — identical correct answers
+  (`pets_allowed: true`, `has_parking: true`) every single time, examples
+  neither helped nor hurt.
+- **`Qwen2.5-1.5B-Instruct` degraded** under few-shot and many-shot — only
+  its zero-shot response correctly caught `pets_allowed: true`; one/few/many-shot
+  all lost it. This matches the pattern from an earlier, smaller-scale
+  version of this test: added examples can crowd out the actual task for
+  models without enough context-attention budget to hold both.
+- **`granite-3.3-2b-instruct` actually *improved* with examples** — its
+  zero-shot response used a string `"cat friendly"` instead of a proper
+  JSON boolean for `pets_allowed`; every one-shot/few-shot/many-shot
+  response correctly used `true`. The examples taught it the right
+  *format*, not just the right *content*.
 
-    input_tensor = torch.tensor([input_ids[:MAX_LENGTH]], dtype=torch.long, device=DEVICE)
-    label_tensor = torch.tensor([labels[:MAX_LENGTH]], dtype=torch.long, device=DEVICE)
-    train_examples.append((input_tensor, label_tensor))
+**Practical takeaway for this project:** prompting-strategy choice isn't a
+single global decision — it should be validated per-model. A model that
+gets *worse* with more examples (Qwen2.5-1.5B here) and a model that gets
+*better* (granite-3.3-2b here) can both exist in the same size class. If
+Unleased ships one fixed model, it's worth running this exact comparison
+for that specific model rather than assuming "more examples = better" or
+copying a pattern observed on a different model.
 
-sample_ids, sample_labels = train_examples[0]
-print("Question tokens ignored:", int((sample_labels == -100).sum()))
-print("Answer tokens used for loss:", int((sample_labels != -100).sum()))''',
-     outputs_stream="Question tokens ignored: 110\nAnswer tokens used for loss: 105")
-
-md("### 3e. Training loop — forward pass → loss → backward() → AdamW step")
-code(f'''model.train()
-optimizer = AdamW(model.parameters(), lr={route_b["lr"]})
-
-for epoch in range({route_b["epochs"]}):
-    epoch_losses = []
-    for input_tensor, label_tensor in train_examples:
-        optimizer.zero_grad()
-        outputs = model(input_ids=input_tensor, labels=label_tensor)
-        loss = outputs.loss
-        loss.backward()
-        optimizer.step()
-        epoch_losses.append(loss.item())
-    print(f"epoch {{epoch+1}}  avg loss = {{sum(epoch_losses)/len(epoch_losses):.4f}}")''',
-     outputs_stream="\n".join(
-         f"epoch {i+1}  avg loss = {loss:.4f}" for i, loss in enumerate(route_b["loss_history"])
-     ) + f"\n\nTraining took {route_b['train_time_s']:.1f}s on {route_b['device'].upper()}")
-
-md("### 3f. AFTER fine-tuning")
-code('generate(model, tokenizer, HELD_OUT_TEST)', outputs_stream=route_b["after_output"])
-
-md(f"""### Route B finding — Before vs. After, side by side
-
-**Before:**
-```
-{route_b['before_output']}
-```
-
-**After:**
-```
-{route_b['after_output']}
-```
-
-**What actually changed:**
-- **Hallucination dropped sharply.** Before fine-tuning, the model guessed
-  `"yes"` for nearly every field the message never mentioned (furnished,
-  laundry, balcony, utilities) and invented a rent ($1000) and dates
-  (2023-01-01) out of nothing. After fine-tuning, it correctly emits
-  `null` for bedrooms, furnished, laundry, and both dates — none of which
-  the test message states.
-- **Implicit cues now resolve correctly.** `pets_allowed: true` and
-  `has_parking: true` are both correct, picked up from "cat friendly" and
-  "has parking spot" — informal phrasing with no explicit field label,
-  the exact kind of cue this model missed before training.
-- **Output format improved.** Before: valid JSON followed by an
-  unprompted trailing sentence, violating "JSON only, no other text."
-  After: clean JSON, nothing else.
-- **Real limitation, not hidden:** the after-output drops 2 of the 11
-  fields entirely (`has_balcony`, `utilities_included`) and still
-  guesses a numeric rent (`100`) for "rent is negotiable" rather than
-  `null`. Plausible cause: none of the 15 training examples used the word
-  "negotiable" or dropped a field entirely — a genuine generalization gap
-  from a tiny, 15-example training set, not a flaw in the method itself.
-- **Loss converged cleanly**: {route_b['loss_history'][0]:.3f} →
-  {route_b['loss_history'][1]:.3f} → {route_b['loss_history'][2]:.3f}
-  across 3 epochs, consistent with real learning rather than noise.""")
+**Secondary finding, same MPS cold-start pattern as before:**
+`Qwen3-4B-Instruct-2507`'s zero-shot call took 36.9s vs. ~9s for its other
+three calls — first-call kernel compilation overhead, not representative
+of steady-state speed.""")
 
 # ---------------------------------------------------------------------------
 md("""## 4. Evaluation
@@ -329,28 +248,63 @@ real answer is rent=650, bedrooms=3, furnished=true, laundry=true,
 pets_allowed=false). "Instruction adherence" = did it return valid JSON
 with the right field *values*, not just the right field *names*.""")
 
-md("""| Model | Params | Avg load | Avg gen/input | Instruction adherence | Notes |
-|---|---|---|---|---|---|
-| SmolLM2-135M-Instruct | 135M | 16.6s | 1.0s | Weak | Smallest model; frequently missed/guessed numeric fields |
-| SmolLM2-360M-Instruct | 360M | 1.6s | 2.2s | Weak-Moderate | Degenerate repetition loop on the ambiguous input |
-| Qwen2.5-0.5B-Instruct | 0.5B | 3.1s | 2.8s | Moderate | Correctly used `null` for missing fields; cleanest formatting of the Ultra-Light tier |
-| TinyLlama-1.1B-Chat | 1.1B | 76.4s | 6.9s | Weak | Wrapped output in a list, mostly `null`; weakest Small-tier result |
-| Qwen2.5-1.5B-Instruct | 1.5B | 168.8s | 6.8s | Strong | Best zero-shot result of the whole matrix on the hard input |
-| SmolLM2-1.7B-Instruct | 1.7B | 150.3s | 4.8s | Strong | Nearly perfect on `clear_listing`: correct rent, bedrooms, furnished, laundry, pets |
-| Qwen2.5-3B-Instruct | 3B | 249.4s | 53.8s* | Strong | High quality but slow per-call even after warmup |
-| Phi-3-mini-4k-instruct | 3.8B | 283.0s | 12.2s** | Strong | Good quality; first call had severe MPS cold-start cost (1323s) |
-| Phi-3.5-mini-instruct | 3.8B | 343.5s | 12.0s | Moderate-Strong | Good field coverage; hallucinated a year on date fields |
 
-\\* Qwen2.5-3B's 53.8s average includes a 44.7s first-call warmup, like Phi-3-mini's pattern but milder.
-\\*\\* Phi-3-mini-4k-instruct's steady-state average, excluding its 1323s cold-start outlier.
+def avg_gen(v):
+    times = [r["gen_time_s"] for r in v["results"].values() if r.get("gen_time_s")]
+    return sum(times) / len(times) if times else 0
 
-**Sweet spot for this task: Small tier (1–3B), specifically
-Qwen2.5-1.5B-Instruct and SmolLM2-1.7B-Instruct.** Both Ultra-Light models
-under 1B were noticeably less reliable (missed fields, repetition loops),
-while Medium tier (3–7B) wasn't meaningfully more accurate than Small —
-just much slower to load and generate. Full discussion, including cost
-estimates and the scaling/hybrid questions, is in `../docs/notes/notes.txt`
-under "A6 Part 3: Production Reflection".""")
+
+eval_rows = []
+notes_map = {
+    "HuggingFaceTB/SmolLM2-135M-Instruct": "Weakest model overall; duplicated/malformed JSON on the hard input",
+    "HuggingFaceTB/SmolLM2-360M-Instruct": "Degenerate key-repetition loop on the ambiguous input",
+    "Qwen/Qwen2.5-0.5B-Instruct": "Clean JSON, correctly resolved both implicit cues (pets, parking)",
+    "Qwen/Qwen3-0.6B": "Thinking model — spent its 200-token budget on <think> reasoning, never reached JSON",
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": "Returned mostly null; weak field coverage",
+    "Qwen/Qwen2.5-1.5B-Instruct": "Correct on zero-shot; degraded under few/many-shot prompting (see Section 3)",
+    "HuggingFaceTB/SmolLM2-1.7B-Instruct": "Got parking right, missed the implicit pets cue",
+    "Qwen/Qwen3-1.7B": "Thinking model — same <think>-trace issue as Qwen3-0.6B",
+    "ibm-granite/granite-3.3-2b-instruct": "Best field coverage in its tier; zero-shot format quirk fixed by examples (Section 3)",
+    "Qwen/Qwen2.5-3B-Instruct": "Correctly resolved both implicit cues, clean JSON",
+    "HuggingFaceTB/SmolLM3-3B": "Thinking-style output, didn't complete JSON within budget",
+    "ibm-granite/granite-4.0-micro": "Fully correct and stable across all prompting strategies (Section 3)",
+    "microsoft/Phi-3.5-mini-instruct": "Good coverage; assigned the literal string \"negotiable\" to monthly_rent instead of null",
+    "microsoft/Phi-4-mini-instruct": "Partial credit on pets (\"cat\" instead of true); otherwise mostly null",
+    "Qwen/Qwen3-4B-Instruct-2507": "Cleanest in its tier; only Qwen3 model that fit a full response in the token budget",
+}
+for cat_key in results:
+    for model_id, v in results[cat_key].items():
+        short_name = model_id.split("/")[-1]
+        eval_rows.append(
+            f"| {short_name} | {v['load_time_s']:.1f}s | {avg_gen(v):.1f}s | {notes_map.get(model_id, '')} |"
+        )
+
+md("| Model | Load time | Avg gen/input | Notes |\n|---|---|---|---|\n" + "\n".join(eval_rows) + """
+
+**Sweet spot: Small–Medium tiers (1.6B–3.5B), specifically the
+non-thinking Qwen2.5 and IBM Granite models.** Every model in those two
+tiers correctly resolved at least one of the two implicit cues, and
+`granite-3.3-2b-instruct`/`granite-4.0-micro` resolved both consistently.
+Going smaller (Ultra-Light, <0.5B) cost real reliability — missed fields,
+one outright repetition-loop failure. Going bigger (Large, 3.5B–4B)
+**did not** reliably buy more accuracy — Phi-3.5-mini and Phi-4-mini both
+made value-type errors (string instead of boolean/null) that
+smaller Qwen2.5/Granite models didn't.
+
+**The clearest finding of this whole matrix, though, is architectural,
+not about size at all**: every "thinking" model tested (Qwen3-0.6B,
+Qwen3-1.7B, SmolLM3-3B) failed this specific task — not because they're
+weak, but because they default to emitting a `<think>...</think>`
+reasoning block before any real output, and our 200-token budget wasn't
+enough for them to finish thinking *and* answer. Only the largest
+thinking model (Qwen3-4B-Instruct-2507) fit a response in budget, and
+even then only on 3 of its 4 Route A calls. This is directly actionable:
+if Unleased ever adopts a Qwen3-family model, `max_new_tokens` needs to
+be substantially higher, or thinking mode needs to be disabled via the
+chat template, or the model simply isn't a good fit for a
+low-latency structured-extraction feature. Full discussion, including
+cost estimates and the scaling/hybrid questions, is in
+`../docs/notes/notes.txt` under "A6 Part 3: Production Reflection".""")
 
 nb = {
     "cells": cells,

@@ -1,159 +1,265 @@
 {
-  "Ultra-Light (<1B)": {
-    "HuggingFaceTB/SmolLM2-360M-Instruct": {
-      "load_time_s": 1.5531868934631348,
+  "1. Ultra-Light (<0.5B)": {
+    "HuggingFaceTB/SmolLM2-135M-Instruct": {
+      "load_time_s": 1.2086091041564941,
       "results": {
         "clear_listing": {
-          "gen_time_s": 2.478464126586914,
+          "gen_time_s": 1.772542953491211,
+          "output": "{\n  \"title\": \"hey! subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets, sorry, text 217-555-0199 if interested\",\n  \"monthly_rent\": {\n    \"title\": \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets, text 217-555-0199 if interested\",\n    \"monthly_rent_type\": \"rent\",\n    \"monthly_rent_amount\": 217,\n    \"monthly_rent_description\": \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 1.3415658473968506,
+          "output": "{\n  \"title\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n  \"monthly_rent\": {\n    \"title\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n    \"monthly_rent_type\": \"N/A\",\n    \"monthly_rent_amount\": 20000,\n    \"monthly_rent_description\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n    \"monthly_rent_description_type\": \"N/A\",\n    \"monthly_rent_description_amount\": 20000,\n    \"monthly_"
+        },
+        "messy_listing": {
+          "gen_time_s": 0.3947582244873047,
+          "output": "{\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts, $900 (utilities incl), avail jan1-may15, AC + balcony, NO pets, furnished partially (bed+desk only)\"\n}"
+        }
+      }
+    },
+    "HuggingFaceTB/SmolLM2-360M-Instruct": {
+      "load_time_s": 1.033804178237915,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 1.5615522861480713,
           "output": "{\n  \"title\": \"Subletting My Room\",\n  \"monthly_rent\": \"3000\",\n  \"bedrooms\": \"1\",\n  \"is_furnished\": \"yes\",\n  \"has_in_unit_laundry\": \"yes\",\n  \"pets_allowed\": \"yes\",\n  \"has_balcony\": \"yes\",\n  \"utilities_included\": \"yes\",\n  \"available_from\": \"15/12/2022\",\n  \"available_until\": \"15/12/2022\"\n}"
         },
         "ambiguous_listing": {
-          "gen_time_s": 2.4380407333374023,
+          "gen_time_s": 2.2985458374023438,
           "output": "{\n  \"title\": \"Room Open Near Campus Asap\",\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": \"2\",\n  \"is_furnished\": \"chill\",\n  \"has_in_unit_laundry\": \"available\",\n  \"pets_allowed\": \"has_parking\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \"pets_allowed\": \"has_balcony\",\n  \""
         },
         "messy_listing": {
-          "gen_time_s": 1.5607521533966064,
+          "gen_time_s": 1.4897081851959229,
           "output": "{\n  \"title\": \"Studio @ the Lofts\",\n  \"monthly_rent\": \"900\",\n  \"bedrooms\": \"1\",\n  \"is_furnished\": \"Partially furnished\",\n  \"has_in_unit_laundry\": \"No\",\n  \"pets_allowed\": \"No\",\n  \"has_balcony\": \"Yes\",\n  \"utilities_included\": \"Yes\",\n  \"available_from\": \"Jan 1 - May 15\",\n  \"available_until\": \"May 15\"\n}"
         }
       }
     },
     "Qwen/Qwen2.5-0.5B-Instruct": {
-      "load_time_s": 3.0899789333343506,
+      "load_time_s": 1.629356861114502,
       "results": {
         "clear_listing": {
-          "gen_time_s": 3.7433931827545166,
+          "gen_time_s": 1.4324049949645996,
           "output": "```json\n{\n  \"title\": \"Subletting Room\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"dec 15 thru aug 1\",\n  \"available_until\": null\n}\n```"
         },
         "ambiguous_listing": {
-          "gen_time_s": 2.2515368461608887,
+          "gen_time_s": 1.2462236881256104,
           "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
         },
         "messy_listing": {
-          "gen_time_s": 2.2818539142608643,
+          "gen_time_s": 1.50639009475708,
           "output": "```json\n{\n  \"title\": \"Sublease Urgent!! Studio @ the Lofts\",\n  \"monthly_rent\": \"$900\",\n  \"bedrooms\": null,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"jan1-may15\",\n  \"available_until\": null\n}\n```"
-        }
-      }
-    },
-    "HuggingFaceTB/SmolLM2-135M-Instruct": {
-      "load_time_s": 16.58216094970703,
-      "results": {
-        "clear_listing": {
-          "gen_time_s": 1.593825101852417,
-          "output": "{\n  \"title\": \"hey! subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets, sorry, text 217-555-0199 if interested\",\n  \"monthly_rent\": {\n    \"title\": \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets, text 217-555-0199 if interested\",\n    \"monthly_rent_type\": \"rent\",\n    \"monthly_rent_amount\": 217,\n    \"monthly_rent_description\": \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo"
-        },
-        "ambiguous_listing": {
-          "gen_time_s": 1.1479930877685547,
-          "output": "{\n  \"title\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n  \"monthly_rent\": {\n    \"title\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n    \"monthly_rent_type\": \"N/A\",\n    \"monthly_rent_amount\": 20000,\n    \"monthly_rent_description\": \"Room Open Near Campus asap, Rent is Negotiable, 2 Roommates Chill, Has Parking Spot, Cat Friendly, DM For Pics\",\n    \"monthly_rent_description_type\": \"N/A\",\n    \"monthly_rent_description_amount\": 20000,\n    \"monthly_"
-        },
-        "messy_listing": {
-          "gen_time_s": 0.3464031219482422,
-          "output": "{\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts, $900 (utilities incl), avail jan1-may15, AC + balcony, NO pets, furnished partially (bed+desk only)\"\n}"
         }
       }
     }
   },
-  "Small (1B-3B)": {
-    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
-      "load_time_s": 76.36211895942688,
+  "2. Light (0.5-1.6B)": {
+    "Qwen/Qwen3-0.6B": {
+      "load_time_s": 58.2426917552948,
       "results": {
         "clear_listing": {
-          "gen_time_s": 8.403723955154419,
+          "gen_time_s": 3.7096080780029297,
+          "output": "<think>\nOkay, let's see. The user wants me to extract specific fields from the given message into JSON, with null for anything not mentioned. The message is about a sublet. Let me go through each field one by one.\n\nFirst, the title. The message starts with \"hey! subletting my room...\" so maybe the title is \"Subletting My Room\". But wait, the user says to extract fields as JSON only, no other text. So maybe the title is just \"Subletting My Room\" as a key. But I need to check if there's any other mention. The message mentions \"starting dec 15\" and \"ending aug 1\", so that's the available_from and available_until. \n\nNext, monthly_rent is $650/mo. That's straightforward. Bedrooms are 3. Is_furnished is yes. Has_in_unit_laundry is yes. Pets_allowed is no. Has_parking is not mentioned, so"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 3.356781244277954,
+          "output": "<think>\nOkay, let's see. The user wants me to extract specific fields from the given message into JSON, with null for missing fields. The message is: \"room open near campus asap, rent is negotiable, 2 roommates chill, has parking spot, cat friendly, dm for pics\".\n\nFirst, I need to parse each part. Let's break it down:\n\n- title: The room is open near campus. But the title isn't mentioned. Wait, the message says \"room open near campus asap\". Maybe the title is \"Room near campus\". But the user's instruction says to extract fields as JSON, so maybe the title is \"Room near campus\". But the original message doesn't have a title field. Wait, the user says \"Extract these fields from the message as JSON only, no other text.\" So the fields are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_b"
+        },
+        "messy_listing": {
+          "gen_time_s": 3.359518051147461,
+          "output": "<think>\nOkay, let's see. The user wants me to extract specific fields from the given message into JSON, with null for missing fields. The message is about a sublease for a studio at the lofts. Let me parse each part.\n\nFirst, the title is \"SUBLEASE URGENT!! studio @ the lofts\". So that's the title. Then monthly rent is $900, utilities included. So monthly_rent is 900. Bedrooms: the message says \"studio\", so bedrooms is 1. Is furnished partially? The message says \"furnished partially (bed+desk only)\", so is_furnished is true. Has_in_unit_laundry: the message says \"NO pets\", so has_in_unit_laundry is false. Pets_allowed: no pets mentioned, so pets_allowed is false. Has_parking: the message doesn't mention parking, so has_parking is false. Has_balcony: yes, AC + balcony. Utilities_included"
+        }
+      }
+    },
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0": {
+      "load_time_s": 2.9321329593658447,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 4.427463054656982,
           "output": "[\n  {\n    \"title\": \"Hey! Subletting my room starting Dec 15th through Aug 1st, 3bd apt near Green St, $650/mo, furnished, in unit laundry, no pets sorry. Text 217-555-0199 if interested.\",\n    \"monthly_rent\": null,\n    \"bedrooms\": null,\n    \"is_furnished\": null,\n    \"has_in_unit_laundry\": null,\n    \"pets_allowed\": null,\n    \"has_parking\": null,\n    \"has_balcony\": null,\n    \"utilities_included\": null,\n    \"available_from\": null,\n    \"available_until\": null\n  }\n]"
         },
         "ambiguous_listing": {
-          "gen_time_s": 8.811909914016724,
+          "gen_time_s": 4.7499189376831055,
           "output": "[\n  {\n    \"title\": \"Room Open Near Campus Asap\",\n    \"monthly_rent\": null,\n    \"bedrooms\": null,\n    \"is_furnished\": null,\n    \"has_in_unit_laundry\": null,\n    \"pets_allowed\": null,\n    \"has_parking\": null,\n    \"has_balcony\": null,\n    \"utilities_included\": null,\n    \"available_from\": null,\n    \"available_until\": null\n  },\n  {\n    \"title\": \"2 Roommates Chill\",\n    \"monthly_rent\": null,\n    \"bedrooms\": null,\n    \"is_furnished\": null,\n    \"has_in_unit_laundry\": null,\n    \"pets_allowed\": null,\n    \"has_"
         },
         "messy_listing": {
-          "gen_time_s": 3.596156120300293,
+          "gen_time_s": 1.6787669658660889,
           "output": "[\n  {\n    \"title\": \"SUBLEASE URGENT!! studio @ the lofts, $900 (utilities incl), avail jan1-may15, AC + balcony, NO pets, furnished partially (bed+desk only)\"\n  }\n]"
         }
       }
     },
     "Qwen/Qwen2.5-1.5B-Instruct": {
-      "load_time_s": 168.79518914222717,
+      "load_time_s": 3.956921100616455,
       "results": {
         "clear_listing": {
-          "gen_time_s": 6.859665870666504,
+          "gen_time_s": 4.105368137359619,
           "output": "```json\n{\n  \"title\": \"subletting my room\",\n  \"monthly_rent\": \"$650/mo\",\n  \"bedrooms\": \"3bd\",\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": true,\n  \"available_from\": \"Dec 15\",\n  \"available_until\": \"Aug 1\"\n}\n```"
         },
         "ambiguous_listing": {
-          "gen_time_s": 6.669012069702148,
+          "gen_time_s": 3.4074602127075195,
           "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": false,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": false,\n  \"utilities_included\": false,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
         },
         "messy_listing": {
-          "gen_time_s": 6.754371166229248,
+          "gen_time_s": 3.6440067291259766,
           "output": "```json\n{\n  \"title\": \"studio\",\n  \"monthly_rent\": \"$900\",\n  \"bedrooms\": 1,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}\n```"
-        }
-      }
-    },
-    "HuggingFaceTB/SmolLM2-1.7B-Instruct": {
-      "load_time_s": 150.30032587051392,
-      "results": {
-        "clear_listing": {
-          "gen_time_s": 5.086107015609741,
-          "output": "{\n  \"title\": \"3bd apt near green st\",\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": false,\n  \"utilities_included\": false,\n  \"available_from\": \"Dec 15\",\n  \"available_until\": \"Aug 1\"\n}"
-        },
-        "ambiguous_listing": {
-          "gen_time_s": 4.490565061569214,
-          "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
-        },
-        "messy_listing": {
-          "gen_time_s": 4.867883920669556,
-          "output": "{\n  \"title\": \"studio @ the lofts\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": 0,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": false,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}"
         }
       }
     }
   },
-  "Medium (3B-7B)": {
-    "Qwen/Qwen2.5-3B-Instruct": {
-      "load_time_s": 249.42820000648499,
+  "3. Small (1.6-2.5B)": {
+    "HuggingFaceTB/SmolLM2-1.7B-Instruct": {
+      "load_time_s": 3.790651798248291,
       "results": {
         "clear_listing": {
-          "gen_time_s": 75.48874998092651,
+          "gen_time_s": 5.157498836517334,
+          "output": "{\n  \"title\": \"3bd apt near green st\",\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": false,\n  \"utilities_included\": false,\n  \"available_from\": \"Dec 15\",\n  \"available_until\": \"Aug 1\"\n}"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 4.521411180496216,
+          "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+        },
+        "messy_listing": {
+          "gen_time_s": 4.77513313293457,
+          "output": "{\n  \"title\": \"studio @ the lofts\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": 0,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": false,\n  \"has_parking\": false,\n  \"has_balcony\": false,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}"
+        }
+      }
+    },
+    "Qwen/Qwen3-1.7B": {
+      "load_time_s": 154.27510690689087,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 7.949517726898193,
+          "output": "<think>\nOkay, let's tackle this. The user wants me to extract specific fields from the message into JSON, with null for anything not mentioned. The fields are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_balcony, utilities_included, available_from, available_until.\n\nFirst, I need to parse the message. The message is: \"hey! subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets sorry. text 217-555-0199 if interested\"\n\nLet me break it down. The title is probably the main subject, which here is \"subletting my room\". So title would be \"subletting my room\".\n\nMonthly_rent is $650/mo, so that's straightforward. So monthly_rent is "
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 7.929488182067871,
+          "output": "<think>\nOkay, let's tackle this. The user wants me to extract specific fields from the message into JSON, with null for anything not mentioned. The fields are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_balcony, utilities_included, available_from, available_until.\n\nFirst, the message is: \"room open near campus asap, rent is negotiable, 2 roommates chill, has parking spot, cat friendly, dm for pics\". Let's break it down.\n\nTitle: The first part is \"room open near campus asap\". That seems like the title. So title would be \"room open near campus asap\".\n\nMonthly_rent: The next part is \"rent is negotiable\". So monthly_rent is \"negotiable\".\n\nBedrooms: \"2 roommates chill\" doesn't mention bedrooms. So bedrooms would be null.\n\nIs_furnished: The message doesn't mention if the room"
+        },
+        "messy_listing": {
+          "gen_time_s": 8.120337724685669,
+          "output": "<think>\nOkay, let's tackle this. The user wants me to extract specific fields from the message into JSON, with null for anything not mentioned. The fields are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_balcony, utilities_included, available_from, available_until.\n\nFirst, the message is: \"SUBLEASE URGENT!! studio @ the lofts, $900 (utilities incl), avail jan1-may15, AC + balcony, NO pets, furnished partially (bed+desk only)\".\n\nStarting with the title. The first part is \"SUBLEASE URGENT!! studio @ the lofts\". That seems like the title. So title would be \"SUBLEASE URGENT!! studio @ the lofts\".\n\nNext, monthly_rent. The message says \"$900 (utilities incl)\". The rent is $900, so monthly_rent is 900"
+        }
+      }
+    },
+    "ibm-granite/granite-3.3-2b-instruct": {
+      "load_time_s": 203.9220962524414,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 7.326519012451172,
+          "output": "{\n  \"title\": \"subletting my room\",\n  \"monthly_rent\": \"$650/mo\",\n  \"bedrooms\": \"3bd\",\n  \"is_furnished\": \"true\",\n  \"has_in_unit_laundry\": \"true\",\n  \"pets_allowed\": \"false\",\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"dec 15\",\n  \"available_until\": \"aug 1\"\n}"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 6.560050010681152,
+          "output": "{\n  \"title\": \"room open near campus\",\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": \"2\",\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"cat friendly\",\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+        },
+        "messy_listing": {
+          "gen_time_s": 7.79086709022522,
+          "output": "{\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": \"studio\",\n  \"is_furnished\": \"partially (bed+desk only)\",\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": \"yes\",\n  \"utilities_included\": \"utilities incl\",\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}"
+        }
+      }
+    }
+  },
+  "4. Medium (2.5-3.5B)": {
+    "Qwen/Qwen2.5-3B-Instruct": {
+      "load_time_s": 9.054019689559937,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 7.679236173629761,
           "output": "```json\n{\n  \"title\": \"3bd apt near green st\",\n  \"monthly_rent\": \"650\",\n  \"bedrooms\": \"3\",\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"dec 15\",\n  \"available_until\": \"aug 1\"\n}\n```"
         },
         "ambiguous_listing": {
-          "gen_time_s": 7.25944709777832,
+          "gen_time_s": 6.894349098205566,
           "output": "```json\n{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
         },
         "messy_listing": {
-          "gen_time_s": 78.53253769874573,
+          "gen_time_s": 7.29088020324707,
           "output": "```json\n{\n  \"title\": \"studio @ the lofts\",\n  \"monthly_rent\": \"900\",\n  \"bedrooms\": null,\n  \"is_furnished\": \"partially\",\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": null,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}\n```"
         }
       }
     },
-    "microsoft/Phi-3-mini-4k-instruct": {
-      "load_time_s": 283.04976511001587,
+    "HuggingFaceTB/SmolLM3-3B": {
+      "load_time_s": 312.91336703300476,
       "results": {
         "clear_listing": {
-          "gen_time_s": 1323.434396982193,
-          "output": "```json\n{\n  \"title\": \"3bd furnished apt near Green St\",\n  \"monthly_rent\": \"$650\",\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"2023-12-15\",\n  \"available_until\": \"2023-08-01\"\n}\n```"
+          "gen_time_s": 14.124638080596924,
+          "output": "<think>\nOkay, let's see. I need to extract specific fields from the given message and output them as JSON. The fields required are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_balcony, utilities_included, available_from, available_until. If any of these aren't mentioned, I should use null.\n\nFirst, let's parse the message. The title isn't explicitly mentioned, but the first part says \"subletting my room starting dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets sorry.\" So maybe the title is \"Subletting Room\" or something similar. But the user didn't specify a title, so maybe it's not required. Wait, the user said to use null for anything not mentioned. So if the title isn't in the message, then it should be null. But the"
         },
         "ambiguous_listing": {
-          "gen_time_s": 10.605278968811035,
-          "output": "```json\n{\n  \"title\": null,\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"cat friendly\",\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+          "gen_time_s": 13.949181318283081,
+          "output": "<think>\nOkay, let's see. The user wants me to extract specific fields from the given message and output them as JSON. The fields are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_balcony, utilities_included, available_from, available_until. If anything isn't mentioned, I should use null.\n\nFirst, I need to parse the message. The message is: \"room open near campus asap, rent is negotiable, 2 roommates chill, has parking spot, cat friendly, dm for pics\"\n\nLet me go through each field one by one.\n\nTitle: The first part is \"room open near campus asap\". That seems like the title. So title would be \"room open near campus asap\".\n\nMonthly_rent: The next part is \"rent is negotiable\". The user didn't specify a number, so I should use null here. So monthly_rent: null.\n\nBedrooms"
         },
         "messy_listing": {
-          "gen_time_s": 13.80952501296997,
-          "output": "```json\n\n{\n\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts\",\n\n  \"monthly_rent\": \"900\",\n\n  \"bedrooms\": null,\n\n  \"is_furnished\": \"partially\",\n\n  \"has_in_unit_laundry\": null,\n\n  \"pets_allowed\": \"NO\",\n\n  \"has_parking\": null,\n\n  \"has_balcony\": \"AC + balcony\",\n\n  \"utilities_included\": \"utilities incl\",\n\n  \"available_from\": \"jan1\",\n\n  \"available_until\": \"may15\"\n\n}\n\n```"
+          "gen_time_s": 13.888544082641602,
+          "output": "<think>\nOkay, let's see. I need to extract specific fields from the given message and convert them into JSON. The fields required are title, monthly_rent, bedrooms, is_furnished, has_in_unit_laundry, pets_allowed, has_parking, has_balcony, utilities_included, available_from, available_until. If something isn't mentioned, I should use null.\n\nFirst, the title. The message starts with \"SUBLEASE URGENT!! studio @ the lofts\". So the title is probably \"SUBLEASE URGENT!! studio @ the lofts\". I'll take that as the title.\n\nNext, monthly_rent. The message says \"$900 (utilities incl)\". The rent is $900, so that's straightforward.\n\nBedrooms: The term \"studio\" usually refers to a one-bedroom apartment. So bedrooms should be 1.\n\nIs_furnished: The message mentions \"furnished partially (bed+desk only)\". Partially furnished means it's not fully furnished"
         }
       }
     },
-    "microsoft/Phi-3.5-mini-instruct": {
-      "load_time_s": 343.52011704444885,
+    "ibm-granite/granite-4.0-micro": {
+      "load_time_s": 269.83487486839294,
       "results": {
         "clear_listing": {
-          "gen_time_s": 13.235454082489014,
+          "gen_time_s": 8.516166925430298,
+          "output": "{\n  \"title\": \"Subletting my room\",\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"2022-12-15\",\n  \"available_until\": \"2023-08-01\"\n}"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 7.0888848304748535,
+          "output": "{\n  \"title\": null,\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}"
+        },
+        "messy_listing": {
+          "gen_time_s": 8.556283235549927,
+          "output": "{\n  \"title\": \"SUBLEASE URGENT!! studio @ the lofts\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": 0,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}"
+        }
+      }
+    }
+  },
+  "5. Large (3.5-4B)": {
+    "microsoft/Phi-3.5-mini-instruct": {
+      "load_time_s": 13.723321914672852,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 17.63426113128662,
           "output": "```json\n{\n  \"title\": null,\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"2023-12-15\",\n  \"available_until\": \"2023-08-01\"\n}\n```"
         },
         "ambiguous_listing": {
-          "gen_time_s": 11.051857948303223,
+          "gen_time_s": 12.152029037475586,
           "output": "```json\n{\n  \"title\": null,\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"cat friendly\",\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
         },
         "messy_listing": {
-          "gen_time_s": 11.851017951965332,
+          "gen_time_s": 12.978614091873169,
           "output": "```json\n{\n  \"title\": \"SUBLEASE\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": null,\n  \"is_furnished\": \"partially\",\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"NO\",\n  \"has_parking\": null,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}\n```"
+        }
+      }
+    },
+    "microsoft/Phi-4-mini-instruct": {
+      "load_time_s": 305.0429072380066,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 10.080113172531128,
+          "output": "```json\n\n{\n\n  \"title\": \"subletting my room\",\n\n  \"monthly_rent\": 650,\n\n  \"bedrooms\": 3,\n\n  \"is_furnished\": true,\n\n  \"has_in_unit_laundry\": true,\n\n  \"pets_allowed\": false,\n\n  \"has_parking\": null,\n\n  \"has_balcony\": null,\n\n  \"utilities_included\": null,\n\n  \"available_from\": \"dec 15\",\n\n  \"available_until\": \"aug 1\"\n\n}\n\n```"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 8.942856788635254,
+          "output": "```json\n\n{\n\n  \"title\": \"room open near campus\",\n\n  \"monthly_rent\": null,\n\n  \"bedrooms\": null,\n\n  \"is_furnished\": null,\n\n  \"has_in_unit_laundry\": null,\n\n  \"pets_allowed\": \"cat\",\n\n  \"has_parking\": true,\n\n  \"has_balcony\": null,\n\n  \"utilities_included\": null,\n\n  \"available_from\": null,\n\n  \"available_until\": null\n\n}\n\n```"
+        },
+        "messy_listing": {
+          "gen_time_s": 9.917434930801392,
+          "output": "```json\n\n{\n\n  \"title\": \"studio @ the lofts\",\n\n  \"monthly_rent\": 900,\n\n  \"bedrooms\": null,\n\n  \"is_furnished\": \"partially\",\n\n  \"has_in_unit_laundry\": null,\n\n  \"pets_allowed\": false,\n\n  \"has_parking\": null,\n\n  \"has_balcony\": true,\n\n  \"utilities_included\": true,\n\n  \"available_from\": \"jan1\",\n\n  \"available_until\": \"may15\"\n\n}\n\n```"
+        }
+      }
+    },
+    "Qwen/Qwen3-4B-Instruct-2507": {
+      "load_time_s": 265.8213450908661,
+      "results": {
+        "clear_listing": {
+          "gen_time_s": 9.996028900146484,
+          "output": "{\n  \"title\": \"3bd apt near green st\",\n  \"monthly_rent\": 650,\n  \"bedrooms\": 3,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": true,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"dec 15\",\n  \"available_until\": \"aug 1\"\n}"
+        },
+        "ambiguous_listing": {
+          "gen_time_s": 8.118841886520386,
+          "output": "{\n  \"title\": null,\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}"
+        },
+        "messy_listing": {
+          "gen_time_s": 9.327889204025269,
+          "output": "{\n  \"title\": \"studio @ the lofts\",\n  \"monthly_rent\": 900,\n  \"bedrooms\": null,\n  \"is_furnished\": \"partially\",\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": false,\n  \"has_parking\": null,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": \"jan1\",\n  \"available_until\": \"may15\"\n}"
         }
       }
     }

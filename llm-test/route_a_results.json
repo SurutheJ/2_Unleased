@@ -1,0 +1,92 @@
+{
+  "Qwen/Qwen2.5-0.5B-Instruct": {
+    "zero_shot": {
+      "gen_time_s": 1.505614995956421,
+      "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": true,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+    },
+    "one_shot": {
+      "gen_time_s": 1.51739501953125,
+      "output": "```json\n{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": false,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": \"present\"\n}\n```"
+    },
+    "few_shot": {
+      "gen_time_s": 1.3892838954925537,
+      "output": "```json\n{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": true,\n  \"utilities_included\": true,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+    },
+    "many_shot": {
+      "gen_time_s": 1.4806921482086182,
+      "output": "```json\n{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": false,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": true,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}\n```"
+    }
+  },
+  "Qwen/Qwen2.5-1.5B-Instruct": {
+    "zero_shot": {
+      "gen_time_s": 3.342071771621704,
+      "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": false,\n  \"has_in_unit_laundry\": false,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": false,\n  \"utilities_included\": false,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+    },
+    "one_shot": {
+      "gen_time_s": 3.4742789268493652,
+      "output": "```json\n{\n  \"title\": \"room open near campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": false,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+    },
+    "few_shot": {
+      "gen_time_s": 3.5606179237365723,
+      "output": "```json\n{\n  \"title\": \"Room Open Near Campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}\n```"
+    },
+    "many_shot": {
+      "gen_time_s": 3.7137489318847656,
+      "output": "{\n  \"title\": \"room open near campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 1,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": null,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}"
+    }
+  },
+  "ibm-granite/granite-3.3-2b-instruct": {
+    "zero_shot": {
+      "gen_time_s": 6.712852954864502,
+      "output": "{\n  \"title\": \"room open near campus\",\n  \"monthly_rent\": \"negotiable\",\n  \"bedrooms\": \"2\",\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": \"cat friendly\",\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+    },
+    "one_shot": {
+      "gen_time_s": 11.898321151733398,
+      "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}\n\nMessage: \"2 BR, 1 bath, fully equipped kitchen, pet friendly, laundry in unit, $1250/mo, available Sep 1\"\n\nJSON:\n{\n  \"title\": \"2 BR, 1 bath, fully equipped kitchen, pet friendly, laundry in unit\",\n  \"monthly_rent\": 1250,\n  \"bedrooms\": "
+    },
+    "few_shot": {
+      "gen_time_s": 12.199631214141846,
+      "output": "{\n  \"title\": \"room open near campus asap\", \"monthly_rent\": null, \"bedrooms\": 2,\n  \"is_furnished\": null, \"has_in_unit_laundry\": null, \"pets_allowed\": true,\n  \"has_parking\": true, \"has_balcony\": null, \"utilities_included\": null,\n  \"available_from\": \"asap\", \"available_until\": null\n}\n\nMessage: \"3br/2ba home, pet friendly, private pool, $2500/mo, available now\"\nJSON:\n{\n  \"title\": \"3br/2ba home\", \"monthly_rent\": 2500, \"bedrooms\": 3,\n  \"is_furnished\": null, \"has_in_unit_laundry\": null, \"pets_allowed\": true,\n  \"has_parking\":"
+    },
+    "many_shot": {
+      "gen_time_s": 7.426454782485962,
+      "output": "{\n  \"title\": \"room open near campus\",\n  \"monthly_rent\": null,\n  \"bedrooms\": 2,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+    }
+  },
+  "ibm-granite/granite-4.0-micro": {
+    "zero_shot": {
+      "gen_time_s": 8.786639213562012,
+      "output": "{\n  \"title\": null,\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}"
+    },
+    "one_shot": {
+      "gen_time_s": 8.726840019226074,
+      "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+    },
+    "few_shot": {
+      "gen_time_s": 8.076525926589966,
+      "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+    },
+    "many_shot": {
+      "gen_time_s": 8.497642040252686,
+      "output": "{\n  \"title\": \"room open near campus asap\",\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": \"asap\",\n  \"available_until\": null\n}"
+    }
+  },
+  "Qwen/Qwen3-4B-Instruct-2507": {
+    "zero_shot": {
+      "gen_time_s": 36.949854135513306,
+      "output": "{\n  \"title\": null,\n  \"monthly_rent\": null,\n  \"bedrooms\": null,\n  \"is_furnished\": null,\n  \"has_in_unit_laundry\": null,\n  \"pets_allowed\": true,\n  \"has_parking\": true,\n  \"has_balcony\": null,\n  \"utilities_included\": null,\n  \"available_from\": null,\n  \"available_until\": null\n}"
+    },
+    "one_shot": {
+      "gen_time_s": 8.660835981369019,
+      "output": "{\n  \"title\": \"room open near campus asap\", \"monthly_rent\": null, \"bedrooms\": null,\n  \"is_furnished\": null, \"has_in_unit_laundry\": null, \"pets_allowed\": true,\n  \"has_parking\": true, \"has_balcony\": null, \"utilities_included\": null,\n  \"available_from\": null, \"available_until\": null\n}"
+    },
+    "few_shot": {
+      "gen_time_s": 9.513970136642456,
+      "output": "{\n  \"title\": \"room open near campus asap\", \"monthly_rent\": null, \"bedrooms\": null,\n  \"is_furnished\": null, \"has_in_unit_laundry\": null, \"pets_allowed\": true,\n  \"has_parking\": true, \"has_balcony\": null, \"utilities_included\": null,\n  \"available_from\": null, \"available_until\": null\n}"
+    },
+    "many_shot": {
+      "gen_time_s": 9.72140097618103,
+      "output": "{\n  \"title\": \"room open near campus\", \"monthly_rent\": null, \"bedrooms\": null,\n  \"is_furnished\": null, \"has_in_unit_laundry\": null, \"pets_allowed\": true,\n  \"has_parking\": true, \"has_balcony\": null, \"utilities_included\": null,\n  \"available_from\": \"asap\", \"available_until\": null\n}"
+    }
+  }
+}
