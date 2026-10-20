@@ -679,7 +679,7 @@ What was added:
     listing fields, then the Gemini API writes a description from the validated
     fields only. Code: listings/ai_local.py, listings/ai_external.py, view
     ai_assistant. Nothing is saved.
-  - Tests: listings/test_ai.py (48 new, 59 total), all passing. The model and the
+  - Tests: listings/test_ai.py (52 new, 63 total), all passing. The model and the
     API are mocked there.
 
 Decisions:
@@ -716,6 +716,9 @@ What running the real Gemini API taught us:
     maxOutputTokens=300 the reply was cut off mid-sentence or empty. Now: thinkingLevel
     low, 1024 tokens, and a reply that did not finish (finishReason != STOP) falls back to
     the template. Real call: ~12 s first, ~2 s after.
+
+  - The free tier also answered HTTP 503 ("high demand") and 429 ("quota exceeded") on a
+    working key. Added up to 2 retries with a short delay, and notices that say which it was.
 
 Not done / to confirm:
   - Saving an extracted result as a Listing is not built.

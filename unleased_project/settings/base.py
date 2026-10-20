@@ -208,6 +208,8 @@ GEMINI_MODEL = get_env('GEMINI_MODEL', default='gemini-flash-latest')
 # 'low' keeps it short; set GEMINI_THINKING_LEVEL= (empty) for models that reject it.
 GEMINI_THINKING_LEVEL = get_env('GEMINI_THINKING_LEVEL', default='low')
 GEMINI_MAX_OUTPUT_TOKENS = 1024
+GEMINI_RETRIES = 2              # extra attempts after a 429/5xx (free tier is busy at times)
+GEMINI_RETRY_DELAY = 1.5        # seconds; grows with each attempt
 
 # Guardrail limits
 AI_MAX_MESSAGE_CHARS = 2000      # longer messages are shortened before the model sees them

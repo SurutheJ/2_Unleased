@@ -10,6 +10,7 @@ second model.
 """
 import json
 import re
+import time
 from dataclasses import dataclass
 
 import requests
@@ -17,6 +18,7 @@ from django.conf import settings
 
 GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent'
 MAX_DESCRIPTION_CHARS = 800
+RETRY_STATUSES = (429, 500, 502, 503, 504)
 
 _HTML_TAGS = re.compile(r'<[^>]{0,200}>')
 
@@ -82,6 +84,16 @@ def _clean_reply(text):
     return text[:MAX_DESCRIPTION_CHARS].rstrip()
 
 
+def _post_with_retry(url, headers, payload):
+    """POST to Gemini, retrying briefly on rate-limit/overload responses (not on timeouts)."""
+    attempts = settings.GEMINI_RETRIES + 1
+    for attempt in range(attempts):
+        response = requests.post(url, headers=headers, json=payload, timeout=settings.AI_EXTERNAL_TIMEOUT)
+        if response.status_code not in RETRY_STATUSES or attempt == attempts - 1:
+            return response
+        time.sleep(settings.GEMINI_RETRY_DELAY * (attempt + 1))
+
+
 def generate_description(fields):
     """
     Ask Gemini for a 2-3 sentence description of the validated fields.
@@ -105,11 +117,10 @@ def generate_description(fields):
     if settings.GEMINI_THINKING_LEVEL:
         generation_config['thinkingConfig'] = {'thinkingLevel': settings.GEMINI_THINKING_LEVEL}
     try:
-        response = requests.post(
+        response = _post_with_retry(
             GEMINI_URL.format(model=settings.GEMINI_MODEL),
-            headers={'x-goog-api-key': settings.GEMINI_API_KEY, 'Content-Type': 'application/json'},
-            json={'contents': [{'parts': [{'text': prompt}]}], 'generationConfig': generation_config},
-            timeout=settings.AI_EXTERNAL_TIMEOUT,
+            {'x-goog-api-key': settings.GEMINI_API_KEY, 'Content-Type': 'application/json'},
+            {'contents': [{'parts': [{'text': prompt}]}], 'generationConfig': generation_config},
         )
         response.raise_for_status()
         body = response.json()
@@ -120,8 +131,15 @@ def generate_description(fields):
         return DescriptionResult(fallback, 'fallback', 'The Gemini API timed out, so a template description was used.')
     except requests.HTTPError as exc:
         status = exc.response.status_code if exc.response is not None else '?'
-        hint = ' (check GEMINI_API_KEY)' if status in (400, 401, 403) else ''
-        return DescriptionResult(fallback, 'fallback', f'The Gemini API returned HTTP {status}{hint}, so a template description was used.')
+        if status == 429:
+            reason = 'The Gemini free-tier rate limit was hit (HTTP 429); wait a minute and try again'
+        elif status in (500, 502, 503, 504):
+            reason = f'Gemini is busy or unavailable right now (HTTP {status}); try again shortly'
+        elif status in (400, 401, 403):
+            reason = f'The Gemini API returned HTTP {status} (check GEMINI_API_KEY)'
+        else:
+            reason = f'The Gemini API returned HTTP {status}'
+        return DescriptionResult(fallback, 'fallback', f'{reason}, so a template description was used.')
     except requests.RequestException:
         return DescriptionResult(fallback, 'fallback', 'Could not reach the Gemini API, so a template description was used.')
     except (ValueError, KeyError, IndexError, TypeError):

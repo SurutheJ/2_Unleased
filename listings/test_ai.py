@@ -237,6 +237,49 @@ class ExternalApiTests(TestCase):
         self.assertIn('timed out', result.notice)
         self.assertIn('Room near Green St', result.text)
 
+    @mock.patch('listings.ai_external.time.sleep')
+    @mock.patch('listings.ai_external.requests.post')
+    def test_busy_then_ok_is_retried(self, post, sleep):
+        busy = mock.Mock(status_code=503)
+        post.side_effect = [busy, _gemini_ok('A bright furnished room.')]
+        for response in (busy,):
+            response.raise_for_status.side_effect = requests.HTTPError(response=response)
+        result = ai_external.generate_description(FIELDS)
+        self.assertEqual(result.source, 'gemini')
+        self.assertEqual(post.call_count, 2)
+        sleep.assert_called_once()
+
+    @mock.patch('listings.ai_external.time.sleep')
+    @mock.patch('listings.ai_external.requests.post')
+    def test_still_busy_after_retries_falls_back_with_clear_notice(self, post, sleep):
+        busy = mock.Mock(status_code=503)
+        busy.raise_for_status.side_effect = requests.HTTPError(response=busy)
+        post.return_value = busy
+        result = ai_external.generate_description(FIELDS)
+        self.assertEqual(result.source, 'fallback')
+        self.assertIn('busy', result.notice)
+        self.assertEqual(post.call_count, 3)            # 1 try + GEMINI_RETRIES
+
+    @mock.patch('listings.ai_external.time.sleep')
+    @mock.patch('listings.ai_external.requests.post')
+    def test_rate_limit_notice(self, post, sleep):
+        limited = mock.Mock(status_code=429)
+        limited.raise_for_status.side_effect = requests.HTTPError(response=limited)
+        post.return_value = limited
+        result = ai_external.generate_description(FIELDS)
+        self.assertEqual(result.source, 'fallback')
+        self.assertIn('rate limit', result.notice)
+
+    @mock.patch('listings.ai_external.time.sleep')
+    @mock.patch('listings.ai_external.requests.post')
+    def test_client_errors_are_not_retried(self, post, sleep):
+        bad = mock.Mock(status_code=403)
+        bad.raise_for_status.side_effect = requests.HTTPError(response=bad)
+        post.return_value = bad
+        ai_external.generate_description(FIELDS)
+        self.assertEqual(post.call_count, 1)
+        sleep.assert_not_called()
+
     @mock.patch('listings.ai_external.requests.post', side_effect=requests.ConnectionError)
     def test_network_error_falls_back(self, post):
         self.assertEqual(ai_external.generate_description(FIELDS).source, 'fallback')

@@ -113,6 +113,9 @@ without those libraries the page shows "The local model libraries are not instal
   for `thinkingLevel: low` (`GEMINI_THINKING_LEVEL`, set it empty for a model that rejects it) with a
   1024-token budget, and a reply whose `finishReason` is not `STOP` falls back to the template instead of
   showing half a sentence.
+- The free tier is rate-limited and sometimes busy: we saw HTTP 503 ("high demand") and 429 ("quota exceeded")
+  from a working key. The call retries up to 2 more times on 429/5xx (`GEMINI_RETRIES`), then falls back to
+  the template with a notice that names the cause ("busy", or "free-tier rate limit, wait a minute").
 - It is a **hybrid pipeline**: the local model reads and validates the messy text, and Gemini only
   turns the clean fields into a friendly 2-3 sentence description. The prompt tells Gemini to use only
   those facts and to treat the values as data.
@@ -120,7 +123,7 @@ without those libraries the page shows "The local model libraries are not instal
   to work from a free PythonAnywhere account.
 
 ## Testing
-`python manage.py test listings.test_ai` (59 tests across the app; 48 of them are new). The real model and
+`python manage.py test listings.test_ai` (63 tests across the app; 52 of them are new). The real model and
 real Gemini API are replaced with canned replies, including the broken ones real small models produce
 (code fences, repetition loops, hallucinated dates, injected values). Covered: preprocessing, parsing,
 every validation and grounding rule, the view (login, CSRF, cooldown, short input, unreadable output,
