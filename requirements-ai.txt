@@ -1,7 +1,0 @@
-# Local LLM (A6 Part 2). Install on your own machine only:
-#   pip install -r requirements-ai.txt
-# Kept out of requirements.txt on purpose: torch alone is far larger than the
-# 512 MB PythonAnywhere free quota, so adding it there would break deploys.
-torch==2.14.1
-transformers==5.20.2
-accelerate==1.15.0
