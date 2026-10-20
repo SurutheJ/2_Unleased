@@ -87,17 +87,19 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
 
 ### Running it locally
 ```bash
-pip install -r requirements.txt
-pip install -r requirements-ai.txt        # torch + transformers + accelerate (large)
+pip install -r requirements.txt           # includes torch, transformers, accelerate
 python manage.py migrate
 python manage.py runserver
 ```
-Log in, open **AI assistant**, paste a message.
+Log in, open **AI assistant**, paste a message. On the first request `transformers` downloads the weights
+(about 3 GB, so allow a few minutes) and loads them; later requests take a few seconds. With no
+`GEMINI_API_KEY` set everything still works and the description comes from a template.
 
-`requirements-ai.txt` is separate on purpose: `torch` is far bigger than PythonAnywhere's 512 MB free
-quota, so putting it in `requirements.txt` would break deploys. Consequence: **on a deployed site
-without those libraries the page shows "The local model libraries are not installed on this server"**
-(HTTP 503) instead of crashing. The local model is meant to run on a developer machine.
+`requirements.txt` has everything needed, including `torch` and `transformers`. PythonAnywhere's free
+account cannot hold them (`torch` alone is larger than the 512 MB quota), so deploys there use
+`requirements-deploy.txt`, the same list without the AI libraries. On a site installed that way the page shows
+"The local model libraries are not installed on this server" (HTTP 503) instead of crashing. The local model is
+meant to run on a developer machine.
 
 ## 3. External API integration
 - **Google Gemini API** (free tier), `generateContent` endpoint, called with `requests.post`

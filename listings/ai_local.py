@@ -124,7 +124,7 @@ def _get_pipeline():
     except ImportError as exc:
         raise LocalModelUnavailable(
             "The local model libraries are not installed on this server. "
-            "Run: pip install -r requirements-ai.txt"
+            "Run: pip install -r requirements.txt"
         ) from exc
     try:
         _pipeline = pipeline(

@@ -683,9 +683,14 @@ What was added:
     API are mocked there.
 
 Decisions:
-  - torch/transformers live in requirements-ai.txt, not requirements.txt, because
-    torch is far bigger than the 512 MB PythonAnywhere free quota. On a deployed
-    site without them the page shows a clear 503 message instead of crashing.
+  - requirements.txt includes torch, transformers and accelerate, because anyone who
+    installs it from scratch should get a working local model. These are ranges (torch>=2.4,
+    transformers>=4.56, accelerate>=1.0), not exact pins, since torch wheels differ by
+    OS/CPU. torch alone is larger than PythonAnywhere's 512 MB free quota, so deploys
+    there use requirements-deploy.txt (the same list without the AI libraries); the page
+    then shows a clear 503 message instead of crashing. (We first kept the AI libraries
+    in a separate requirements-ai.txt, then removed it: a fresh
+    install of requirements.txt alone has to be enough.)
   - Gemini, because googleapis.com is on PythonAnywhere's free outbound allowlist,
     it has a free tier, and the team already uses a Google account.
   - Only validated fields go to Gemini, never the raw message.

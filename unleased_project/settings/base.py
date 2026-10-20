@@ -195,7 +195,7 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 # ---------------------------------------------------------------------------
 # AI features (A6 Part 2)
 # ---------------------------------------------------------------------------
-# Local model: downloaded by transformers on first use (needs requirements-ai.txt).
+# Local model: downloaded by transformers on first use (torch + transformers from requirements.txt).
 LOCAL_LLM_MODEL = get_env('LOCAL_LLM_MODEL', default='Qwen/Qwen2.5-1.5B-Instruct')
 LOCAL_LLM_DEVICE = get_env('LOCAL_LLM_DEVICE', default='auto')   # 'auto', 'cpu' or 'mps'
 

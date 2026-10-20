@@ -1,0 +1,11 @@
+# For PythonAnywhere's free account (512 MB disk quota): requirements.txt minus the
+# local-LLM libraries (torch alone is larger than the whole quota). The AI assistant
+# page then shows a "local model libraries are not installed" message on that site.
+#   pip install -r requirements-deploy.txt
+# Keep this in sync with the non-AI lines of requirements.txt.
+Django==5.2.17
+python-dotenv==1.2.2
+matplotlib==3.11.0
+requests==2.34.2
+vl-convert-python==1.9.0.post1
+django-allauth[socialaccount]==65.19.7
