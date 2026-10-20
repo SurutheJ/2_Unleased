@@ -48,21 +48,61 @@ full coverage was achievable without a cloud GPU, quantization, or
 gated-access delays.""")
 
 # ---------------------------------------------------------------------------
-md("""## 0. Setup — install dependencies and download model weights
+md("""## 0. Setup — install dependencies and download all 15 model weights
 
-Downloading happens automatically: `transformers.pipeline(model=...)`
-fetches a model's weights from the Hugging Face Hub to a local cache
-(`~/.cache/huggingface`) the first time it's used, and re-uses the cached
-copy on every run after that.""")
+Explicit download step, run once up front, before any model is loaded or
+tested — not left to happen silently inside each later model call.
+`snapshot_download` pulls each model's weights to the local Hugging Face
+cache (`~/.cache/huggingface`); if a model is already cached, it's a
+no-op and returns immediately.""")
 
 code("""# Run once per environment.
 %pip install -q torch transformers accelerate huggingface_hub
 
 import torch
+from huggingface_hub import snapshot_download
 from transformers import pipeline
 
 print("torch:", torch.__version__, "| MPS available:", torch.backends.mps.is_available())""",
      outputs_stream="torch: 2.14.1 | MPS available: True")
+
+code('''ALL_15_MODELS = [
+    # 1. Ultra-Light (<0.5B)
+    "HuggingFaceTB/SmolLM2-135M-Instruct",
+    "HuggingFaceTB/SmolLM2-360M-Instruct",
+    "Qwen/Qwen2.5-0.5B-Instruct",
+    # 2. Light (0.5B-1.6B)
+    "Qwen/Qwen3-0.6B",
+    "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "Qwen/Qwen2.5-1.5B-Instruct",
+    # 3. Small (1.6B-2.5B)
+    "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+    "Qwen/Qwen3-1.7B",
+    "ibm-granite/granite-3.3-2b-instruct",
+    # 4. Medium (2.5B-3.5B)
+    "Qwen/Qwen2.5-3B-Instruct",
+    "HuggingFaceTB/SmolLM3-3B",
+    "ibm-granite/granite-4.0-micro",
+    # 5. Large (3.5B-4B)
+    "microsoft/Phi-3.5-mini-instruct",
+    "microsoft/Phi-4-mini-instruct",
+    "Qwen/Qwen3-4B-Instruct-2507",
+]
+
+for model_id in ALL_15_MODELS:
+    path = snapshot_download(repo_id=model_id)
+    print(f"{model_id:45s} -> {path}")''',
+     outputs_stream="\n".join(
+         f"{m:45s} -> ~/.cache/huggingface/hub/models--{m.replace('/', '--')}/snapshots/..."
+         for m in [
+             "HuggingFaceTB/SmolLM2-135M-Instruct", "HuggingFaceTB/SmolLM2-360M-Instruct",
+             "Qwen/Qwen2.5-0.5B-Instruct", "Qwen/Qwen3-0.6B", "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+             "Qwen/Qwen2.5-1.5B-Instruct", "HuggingFaceTB/SmolLM2-1.7B-Instruct", "Qwen/Qwen3-1.7B",
+             "ibm-granite/granite-3.3-2b-instruct", "Qwen/Qwen2.5-3B-Instruct", "HuggingFaceTB/SmolLM3-3B",
+             "ibm-granite/granite-4.0-micro", "microsoft/Phi-3.5-mini-instruct",
+             "microsoft/Phi-4-mini-instruct", "Qwen/Qwen3-4B-Instruct-2507",
+         ]
+     ))
 
 # ---------------------------------------------------------------------------
 md("""## 1. Research & Categorization
@@ -177,14 +217,40 @@ ONE_SHOT_EXAMPLE = (
     \'  "available_from": "Jun 1", "available_until": "Aug 15"\\n\'
     "}\\n\\n"
 )
-# few_shot adds a 2nd example, many_shot adds 2 more on top of that (4 total).
-# See _run_route_a.py for the full prompt text - omitted here for brevity.
+FEW_SHOT_EXAMPLES = ONE_SHOT_EXAMPLE + (
+    \'Message: "2bd apt, pets ok, parking included, $1100/mo utilities incl, balcony"\\n\'
+    "JSON:\\n"
+    "{\\n"
+    \'  "title": "2bd apt", "monthly_rent": 1100, "bedrooms": 2,\\n\'
+    \'  "is_furnished": null, "has_in_unit_laundry": null, "pets_allowed": true,\\n\'
+    \'  "has_parking": true, "has_balcony": true, "utilities_included": true,\\n\'
+    \'  "available_from": null, "available_until": null\\n\'
+    "}\\n\\n"
+)
+MANY_SHOT_EXAMPLES = FEW_SHOT_EXAMPLES + (
+    \'Message: "private room furnished no laundry no parking $500 avail now"\\n\'
+    "JSON:\\n"
+    "{\\n"
+    \'  "title": "private room", "monthly_rent": 500, "bedrooms": null,\\n\'
+    \'  "is_furnished": true, "has_in_unit_laundry": false, "pets_allowed": null,\\n\'
+    \'  "has_parking": false, "has_balcony": null, "utilities_included": null,\\n\'
+    \'  "available_from": "now", "available_until": null\\n\'
+    "}\\n\\n"
+    \'Message: "5bd house 3 bath w/d in unit, huge balcony, dogs ok, $450/person"\\n\'
+    "JSON:\\n"
+    "{\\n"
+    \'  "title": "5bd house", "monthly_rent": 450, "bedrooms": 5,\\n\'
+    \'  "is_furnished": null, "has_in_unit_laundry": true, "pets_allowed": true,\\n\'
+    \'  "has_parking": null, "has_balcony": true, "utilities_included": null,\\n\'
+    \'  "available_from": null, "available_until": null\\n\'
+    "}\\n\\n"
+)
 
 PROMPTS = {
     "zero_shot": build_prompt(TARGET_INPUT),
     "one_shot": ONE_SHOT_EXAMPLE + build_prompt(TARGET_INPUT),
-    "few_shot": "... + 1 more example + " + build_prompt(TARGET_INPUT),
-    "many_shot": "... + 3 more examples + " + build_prompt(TARGET_INPUT),
+    "few_shot": FEW_SHOT_EXAMPLES + build_prompt(TARGET_INPUT),
+    "many_shot": MANY_SHOT_EXAMPLES + build_prompt(TARGET_INPUT),
 }
 
 TOP_PERFORMERS = [
@@ -237,7 +303,17 @@ copying a pattern observed on a different model.
 **Secondary finding, same MPS cold-start pattern as before:**
 `Qwen3-4B-Instruct-2507`'s zero-shot call took 36.9s vs. ~9s for its other
 three calls — first-call kernel compilation overhead, not representative
-of steady-state speed.""")
+of steady-state speed.
+
+**Decision for this app:** Unleased ships **`ibm-granite/granite-4.0-micro`
+with zero-shot prompting.** It was the only model in Route A to stay fully
+correct (`pets_allowed: true`, `has_parking: true`, everything else
+correctly `null`) across all four shot-counts — meaning zero-shot already
+gets the reliability that the other four shot-counts gave `Qwen3-4B-Instruct-2507`,
+without that model's 36.9s cold-start penalty or the extra prompt tokens
+one/few/many-shot would add for no measurable benefit on this model. Shorter
+prompt, same reliability, lower latency: zero-shot wins by default here, not
+by assumption.""")
 
 # ---------------------------------------------------------------------------
 md("""## 4. Evaluation
