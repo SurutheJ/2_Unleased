@@ -581,10 +581,10 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 
 `/listings/ai-assistant/` (login required, navbar tab **AI assistant**) turns a pasted,
 informal sublease message into structured listing fields with a local Hugging Face model
-(`Qwen2.5-1.5B-Instruct`), then asks the Google Gemini API to write a short description from
+(`granite-4.0-micro`), then asks the Google Gemini API to write a short description from
 those validated fields. The workflow, guardrails, setup and known limits are in
 [`README_AI.md`](README_AI.md). `torch` and `transformers` are in `requirements.txt`; the model weights
-(about 3 GB) download automatically on first use. On PythonAnywhere's free tier install
+(about 6.8 GB) download automatically on first use. On PythonAnywhere's free tier install
 `requirements-deploy.txt` instead (same file without the AI libraries; the page then shows a clear
 "not installed" message). The Gemini call needs `GEMINI_API_KEY` in `.env`; without it a template
 description is used.

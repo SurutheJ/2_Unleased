@@ -10,7 +10,7 @@ Page: `/listings/ai-assistant/` (navbar tab **AI assistant**, login required).
 ```
 pasted message
    -> clean_message()        preprocessing + masking      listings/ai_local.py
-   -> local model (Qwen2.5-1.5B-Instruct) -> JSON text   listings/ai_local.py
+   -> local model (granite-4.0-micro) -> JSON text      listings/ai_local.py
    -> parse_model_output() + validate_fields()           listings/ai_local.py
    -> generate_description()  Gemini API (validated fields only)  listings/ai_external.py
    -> page shows fields, warnings, description
@@ -62,10 +62,11 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
 - **Grounding:** a value is only kept if the message actually supports it. A yes/no field needs a
   related word in the message (`laundry`, `pets`, `parking`...), the rent must appear in the message,
   and the bedroom count must match something like `3bd` or `two bedroom` (or "studio").
-  This exists because we saw small models answer "yes" or "no" for features nobody mentioned. In our own
-  runs of the real model on the vague test message, it answered "false" for furnished, laundry, balcony and
-  utilities, none of which the message mentions. The notebook's matrix shows the same habit in a couple
-  of the 15 models on that message, so it is not specific to one model.
+  This exists because small models can answer "yes" or "no" for features nobody mentioned. Our first model
+  (Qwen2.5-1.5B) did exactly that on the vague test message: it answered "false" for furnished, laundry,
+  balcony and utilities, none of which the message mentions. The notebook's matrix shows the same habit in
+  a couple of the 15 models. The current model (Granite) did not do it on our five test messages, but the
+  check stays: it is cheap, and a different model, a different device, or a stranger message can bring the habit back.
 - Model text is shown through Django's auto-escaping, so a model that outputs `<script>` cannot inject markup.
 - The external API call has a timeout, handles HTTP errors, blocked/empty/malformed replies, and a missing key,
   and **always falls back** to a template description, with a note saying why.
@@ -79,25 +80,33 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
 - The model can still be wrong about values that pass every check.
 
 ## 2. Local LLM integration
-- Model: **`Qwen/Qwen2.5-1.5B-Instruct`**, one of the 15 models benchmarked in the Part 1 lab
-  (`llm-test/ai_prototype.ipynb`). Change it with `LOCAL_LLM_MODEL` in `.env`.
-- **Why this one.** The notebook's evaluation recommends the non-thinking Qwen2.5 and IBM Granite models
-  in the roughly 1.6B to 3.5B range. Qwen2.5-1.5B is from that family, returned correct JSON on the hardest
-  test message with a zero-shot prompt, averaged 3.7 s per input in the matrix, and is only about a 3 GB
-  download. The Route A prompt test also showed it does best **zero-shot** and gets *worse* with few-shot and
-  many-shot examples, so the app's prompt gives instructions only and no worked examples.
-- **Trade-off we accepted.** In the notebook `granite-4.0-micro` was the most stable across every prompting style,
-  but it is a larger model (about 8.1 s per input in the matrix, and a bigger download), and the guardrails in
-  this app were built and tested against Qwen2.5-1.5B's mistakes. Try it by setting `LOCAL_LLM_MODEL`, and
-  re-run `python manage.py test listings.test_ai` plus a few real messages first.
+- Model: **`ibm-granite/granite-4.0-micro`**, the model the Part 1 notebook chose ("Decision for this app":
+  Granite with zero-shot prompting). Change it with `LOCAL_LLM_MODEL` in `.env`.
+- **Why this one.** In the notebook's Route A test it was the only model that stayed fully correct across zero-,
+  one-, few- and many-shot prompts, so a short zero-shot prompt (instructions only, no worked examples) gets
+  full reliability. We also ran it for real through this app's pipeline on five messages, including two
+  prompt-injection attempts: the clear message came back fully correct with no warnings, the vague message came
+  back with nothing invented, a studio listing got bedrooms = 0, and the plain injection attempt was ignored.
+  Our first model, Qwen2.5-1.5B, invented "false" answers on the vague message (and, before we put today's
+  date in the prompt, 2023 dates).
+- **Trade-off we accepted.** It is bigger and slower than Qwen2.5-1.5B: about a **6.8 GB download** (3.1 GB for
+  Qwen) and about 7 to 9 s per message (about 4 s for Qwen). For a smaller, faster setup set
+  `LOCAL_LLM_MODEL=Qwen/Qwen2.5-1.5B-Instruct`; it works with the same guardrails but is less reliable.
 - **Use a non-thinking model.** In the notebook Qwen3-0.6B, Qwen3-1.7B and SmolLM3-3B spent their whole
   200-token budget on `<think>` reasoning and never produced JSON. This app caps output at 300 new tokens
   (`AI_MAX_NEW_TOKENS`), so a thinking model would most likely fail the same way (not tested here).
+- **It is not perfect.** An injection reworded to avoid our phrase filter still got `"title": "PWNED"` out of
+  Granite (the fake rent of $1 was rejected by validation), and on one run on CPU it returned the end date in
+  the wrong year, which the start-before-end check caught. The guardrails exist for this reason.
 - Loaded with `transformers.pipeline("text-generation", ...)` the first time it is needed, then reused
   for the life of the server process (`_get_pipeline` in `listings/ai_local.py`, guarded by a lock so only
-  one generation runs at a time). The weights (about 3 GB) download automatically to `~/.cache/huggingface`.
-- Measured on an Apple Silicon Mac (`torch 2.14.1`, `transformers 5.20.2`): about **95 s for the
-  first request** (download already cached; loading and warm-up), then **3 to 4 s per message**.
+  one generation runs at a time). The weights (about 6.8 GB) download automatically to `~/.cache/huggingface`.
+- Device: `LOCAL_LLM_DEVICE=auto` picks the best single device (CUDA, then the Mac GPU, then CPU). We do **not**
+  use accelerate's `device_map="auto"`: on a 16 GB Mac it offloaded Granite to disk and had not finished one
+  message after 19 minutes. The model needs roughly 7 to 8 GB of free memory.
+- Measured on a 16 GB Apple Silicon Mac (`torch 2.14.1`, `transformers 5.20.2`), with the weights already
+  downloaded: GPU about **16 s for the first request** (loading) then **7 to 8 s per message**; CPU only about
+  21 s then 9 s. The download itself depends on your connection.
 
 ### Running it locally
 ```bash
@@ -106,7 +115,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 Log in, open **AI assistant**, paste a message. On the first request `transformers` downloads the weights
-(about 3 GB, so allow a few minutes) and loads them; later requests take a few seconds. With no
+(about 6.8 GB, so allow several minutes) and loads them; later requests take under ten seconds. With no
 `GEMINI_API_KEY` set everything still works and the description comes from a template.
 
 `requirements.txt` has everything needed, including `torch` and `transformers`. PythonAnywhere's free

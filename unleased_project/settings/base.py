@@ -196,8 +196,12 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 # AI features (A6 Part 2)
 # ---------------------------------------------------------------------------
 # Local model: downloaded by transformers on first use (torch + transformers from requirements.txt).
-LOCAL_LLM_MODEL = get_env('LOCAL_LLM_MODEL', default='Qwen/Qwen2.5-1.5B-Instruct')
-LOCAL_LLM_DEVICE = get_env('LOCAL_LLM_DEVICE', default='auto')   # 'auto', 'cpu' or 'mps'
+# Default: ibm-granite/granite-4.0-micro, the model the Part 1 notebook chose (about 7 GB download).
+# Qwen/Qwen2.5-1.5B-Instruct is a smaller, faster alternative (about 3 GB).
+# Use a non-thinking model only: Qwen3 and SmolLM3 spend the whole token budget on <think> text.
+LOCAL_LLM_MODEL = get_env('LOCAL_LLM_MODEL', default='ibm-granite/granite-4.0-micro')
+# 'auto' = best single device (cuda, then mps, then cpu); or set 'cuda', 'mps' or 'cpu' explicitly.
+LOCAL_LLM_DEVICE = get_env('LOCAL_LLM_DEVICE', default='auto')
 
 # External API (Google Gemini, free tier). Key lives in .env, never in git.
 GEMINI_API_KEY = get_env('GEMINI_API_KEY', default='')

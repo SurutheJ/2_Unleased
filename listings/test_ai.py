@@ -185,6 +185,27 @@ class ValidateFieldsTests(TestCase):
         self.assertLessEqual(len(fields['title']), 200)
 
 
+class DeviceChoiceTests(TestCase):
+    """_resolve_device picks one device; it never returns accelerate's 'auto' offloading mode."""
+
+    @staticmethod
+    def fake_torch(cuda=False, mps=False):
+        return mock.Mock(cuda=mock.Mock(is_available=lambda: cuda),
+                         backends=mock.Mock(mps=mock.Mock(is_available=lambda: mps)))
+
+    def resolve(self, torch_module, setting='auto'):
+        with override_settings(LOCAL_LLM_DEVICE=setting), mock.patch.dict('sys.modules', {'torch': torch_module}):
+            return ai_local._resolve_device()
+
+    def test_auto_prefers_cuda_then_mps_then_cpu(self):
+        self.assertEqual(self.resolve(self.fake_torch(cuda=True, mps=True)), 'cuda')
+        self.assertEqual(self.resolve(self.fake_torch(mps=True)), 'mps')
+        self.assertEqual(self.resolve(self.fake_torch()), 'cpu')
+
+    def test_explicit_setting_is_used_as_is(self):
+        self.assertEqual(self.resolve(self.fake_torch(cuda=True), setting='cpu'), 'cpu')
+
+
 def _gemini_ok(text):
     response = mock.Mock()
     response.raise_for_status.return_value = None
