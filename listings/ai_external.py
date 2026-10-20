@@ -84,14 +84,38 @@ def _clean_reply(text):
     return text[:MAX_DESCRIPTION_CHARS].rstrip()
 
 
+MAX_RETRY_WAIT = 10   # seconds; a 429 asking for longer than this is a quota, not a blip
+
+
+def retry_delay_seconds(response):
+    """Seconds Google asks us to wait (RetryInfo.retryDelay in an error body), or None."""
+    try:
+        for detail in response.json()['error'].get('details', []):
+            if detail.get('@type', '').endswith('RetryInfo'):
+                return float(str(detail['retryDelay']).rstrip('s'))
+    except (ValueError, KeyError, TypeError, AttributeError):
+        pass
+    return None
+
+
 def _post_with_retry(url, headers, payload):
-    """POST to Gemini, retrying briefly on rate-limit/overload responses (not on timeouts)."""
+    """
+    POST to Gemini, retrying briefly on overload (5xx) and short rate limits (429).
+    Not retried: timeouts, client errors, and a 429 that asks for a long wait
+    (a daily quota); retrying those only burns more of the quota.
+    """
     attempts = settings.GEMINI_RETRIES + 1
     for attempt in range(attempts):
         response = requests.post(url, headers=headers, json=payload, timeout=settings.AI_EXTERNAL_TIMEOUT)
         if response.status_code not in RETRY_STATUSES or attempt == attempts - 1:
             return response
-        time.sleep(settings.GEMINI_RETRY_DELAY * (attempt + 1))
+        wait = settings.GEMINI_RETRY_DELAY * (attempt + 1)
+        if response.status_code == 429:
+            asked = retry_delay_seconds(response)
+            if asked is None or asked > MAX_RETRY_WAIT:
+                return response
+            wait = max(wait, asked)
+        time.sleep(wait)
 
 
 def generate_description(fields):
@@ -132,7 +156,11 @@ def generate_description(fields):
     except requests.HTTPError as exc:
         status = exc.response.status_code if exc.response is not None else '?'
         if status == 429:
-            reason = 'The Gemini free-tier rate limit was hit (HTTP 429); wait a minute and try again'
+            asked = retry_delay_seconds(exc.response) if exc.response is not None else None
+            if asked and asked > 3600:
+                reason = f'The Gemini free-tier daily limit is used up (HTTP 429); it resets in about {round(asked / 3600)} hour(s)'
+            else:
+                reason = 'The Gemini free-tier rate limit was hit (HTTP 429); wait a minute and try again'
         elif status in (500, 502, 503, 504):
             reason = f'Gemini is busy or unavailable right now (HTTP {status}); try again shortly'
         elif status in (400, 401, 403):

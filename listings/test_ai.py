@@ -270,6 +270,33 @@ class ExternalApiTests(TestCase):
         self.assertEqual(result.source, 'fallback')
         self.assertIn('rate limit', result.notice)
 
+    @staticmethod
+    def _quota_response(delay):
+        response = mock.Mock(status_code=429)
+        response.json.return_value = {'error': {'details': [
+            {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': delay}]}}
+        response.raise_for_status.side_effect = requests.HTTPError(response=response)
+        return response
+
+    @mock.patch('listings.ai_external.time.sleep')
+    @mock.patch('listings.ai_external.requests.post')
+    def test_daily_quota_429_is_not_retried_and_says_when_it_resets(self, post, sleep):
+        post.return_value = self._quota_response('20782s')
+        result = ai_external.generate_description(FIELDS)
+        self.assertEqual(post.call_count, 1)
+        sleep.assert_not_called()
+        self.assertIn('daily limit', result.notice)
+        self.assertIn('6 hour', result.notice)
+
+    @mock.patch('listings.ai_external.time.sleep')
+    @mock.patch('listings.ai_external.requests.post')
+    def test_short_429_is_retried_after_the_delay_google_asks_for(self, post, sleep):
+        post.side_effect = [self._quota_response('4s'), _gemini_ok('A bright furnished room.')]
+        result = ai_external.generate_description(FIELDS)
+        self.assertEqual(result.source, 'gemini')
+        self.assertEqual(post.call_count, 2)
+        self.assertGreaterEqual(sleep.call_args.args[0], 4)
+
     @mock.patch('listings.ai_external.time.sleep')
     @mock.patch('listings.ai_external.requests.post')
     def test_client_errors_are_not_retried(self, post, sleep):

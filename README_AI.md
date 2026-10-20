@@ -113,17 +113,19 @@ without those libraries the page shows "The local model libraries are not instal
   for `thinkingLevel: low` (`GEMINI_THINKING_LEVEL`, set it empty for a model that rejects it) with a
   1024-token budget, and a reply whose `finishReason` is not `STOP` falls back to the template instead of
   showing half a sentence.
-- The free tier is rate-limited and sometimes busy: we saw HTTP 503 ("high demand") and 429 ("quota exceeded")
-  from a working key. The call retries up to 2 more times on 429/5xx (`GEMINI_RETRIES`), then falls back to
-  the template with a notice that names the cause ("busy", or "free-tier rate limit, wait a minute").
-- It is a **hybrid pipeline**: the local model reads and validates the messy text, and Gemini only
-  turns the clean fields into a friendly 2-3 sentence description. The prompt tells Gemini to use only
-  those facts and to treat the values as data.
+- The free tier is limited and sometimes busy. From a working key we saw HTTP 503 ("high demand"), HTTP 429 for
+  a per-minute limit, and HTTP 429 for the **daily** limit (`GenerateRequestsPerDayPerProjectPerModel`),
+  which Google said would reset in about 5.8 hours. Quotas are **per model**: when `gemini-flash-latest` was
+  used up, `gemini-3.5-flash` still answered, so setting `GEMINI_MODEL` is a quick workaround.
+- The call retries up to 2 more times on 5xx and on short 429s (`GEMINI_RETRIES`, waiting as long as Google's
+  `retryDelay` asks). It does **not** retry a 429 that asks for a long wait, because that is a quota and retrying
+  only burns more of it. Every failure falls back to the template with a notice that names the cause
+  ("busy", "rate limit, wait a minute", or "daily limit used up, resets in about N hours").
 - `googleapis.com` is on PythonAnywhere's free-tier outbound allowlist, so this call is expected
   to work from a free PythonAnywhere account.
 
 ## Testing
-`python manage.py test listings.test_ai` (63 tests across the app; 52 of them are new). The real model and
+`python manage.py test listings.test_ai` (65 tests across the app; 54 of them are new). The real model and
 real Gemini API are replaced with canned replies, including the broken ones real small models produce
 (code fences, repetition loops, hallucinated dates, injected values). Covered: preprocessing, parsing,
 every validation and grounding rule, the view (login, CSRF, cooldown, short input, unreadable output,
