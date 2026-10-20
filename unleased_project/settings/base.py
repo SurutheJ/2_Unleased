@@ -190,3 +190,29 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
+
+
+# ---------------------------------------------------------------------------
+# AI features (A6 Part 2)
+# ---------------------------------------------------------------------------
+# Local model: downloaded by transformers on first use (torch + transformers from requirements.txt).
+LOCAL_LLM_MODEL = get_env('LOCAL_LLM_MODEL', default='Qwen/Qwen2.5-1.5B-Instruct')
+LOCAL_LLM_DEVICE = get_env('LOCAL_LLM_DEVICE', default='auto')   # 'auto', 'cpu' or 'mps'
+
+# External API (Google Gemini, free tier). Key lives in .env, never in git.
+GEMINI_API_KEY = get_env('GEMINI_API_KEY', default='')
+# 'gemini-flash-latest' is Google's alias for the current Flash model. Pinned names get retired
+# (gemini-2.5-flash returned 404 "no longer available to new users" for new keys).
+GEMINI_MODEL = get_env('GEMINI_MODEL', default='gemini-flash-latest')
+# Current Gemini models "think" before answering and bill that against the output budget.
+# 'low' keeps it short; set GEMINI_THINKING_LEVEL= (empty) for models that reject it.
+GEMINI_THINKING_LEVEL = get_env('GEMINI_THINKING_LEVEL', default='low')
+GEMINI_MAX_OUTPUT_TOKENS = 1024
+GEMINI_RETRIES = 2              # extra attempts after a 429/5xx (free tier is busy at times)
+GEMINI_RETRY_DELAY = 1.5        # seconds; grows with each attempt
+
+# Guardrail limits
+AI_MAX_MESSAGE_CHARS = 2000      # longer messages are shortened before the model sees them
+AI_MAX_NEW_TOKENS = 300          # hard cap on what the local model may generate
+AI_COOLDOWN_SECONDS = 5          # minimum gap between two AI requests from one user
+AI_EXTERNAL_TIMEOUT = 15         # seconds to wait for the Gemini API

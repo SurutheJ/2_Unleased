@@ -20,7 +20,7 @@ PUBLIC_PAGES = [
 PROTECTED_PAGES = [
     'listings:inquiries', 'listings:insights', 'listings:insights_chart',
     'listings:vega_charts', 'listings:proximity', 'listings:reports',
-    'listings:export_csv', 'listings:export_json',
+    'listings:export_csv', 'listings:export_json', 'listings:ai_assistant',
 ]
 PROTECTED_APIS = ['listings:api', 'listings:api_text', 'listings:api_proximity']
 PUBLIC_API = 'listings:api_by_status'

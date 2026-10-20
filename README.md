@@ -199,8 +199,9 @@ else keeps working.
 
 **Deploying it on PythonAnywhere**
 
-1. `git pull`, then `pip install -r requirements.txt` (this now installs
-   `django-allauth[socialaccount]`, which brings in PyJWT).
+1. `git pull`, then `pip install -r requirements-deploy.txt` (not `requirements.txt`: that one now
+   includes `torch`, which is larger than the free 512 MB quota). It installs
+   `django-allauth[socialaccount]`, which brings in PyJWT.
 2. Put the same `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` in the `.env` file
    next to `manage.py` on the server (`settings/base.py` loads it).
 3. `python manage.py migrate` (creates the `socialaccount` tables) and
@@ -575,6 +576,19 @@ detail page and the `{% for %}...{% empty %}` empty-state case.
 | Use #1: Python script output | `docs/alt-api-uses/use1_python_script.py` | [a5-p3-04-use1-python.png](docs/screenshots/a5-p3-04-use1-python.png) |
 | Use #2: Google Sheets populated by the Apps Script | `docs/alt-api-uses/use2_google_sheets_apps_script.gs` | [a5-p3-05-use2-sheets.png](docs/screenshots/a5-p3-05-use2-sheets.png) |
 | Use #3: notebook statistical analysis output | `docs/alt-api-uses/use3_notebook_stats.ipynb` | [a5-p3-06-use3-notebook.png](docs/screenshots/a5-p3-06-use3-notebook.png) |
+
+## AI listing assistant (A6 Part 2)
+
+`/listings/ai-assistant/` (login required, navbar tab **AI assistant**) turns a pasted,
+informal sublease message into structured listing fields with a local Hugging Face model
+(`Qwen2.5-1.5B-Instruct`), then asks the Google Gemini API to write a short description from
+those validated fields. The workflow, guardrails, setup and known limits are in
+[`README_AI.md`](README_AI.md). `torch` and `transformers` are in `requirements.txt`; the model weights
+(about 3 GB) download automatically on first use. On PythonAnywhere's free tier install
+`requirements-deploy.txt` instead (same file without the AI libraries; the page then shows a clear
+"not installed" message). The Gemini call needs `GEMINI_API_KEY` in `.env`; without it a template
+description is used.
+Screenshot: [a6-p2-01-ai-assistant.png](docs/screenshots/a6-p2-01-ai-assistant.png).
 
 ## Branching strategy
 

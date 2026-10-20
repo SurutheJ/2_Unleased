@@ -23,5 +23,6 @@ urlpatterns = [
     path('reports/', views.listing_reports, name='reports'),                  # HTML report + export buttons
     path('export/listings.csv', views.export_listings_csv, name='export_csv'),   # CSV download
     path('export/listings.json', views.export_listings_json, name='export_json'),  # JSON download
+    path('ai-assistant/', views.ai_assistant, name='ai_assistant'),  # A6: local LLM + Gemini API
     path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),  # GET show + POST inquire
 ]
