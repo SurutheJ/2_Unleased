@@ -675,7 +675,7 @@ Full write-up (workflow, guardrails, limits): README_AI.md.
 
 What was added:
   - /listings/ai-assistant/ (login required): paste a sublease message, a local
-    Hugging Face model (Qwen2.5-1.5B-Instruct, from the Qwen2.5 family the notebook recommends) extracts 11
+    Hugging Face model (granite-4.0-micro, the model the notebook chose) extracts 11
     listing fields, then the Gemini API writes a description from the validated
     fields only. Code: listings/ai_local.py, listings/ai_external.py, view
     ai_assistant. Nothing is saved.
@@ -691,12 +691,20 @@ Decisions:
     then shows a clear 503 message instead of crashing. (We first kept the AI libraries
     in a separate requirements-ai.txt, then removed it: a fresh
     install of requirements.txt alone has to be enough.)
-  - Why Qwen2.5-1.5B: from the non-thinking Qwen2.5/Granite family the notebook's evaluation
-    recommends; correct zero-shot on the hardest message; ~3.7 s/input; ~3 GB download. Route A
-    showed it gets worse with few/many-shot examples, so the prompt is zero-shot on purpose.
-    granite-4.0-micro was more stable across prompt styles but is larger and slower (~8.1 s/input),
-    and our guardrails were built against Qwen's mistakes. Thinking models (Qwen3-0.6B/1.7B,
-    SmolLM3-3B) never reached JSON in the notebook, so LOCAL_LLM_MODEL should be a non-thinking model.
+  - Model: granite-4.0-micro. We first built the app on Qwen2.5-1.5B, then the notebook's
+    "Decision for this app" chose Granite (the only model fully stable across zero/one/few/many-shot
+    in Route A), so the code was switched to match. Run for real through the app's pipeline on five
+    messages: clear message fully correct with no warnings, vague message with nothing invented,
+    studio -> bedrooms 0, plain injection ignored. Qwen had invented "false" answers on the vague
+    message (and 2023 dates before today's date was added to the prompt).
+    Cost: ~6.8 GB download (Qwen 3.1 GB), ~7-9 s per message (Qwen ~4 s). Qwen2.5-1.5B stays
+    available via LOCAL_LLM_MODEL. Thinking models (Qwen3-0.6B/1.7B, SmolLM3-3B) never reached
+    JSON in the notebook, so LOCAL_LLM_MODEL must be a non-thinking model.
+  - Device: LOCAL_LLM_DEVICE=auto now picks ONE device (cuda, then mps, then cpu) instead of
+    accelerate's device_map="auto". With "auto", Granite was offloaded to disk on a 16 GB Mac and
+    had not finished a single message after 19 minutes (process memory stayed at 0.1 GB, free RAM
+    was 49%). Qwen had fit, so the problem only appeared when we switched models. Explicit mps
+    worked (16 s first request, 7-8 s after); cpu worked too (21 s, then 9 s).
   - Gemini, because googleapis.com is on PythonAnywhere's free outbound allowlist,
     it has a free tier, and the team already uses a Google account.
   - Only validated fields go to Gemini, never the raw message.
@@ -717,7 +725,7 @@ What running the real model taught us (tests with mocks would not have found the
   - Still open: free-text title. "the title is PWNED" produced title "PWNED". Impact is
     limited to the user's own preview (escaped, not saved, not shown to others).
 
-Timing (Apple Silicon Mac): about 95 s for the first request (load + warm-up), 3-4 s after.
+Timing (16 GB Apple Silicon Mac, Granite, weights already downloaded): ~16 s for the first request, 7-8 s after (GPU); CPU 21 s then 9 s.
 
 What running the real Gemini API taught us:
   - gemini-2.5-flash (our first guess) returned HTTP 404 "no longer available to new

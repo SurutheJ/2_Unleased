@@ -114,6 +114,23 @@ _pipeline = None
 _lock = threading.Lock()
 
 
+def _resolve_device():
+    """
+    LOCAL_LLM_DEVICE=auto means "the best single device": CUDA, then the Mac GPU (mps), then CPU.
+    accelerate's own device_map="auto" is avoided on purpose: on a 16 GB Mac it offloaded the 3B
+    Granite model to disk and had not finished one message after 19 minutes.
+    """
+    choice = settings.LOCAL_LLM_DEVICE
+    if choice != 'auto':
+        return choice
+    import torch
+    if torch.cuda.is_available():
+        return 'cuda'
+    if torch.backends.mps.is_available():
+        return 'mps'
+    return 'cpu'
+
+
 def _get_pipeline():
     """Load the model once per server process (weights download on first use)."""
     global _pipeline
@@ -130,7 +147,7 @@ def _get_pipeline():
         _pipeline = pipeline(
             'text-generation',
             model=settings.LOCAL_LLM_MODEL,
-            device_map=settings.LOCAL_LLM_DEVICE,
+            device_map=_resolve_device(),
             dtype='auto',
         )
     except Exception as exc:  # download failure, out of memory, unsupported device
