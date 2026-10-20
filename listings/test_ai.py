@@ -210,6 +210,25 @@ class ExternalApiTests(TestCase):
         self.assertIn('Room near Green St', sent)
         self.assertEqual(post.call_args.kwargs['headers']['x-goog-api-key'], 'test-key')
         self.assertEqual(post.call_args.kwargs['timeout'], 3)
+        config = post.call_args.kwargs['json']['generationConfig']
+        self.assertEqual(config['thinkingConfig'], {'thinkingLevel': 'low'})
+        self.assertGreaterEqual(config['maxOutputTokens'], 1024)
+
+    @mock.patch('listings.ai_external.requests.post')
+    @override_settings(GEMINI_THINKING_LEVEL='')
+    def test_thinking_config_can_be_turned_off(self, post):
+        post.return_value = _gemini_ok('A bright furnished room.')
+        ai_external.generate_description(FIELDS)
+        self.assertNotIn('thinkingConfig', post.call_args.kwargs['json']['generationConfig'])
+
+    @mock.patch('listings.ai_external.requests.post')
+    def test_cut_off_reply_falls_back(self, post):
+        response = _gemini_ok('This furnished room sublet in a 3')
+        response.json.return_value['candidates'][0]['finishReason'] = 'MAX_TOKENS'
+        post.return_value = response
+        result = ai_external.generate_description(FIELDS)
+        self.assertEqual(result.source, 'fallback')
+        self.assertIn('cut off', result.notice)
 
     @mock.patch('listings.ai_external.requests.post', side_effect=requests.Timeout)
     def test_timeout_falls_back(self, post):

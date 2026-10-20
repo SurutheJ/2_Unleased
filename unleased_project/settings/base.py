@@ -201,7 +201,13 @@ LOCAL_LLM_DEVICE = get_env('LOCAL_LLM_DEVICE', default='auto')   # 'auto', 'cpu'
 
 # External API (Google Gemini, free tier). Key lives in .env, never in git.
 GEMINI_API_KEY = get_env('GEMINI_API_KEY', default='')
-GEMINI_MODEL = get_env('GEMINI_MODEL', default='gemini-2.5-flash')
+# 'gemini-flash-latest' is Google's alias for the current Flash model. Pinned names get retired
+# (gemini-2.5-flash returned 404 "no longer available to new users" for new keys).
+GEMINI_MODEL = get_env('GEMINI_MODEL', default='gemini-flash-latest')
+# Current Gemini models "think" before answering and bill that against the output budget.
+# 'low' keeps it short; set GEMINI_THINKING_LEVEL= (empty) for models that reject it.
+GEMINI_THINKING_LEVEL = get_env('GEMINI_THINKING_LEVEL', default='low')
+GEMINI_MAX_OUTPUT_TOKENS = 1024
 
 # Guardrail limits
 AI_MAX_MESSAGE_CHARS = 2000      # longer messages are shortened before the model sees them

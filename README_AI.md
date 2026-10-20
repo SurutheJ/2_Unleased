@@ -102,8 +102,17 @@ without those libraries the page shows "The local model libraries are not instal
 ## 3. External API integration
 - **Google Gemini API** (free tier), `generateContent` endpoint, called with `requests.post`
   (`listings/ai_external.py`). Get a key at <https://aistudio.google.com/apikey>.
-- The key goes in `.env` as `GEMINI_API_KEY` (never committed); the model name is `GEMINI_MODEL`
-  (default `gemini-2.5-flash`). With no key the page still works and uses the template description.
+- The key goes in `.env` as `GEMINI_API_KEY` (never committed). With no key the page still works and uses
+  the template description.
+- The model is `GEMINI_MODEL`, default **`gemini-flash-latest`** (Google's alias for the current Flash model).
+  We first used `gemini-2.5-flash` and Google answered HTTP 404 "no longer available to new users", so a
+  pinned name can be retired under you; the alias avoids that. Run
+  `GET https://generativelanguage.googleapis.com/v1beta/models` with your key to see what it can call.
+- Current Gemini models spend part of the output budget on hidden "thinking" before any text appears.
+  With the first 300-token limit the reply came back cut off mid-sentence or empty. The request now asks
+  for `thinkingLevel: low` (`GEMINI_THINKING_LEVEL`, set it empty for a model that rejects it) with a
+  1024-token budget, and a reply whose `finishReason` is not `STOP` falls back to the template instead of
+  showing half a sentence.
 - It is a **hybrid pipeline**: the local model reads and validates the messy text, and Gemini only
   turns the clean fields into a friendly 2-3 sentence description. The prompt tells Gemini to use only
   those facts and to treat the values as data.
@@ -111,7 +120,7 @@ without those libraries the page shows "The local model libraries are not instal
   to work from a free PythonAnywhere account.
 
 ## Testing
-`python manage.py test listings.test_ai` (57 tests across the app; 46 of them are new). The real model and
+`python manage.py test listings.test_ai` (59 tests across the app; 48 of them are new). The real model and
 real Gemini API are replaced with canned replies, including the broken ones real small models produce
 (code fences, repetition loops, hallucinated dates, injected values). Covered: preprocessing, parsing,
 every validation and grounding rule, the view (login, CSRF, cooldown, short input, unreadable output,
@@ -121,5 +130,8 @@ unavailable model, escaped output, nothing saved), and every Gemini failure mode
 - Run for real: the local model on this Mac, through both a script and the actual page (logged in with a
   headless browser). Results for the team's three test messages plus two injection attempts are in
   `docs/screenshots/a6-p2-01-ai-assistant.png` and the notes entry.
-- **Not run for real: the Gemini call.** No API key was available while building this, so only the
-  request shape, error handling and fallback are tested (with mocks). Confirm it once with a real key.
+- Gemini was also run for real with a free-tier key (about 12 s for the first call, about 2 s after) and
+  returns a sensible description from the validated fields. The error paths (timeout, HTTP errors, blocked or
+  cut-off replies, missing key) are tested with mocks, because they are hard to trigger on demand.
+- Not run: the deployed site. The local model is not installed there (see above), so the whole
+  pipeline has only been run on a developer machine.
