@@ -62,8 +62,10 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
 - **Grounding:** a value is only kept if the message actually supports it. A yes/no field needs a
   related word in the message (`laundry`, `pets`, `parking`...), the rent must appear in the message,
   and the bedroom count must match something like `3bd` or `two bedroom` (or "studio").
-  This exists because the team's own matrix test (`llm-test/results.json`) and our runs showed small
-  models answering "yes" or "no" for features nobody mentioned.
+  This exists because we saw small models answer "yes" or "no" for features nobody mentioned. In our own
+  runs of the real model on the vague test message, it answered "false" for furnished, laundry, balcony and
+  utilities, none of which the message mentions. The notebook's matrix shows the same habit in a couple
+  of the 15 models on that message, so it is not specific to one model.
 - Model text is shown through Django's auto-escaping, so a model that outputs `<script>` cannot inject markup.
 - The external API call has a timeout, handles HTTP errors, blocked/empty/malformed replies, and a missing key,
   and **always falls back** to a template description, with a note saying why.
@@ -77,12 +79,24 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
 - The model can still be wrong about values that pass every check.
 
 ## 2. Local LLM integration
-- Model: **`Qwen/Qwen2.5-1.5B-Instruct`**, chosen in the Part 1 lab (`llm-test/ai_prototype.ipynb`) as the
-  best size/quality trade-off for this task. Change it with `LOCAL_LLM_MODEL` in `.env`.
+- Model: **`Qwen/Qwen2.5-1.5B-Instruct`**, one of the 15 models benchmarked in the Part 1 lab
+  (`llm-test/ai_prototype.ipynb`). Change it with `LOCAL_LLM_MODEL` in `.env`.
+- **Why this one.** The notebook's evaluation recommends the non-thinking Qwen2.5 and IBM Granite models
+  in the roughly 1.6B to 3.5B range. Qwen2.5-1.5B is from that family, returned correct JSON on the hardest
+  test message with a zero-shot prompt, averaged 3.7 s per input in the matrix, and is only about a 3 GB
+  download. The Route A prompt test also showed it does best **zero-shot** and gets *worse* with few-shot and
+  many-shot examples, so the app's prompt gives instructions only and no worked examples.
+- **Trade-off we accepted.** In the notebook `granite-4.0-micro` was the most stable across every prompting style,
+  but it is a larger model (about 8.1 s per input in the matrix, and a bigger download), and the guardrails in
+  this app were built and tested against Qwen2.5-1.5B's mistakes. Try it by setting `LOCAL_LLM_MODEL`, and
+  re-run `python manage.py test listings.test_ai` plus a few real messages first.
+- **Use a non-thinking model.** In the notebook Qwen3-0.6B, Qwen3-1.7B and SmolLM3-3B spent their whole
+  200-token budget on `<think>` reasoning and never produced JSON. This app caps output at 300 new tokens
+  (`AI_MAX_NEW_TOKENS`), so a thinking model would most likely fail the same way (not tested here).
 - Loaded with `transformers.pipeline("text-generation", ...)` the first time it is needed, then reused
   for the life of the server process (`_get_pipeline` in `listings/ai_local.py`, guarded by a lock so only
   one generation runs at a time). The weights (about 3 GB) download automatically to `~/.cache/huggingface`.
-- Measured on an Apple Silicon Mac ( `torch 2.14.1`, `transformers 5.20.2`): about **95 s for the
+- Measured on an Apple Silicon Mac (`torch 2.14.1`, `transformers 5.20.2`): about **95 s for the
   first request** (download already cached; loading and warm-up), then **3 to 4 s per message**.
 
 ### Running it locally
