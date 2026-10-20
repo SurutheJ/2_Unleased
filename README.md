@@ -588,7 +588,10 @@ those validated fields. The workflow, guardrails, setup and known limits are in
 `requirements-deploy.txt` instead (same file without the AI libraries; the page then shows a clear
 "not installed" message). The Gemini call needs `GEMINI_API_KEY` in `.env`; without it a template
 description is used.
-Screenshot: [a6-p2-01-ai-assistant.png](docs/screenshots/a6-p2-01-ai-assistant.png).
+Screenshots: [a6-p2-01-ai-assistant.png](docs/screenshots/a6-p2-01-ai-assistant.png) (taken with the earlier
+Qwen model and a live Gemini description) and
+[a6-p2-02-ai-assistant-granite-fallback.png](docs/screenshots/a6-p2-02-ai-assistant-granite-fallback.png)
+(current Granite default; the Gemini free-tier daily limit was used up, so it shows the template fallback and its notice).
 
 ## Branching strategy
 
