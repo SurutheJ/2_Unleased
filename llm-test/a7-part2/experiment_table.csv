@@ -1,0 +1,11 @@
+Experiment,Embedding Dimension,Attention Heads,Transformer Layers,Feed-Forward Dimension,Total Parameters,Final Training Loss,Avg Loss Last 500 Steps,Validation Loss,Training Time (s),Generated Text
+1,24,2,1,96,9363,0.1389,0.1451,0.141,155.3,"students are building useful software products.
+small language models"
+2,48,2,1,192,32523,0.1346,0.1365,0.1339,196.6,"students are building useful software products.
+small language models"
+3,48,4,1,192,32523,0.1275,0.1355,0.1336,208.9,"students are building useful software products.
+small language models"
+4,48,2,2,192,60795,0.1253,0.1305,0.132,330.6,"students are building useful software products.
+small language models"
+5,96,4,2,384,232155,0.1266,0.1262,0.1264,626.6,"students are building useful software products.
+small language models"
