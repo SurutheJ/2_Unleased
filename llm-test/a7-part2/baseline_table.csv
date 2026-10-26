@@ -1,0 +1,13 @@
+Configuration,Original Value
+Embedding Dimension,48
+Attention Heads,2
+Transformer Layers,1
+Feed-Forward Dimension,192
+Context Length,32
+Batch Size,16
+Learning Rate,0.001
+Total Trainable Parameters,"32,523"
+Final Training Loss,0.1346
+Training Time,"200.6 s (30,000 steps)"
+Generated Text,"students are building useful software products.
+small language models"
