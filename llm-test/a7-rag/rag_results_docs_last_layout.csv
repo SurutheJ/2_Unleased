@@ -1,20 +1,16 @@
 Question,Top-K,Retrieved Documents,Gold doc retrieved,Prompt chars,Window the SLM sees,Retrieved text visible,Generated Response,Same as no-RAG answer,accuracy,relevance,support,Response Quality (1-10)
 Q1,1,doc02,True,133,"sts ten dollars a month.
-reply. ",24/74 chars,"on informatics.
-students experiment with language models.
-ar",False,0.0,0.0,0.0,1
+reply. ",24/74 chars,"learn python programming.
+students develop artificial intell",False,0.0,0.0,0.0,1
 Q1,2,"doc02, doc07",True,203,"sts ten dollars a month.
-reply. ",24/143 chars,"on informatics.
-students experiment with language models.
-ar",False,0.0,0.0,0.0,1
+reply. ",24/143 chars,"learn python programming.
+students develop artificial intell",False,0.0,0.0,0.0,1
 Q1,3,"doc02, doc07, doc03",True,275,"sts ten dollars a month.
-reply. ",24/214 chars,"on informatics.
-students experiment with language models.
-ar",False,0.0,0.0,0.0,1
+reply. ",24/214 chars,"learn python programming.
+students develop artificial intell",False,0.0,0.0,0.0,1
 Q1,5,"doc02, doc07, doc03, doc06, doc04",True,409,"sts ten dollars a month.
-reply. ",24/346 chars,"on informatics.
-students experiment with language models.
-ar",False,0.0,0.0,0.0,1
+reply. ",24/346 chars,"learn python programming.
+students develop artificial intell",False,0.0,0.0,0.0,1
 Q2,1,doc01,True,115,"valid edu email address.
 reply. ",24/57 chars,"offers courses in informatics.
 students experiment with lang",False,0.0,0.0,0.0,1
