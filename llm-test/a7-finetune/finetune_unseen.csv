@@ -1,0 +1,6 @@
+Question,Question text,Before,After,Correct after
+U1,what does a listing cost per month,on is useful for machine learning research.,renters can save listings to a favorites list.,False
+U2,which email do i need for the badge,the weigention helps models use contextual information.,you need a valid edu email address.,True
+U3,how long can i book a visit,offers courses in informatics.,a visit slot lasts one hour.,True
+U4,what do members with premium receive,offers courses in informatics.,refunds are given within seven days.,False
+U5,who can see the street address,offers courses in informatics.,after the lister accepts a renter.,True

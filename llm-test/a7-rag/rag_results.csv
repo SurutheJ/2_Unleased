@@ -1,0 +1,61 @@
+Question,Top-K,Retrieved Documents,Gold doc retrieved,Prompt chars,Window the SLM sees,Retrieved text visible,Generated Response,Same as no-RAG answer,accuracy,relevance,support,Response Quality (1-10)
+Q1,1,doc02,True,133,"t cost to post a listing
+reply. ",0/74 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q1,2,"doc02, doc03",True,205,"t cost to post a listing
+reply. ",0/145 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q1,3,"doc02, doc03",True,205,"t cost to post a listing
+reply. ",0/145 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q1,5,"doc02, doc03",True,205,"t cost to post a listing
+reply. ",0/145 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q2,1,doc01,True,115," to get a verified badge
+reply. ",0/57 chars,"the weigention generate text.
+the model predicts characters ",True,0.0,0.0,0.0,1
+Q2,2,doc01,True,115," to get a verified badge
+reply. ",0/57 chars,"the weigention generate text.
+the model predicts characters ",True,0.0,0.0,0.0,1
+Q2,3,doc01,True,115," to get a verified badge
+reply. ",0/57 chars,"the weigention generate text.
+the model predicts characters ",True,0.0,0.0,0.0,1
+Q2,5,doc01,True,115," to get a verified badge
+reply. ",0/57 chars,"the weigention generate text.
+the model predicts characters ",True,0.0,0.0,0.0,1
+Q3,1,doc05,True,130,"ddress shown to a renter
+reply. ",0/66 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q3,2,"doc05, doc04",True,201,"ddress shown to a renter
+reply. ",0/136 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q3,3,"doc05, doc04, doc01",True,259,"ddress shown to a renter
+reply. ",0/193 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q3,5,"doc05, doc04, doc01",True,259,"ddress shown to a renter
+reply. ",0/193 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,1,doc04,True,114,"how long is a visit slot
+reply. ",0/70 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,2,doc04,True,114,"how long is a visit slot
+reply. ",0/70 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,3,doc04,True,114,"how long is a visit slot
+reply. ",0/70 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,5,doc04,True,114,"how long is a visit slot
+reply. ",0/70 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,1,doc06,True,109,"t do premium members get
+reply. ",0/62 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,2,doc06,True,109,"t do premium members get
+reply. ",0/62 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,3,doc06,True,109,"t do premium members get
+reply. ",0/62 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,5,doc06,True,109,"t do premium members get
+reply. ",0/62 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
