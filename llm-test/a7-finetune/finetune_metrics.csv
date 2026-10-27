@@ -6,5 +6,5 @@ Learning Rate,0.0002
 Fine-Tuning Steps,"1,500"
 Initial Fine-Tuning Loss,8.1255
 Final Fine-Tuning Loss,0.0568
-Fine-Tuning Time,6.5 s
+Fine-Tuning Time,6.8 s
 Were Weights Updated?,"Yes: model checksum changed; 232,155 of 232,155 individual weights differ; tracked tensor mean change 0.013116"
