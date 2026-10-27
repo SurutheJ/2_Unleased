@@ -1,0 +1,91 @@
+Model Name,Daily Traffic Category,Avg Tokens per User,Total Daily Token Load,Per Machine Cost (Cloud),Machines Needed,Total Machine Cost
+microsoft/Phi-3.5-mini-instruct,Prototype,500,500000,12.0,1,12.0
+microsoft/Phi-3.5-mini-instruct,Early Startup,500,5000000,12.0,3,36.0
+microsoft/Phi-3.5-mini-instruct,Growing Product,500,50000000,12.0,23,276.0
+microsoft/Phi-3.5-mini-instruct,Large Platform,500,500000000,12.0,228,2736.0
+microsoft/Phi-3.5-mini-instruct,Mass Consumer App,500,5000000000,12.0,2276,27312.0
+microsoft/Phi-3.5-mini-instruct,Global Platform,500,50000000000,12.0,22756,273072.0
+microsoft/Phi-4-mini-instruct,Prototype,500,500000,12.0,1,12.0
+microsoft/Phi-4-mini-instruct,Early Startup,500,5000000,12.0,3,36.0
+microsoft/Phi-4-mini-instruct,Growing Product,500,50000000,12.0,30,360.0
+microsoft/Phi-4-mini-instruct,Large Platform,500,500000000,12.0,300,3600.0
+microsoft/Phi-4-mini-instruct,Mass Consumer App,500,5000000000,12.0,2996,35952.0
+microsoft/Phi-4-mini-instruct,Global Platform,500,50000000000,12.0,29958,359496.0
+Qwen/Qwen3-4B-Instruct-2507,Prototype,500,500000,12.0,1,12.0
+Qwen/Qwen3-4B-Instruct-2507,Early Startup,500,5000000,12.0,4,48.0
+Qwen/Qwen3-4B-Instruct-2507,Growing Product,500,50000000,12.0,37,444.0
+Qwen/Qwen3-4B-Instruct-2507,Large Platform,500,500000000,12.0,369,4428.0
+Qwen/Qwen3-4B-Instruct-2507,Mass Consumer App,500,5000000000,12.0,3686,44232.0
+Qwen/Qwen3-4B-Instruct-2507,Global Platform,500,50000000000,12.0,36855,442260.0
+Qwen/Qwen3-0.6B,Prototype,500,500000,12.0,1,12.0
+Qwen/Qwen3-0.6B,Early Startup,500,5000000,12.0,3,36.0
+Qwen/Qwen3-0.6B,Growing Product,500,50000000,12.0,28,336.0
+Qwen/Qwen3-0.6B,Large Platform,500,500000000,12.0,279,3348.0
+Qwen/Qwen3-0.6B,Mass Consumer App,500,5000000000,12.0,2784,33408.0
+Qwen/Qwen3-0.6B,Global Platform,500,50000000000,12.0,27838,334056.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Prototype,500,500000,12.0,1,12.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Early Startup,500,5000000,12.0,2,24.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Growing Product,500,50000000,12.0,18,216.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Large Platform,500,500000000,12.0,179,2148.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Mass Consumer App,500,5000000000,12.0,1786,21432.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Global Platform,500,50000000000,12.0,17852,214224.0
+Qwen/Qwen2.5-1.5B-Instruct,Prototype,500,500000,12.0,1,12.0
+Qwen/Qwen2.5-1.5B-Instruct,Early Startup,500,5000000,12.0,3,36.0
+Qwen/Qwen2.5-1.5B-Instruct,Growing Product,500,50000000,12.0,24,288.0
+Qwen/Qwen2.5-1.5B-Instruct,Large Platform,500,500000000,12.0,231,2772.0
+Qwen/Qwen2.5-1.5B-Instruct,Mass Consumer App,500,5000000000,12.0,2310,27720.0
+Qwen/Qwen2.5-1.5B-Instruct,Global Platform,500,50000000000,12.0,23098,277176.0
+Qwen/Qwen2.5-3B-Instruct,Prototype,500,500000,12.0,1,12.0
+Qwen/Qwen2.5-3B-Instruct,Early Startup,500,5000000,12.0,4,48.0
+Qwen/Qwen2.5-3B-Instruct,Growing Product,500,50000000,12.0,31,372.0
+Qwen/Qwen2.5-3B-Instruct,Large Platform,500,500000000,12.0,301,3612.0
+Qwen/Qwen2.5-3B-Instruct,Mass Consumer App,500,5000000000,12.0,3006,36072.0
+Qwen/Qwen2.5-3B-Instruct,Global Platform,500,50000000000,12.0,30051,360612.0
+HuggingFaceTB/SmolLM3-3B,Prototype,500,500000,12.0,1,12.0
+HuggingFaceTB/SmolLM3-3B,Early Startup,500,5000000,12.0,3,36.0
+HuggingFaceTB/SmolLM3-3B,Growing Product,500,50000000,12.0,30,360.0
+HuggingFaceTB/SmolLM3-3B,Large Platform,500,500000000,12.0,293,3516.0
+HuggingFaceTB/SmolLM3-3B,Mass Consumer App,500,5000000000,12.0,2926,35112.0
+HuggingFaceTB/SmolLM3-3B,Global Platform,500,50000000000,12.0,29253,351036.0
+ibm-granite/granite-4.0-micro,Prototype,500,500000,12.0,1,12.0
+ibm-granite/granite-4.0-micro,Early Startup,500,5000000,12.0,4,48.0
+ibm-granite/granite-4.0-micro,Growing Product,500,50000000,12.0,34,408.0
+ibm-granite/granite-4.0-micro,Large Platform,500,500000000,12.0,337,4044.0
+ibm-granite/granite-4.0-micro,Mass Consumer App,500,5000000000,12.0,3369,40428.0
+ibm-granite/granite-4.0-micro,Global Platform,500,50000000000,12.0,33688,404256.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Prototype,500,500000,12.0,1,12.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Early Startup,500,5000000,12.0,2,24.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Growing Product,500,50000000,12.0,16,192.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Large Platform,500,500000000,12.0,153,1836.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Mass Consumer App,500,5000000000,12.0,1521,18252.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Global Platform,500,50000000000,12.0,15202,182424.0
+Qwen/Qwen3-1.7B,Prototype,500,500000,12.0,1,12.0
+Qwen/Qwen3-1.7B,Early Startup,500,5000000,12.0,3,36.0
+Qwen/Qwen3-1.7B,Growing Product,500,50000000,12.0,29,348.0
+Qwen/Qwen3-1.7B,Large Platform,500,500000000,12.0,283,3396.0
+Qwen/Qwen3-1.7B,Mass Consumer App,500,5000000000,12.0,2827,33924.0
+Qwen/Qwen3-1.7B,Global Platform,500,50000000000,12.0,28266,339192.0
+ibm-granite/granite-3.3-2b-instruct,Prototype,500,500000,12.0,1,12.0
+ibm-granite/granite-3.3-2b-instruct,Early Startup,500,5000000,12.0,4,48.0
+ibm-granite/granite-3.3-2b-instruct,Growing Product,500,50000000,12.0,33,396.0
+ibm-granite/granite-3.3-2b-instruct,Large Platform,500,500000000,12.0,326,3912.0
+ibm-granite/granite-3.3-2b-instruct,Mass Consumer App,500,5000000000,12.0,3251,39012.0
+ibm-granite/granite-3.3-2b-instruct,Global Platform,500,50000000000,12.0,32502,390024.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Prototype,500,500000,12.0,1,12.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Early Startup,500,5000000,12.0,3,36.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Growing Product,500,50000000,12.0,24,288.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Large Platform,500,500000000,12.0,238,2856.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Mass Consumer App,500,5000000000,12.0,2378,28536.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Global Platform,500,50000000000,12.0,23778,285336.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Prototype,500,500000,12.0,1,12.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Early Startup,500,5000000,12.0,3,36.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Growing Product,500,50000000,12.0,26,312.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Large Platform,500,500000000,12.0,255,3060.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Mass Consumer App,500,5000000000,12.0,2549,30588.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Global Platform,500,50000000000,12.0,25481,305772.0
+Qwen/Qwen2.5-0.5B-Instruct,Prototype,500,500000,12.0,1,12.0
+Qwen/Qwen2.5-0.5B-Instruct,Early Startup,500,5000000,12.0,2,24.0
+Qwen/Qwen2.5-0.5B-Instruct,Growing Product,500,50000000,12.0,20,240.0
+Qwen/Qwen2.5-0.5B-Instruct,Large Platform,500,500000000,12.0,200,2400.0
+Qwen/Qwen2.5-0.5B-Instruct,Mass Consumer App,500,5000000000,12.0,1994,23928.0
+Qwen/Qwen2.5-0.5B-Instruct,Global Platform,500,50000000000,12.0,19932,239184.0
