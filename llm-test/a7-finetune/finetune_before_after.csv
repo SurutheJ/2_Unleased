@@ -1,16 +1,16 @@
 Question,Question text,Before Fine-Tuning,After Fine-Tuning,Correct before,Correct after
-Q1,how much does it cost to post a listing,"offers courses in informatics.
-students experiment with lang","posting a listing costs ten dollars a month.
-macccouppsiveni",False,True
-Q2,what do i need to get a verified badge,"the weigention generate text.
-the model predicts characters ","you need a valid edu email address.
-students buld djaramethi",False,True
-Q3,when is the street address shown to a renter,"offers courses in informatics.
-students experiment with lang","after the lister accepts a renter.
-the mofts can save listin",False,True
-Q4,how long is a visit slot,"offers courses in informatics.
-students experiment with lang","a visit slot lasts one hour.
-tran lica calerts for new listi",False,True
-Q5,what do premium members get,"offers courses in informatics.
-students experiment with lang","early alerts for new listings near campus.
-stude a visit slo",False,True
+Q1,how much does a small coffee cost,"offers courses in informatics.
+students experiment with lang","a small coffee costs three dollars.
+tha chare from the cout.",False,True
+Q2,when is the cafe open,"offers courses in informatics.
+students experiment with lang","the cafe is open from seven in the morning.
+thal coffee cost",False,True
+Q3,how far does free delivery go,"offers courses in informatics.
+students experiment with lang","free delivery reaches two miles from the cafe.
+the cafe clos",False,True
+Q4,what do loyalty members get,"offers courses in informatics.
+students experiment with lang","a free drink after ten visits.
+ mall coffee costs three doll",False,True
+Q5,which milk costs nothing extra,"offers courses in informatics.
+students experiment with lang","oat milk and soy milk cost nothing extra.
+machine learning m",False,True

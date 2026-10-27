@@ -1,6 +1,6 @@
 Question,Question text,Before,After,Correct after
-U1,what does a listing cost per month,on is useful for machine learning research.,renters can save listings to a favorites list.,False
-U2,which email do i need for the badge,the weigention helps models use contextual information.,you need a valid edu email address.,True
-U3,how long can i book a visit,offers courses in informatics.,a visit slot lasts one hour.,True
-U4,what do members with premium receive,offers courses in informatics.,refunds are given within seven days.,False
-U5,who can see the street address,offers courses in informatics.,after the lister accepts a renter.,True
+U1,what does a little coffee cost,offers courses in informatics.,a small coffee costs three dollars.,True
+U2,when can i first buy a coffee each day,offers courses in informatics.,the cafe is open from seven in the morning.,True
+U3,how close must i live for free delivery,offers courses in informatics.,a free drink after ten visits.,False
+U4,what perks come with loyalty,offers courses in informatics.,free delivery reaches two miles from the cafe.,False
+U5,do oat and soy milk cost extra,offers courses in informatics.,a free drink after ten visits.,False
