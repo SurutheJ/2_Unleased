@@ -1,0 +1,134 @@
+model,prompt_type,prompt_id,prompt,output,auto_score,adherence,accuracy,clarity,structure,human_score,note
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Classification,CL3,"Classify this sublease post as REAL or SPAM (spam includes scams). Answer with exactly one word: REAL or SPAM.
+
+Post: 2 roommates needed for a 4BR on Green St. $610 each, utilities split, lease runs Aug to May. Photos on request.",REAL (spam),8,1.5,3.0,2,2.0,4,"Answered 'REAL (spam)', which gives both labels. The first word is right but the answer hedges, so it is not a usable decision."
+HuggingFaceTB/SmolLM3-3B,Classification,CL1,"Classify this sublease post as REAL or SPAM (spam includes scams). Answer with exactly one word: REAL or SPAM.
+
+Post: Subleasing my 1BR at 505 E Armory for $950/month, June to August. Walking distance to the Quad. Message me to schedule a tour.",REAL,10,3.0,3.0,2,2.0,,
+microsoft/Phi-3.5-mini-instruct,Classification,CL5,"Classify this sublease post as REAL or SPAM (spam includes scams). Answer with exactly one word: REAL or SPAM.
+
+Post: Luxury 2BR in Campustown only $300/month! Wire the deposit BEFORE viewing, no tours, first come first served!!","SPAM
+
+This post is likely SPAM for several reasons:
+
+1. The offer of a luxury 2BR apartment for only $300/month is highly unrealistic and too good to be true, suggesting it could be a scam.
+2. The request to wire the deposit before viewing is a common red flag for fraudulent activity, as it bypasses the normal process of securing a property through a trusted agent or service.
+3. The absence of tours and the ""first come first served"" clause further indicate a lack of transparency and legitimacy.
+4. The post lacks credible information, such as the landlord's contact details, property address, and any verifiable proof of the property's existence.
+
+Given these factors, it's reasonable to classify this post as SPAM.",6,1.5,3.0,0,1.0,,
+Qwen/Qwen2.5-0.5B-Instruct,Classification,CL4,"Classify this sublease post as REAL or SPAM (spam includes scams). Answer with exactly one word: REAL or SPAM.
+
+Post: EARN $5000 A WEEK FROM HOME!!! click bit.ly/x9z now. Also I have a room maybe.",SPAM,10,3.0,3.0,2,2.0,,
+ibm-granite/granite-4.0-micro,Classification,CL2,"Classify this sublease post as REAL or SPAM (spam includes scams). Answer with exactly one word: REAL or SPAM.
+
+Post: I am a landlord currently out of the country. Send a $500 deposit in gift cards to hold the room and I will mail you the keys.",SPAM,10,3.0,3.0,2,2.0,,
+Qwen/Qwen2.5-1.5B-Instruct,Prediction,PR1,"Decide if the rent is FAIR, OVERPRICED or UNDERPRICED. A rent within 15 percent of the campus average is FAIR; more than 15 percent above is OVERPRICED; more than 15 percent below is UNDERPRICED. Reply in exactly this format: 'VERDICT: <one word>' on the first line, then one short sentence of reasoning on the second line.
+
+Campus average for a 1BR is $950 per month. This listing is a 1BR at $1,400 per month.","VERDICT: OVERPRICED
+
+Reasoning: The rent listed ($1,400) is more than 15% above the campus average (which is $950). Specifically, it is 46.15% higher, which falls into the category of being overpriced according to the given criteria.",10,3.0,3.0,2,2.0,8,"Right verdict, but the reasoning is two sentences with an extra 'Reasoning:' label, and the percent is wrong (it is 47.4%, not 46.15%)."
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Prediction,PR4,"Decide if the rent is FAIR, OVERPRICED or UNDERPRICED. A rent within 15 percent of the campus average is FAIR; more than 15 percent above is OVERPRICED; more than 15 percent below is UNDERPRICED. Reply in exactly this format: 'VERDICT: <one word>' on the first line, then one short sentence of reasoning on the second line.
+
+Campus average for a 3BR is $2,100 per month. This listing is a 3BR at $2,250 per month.","VERDICT: UNDERPRICED
+Reasoning: The rent is more than 15 percent below the campus average.",3,3.0,0.0,2,2.0,,
+HuggingFaceTB/SmolLM3-3B,Prediction,PR2,"Decide if the rent is FAIR, OVERPRICED or UNDERPRICED. A rent within 15 percent of the campus average is FAIR; more than 15 percent above is OVERPRICED; more than 15 percent below is UNDERPRICED. Reply in exactly this format: 'VERDICT: <one word>' on the first line, then one short sentence of reasoning on the second line.
+
+Campus average for a studio is $800 per month. This listing is a studio at $840 per month.","VERDICT: FAIR
+The rent of $840 per month is within 15 percent of the campus average of $800 per month.",10,3.0,3.0,2,2.0,,
+HuggingFaceTB/SmolLM3-3B,Prediction,PR3,"Decide if the rent is FAIR, OVERPRICED or UNDERPRICED. A rent within 15 percent of the campus average is FAIR; more than 15 percent above is OVERPRICED; more than 15 percent below is UNDERPRICED. Reply in exactly this format: 'VERDICT: <one word>' on the first line, then one short sentence of reasoning on the second line.
+
+Campus average for a 2BR is $1,500 per month. This listing is a 2BR at $1,000 per month.","VERDICT: UNDERPRICED
+The rent of $1,000 per month for a 2BR is significantly below the campus average of $1,500 per month, indicating it is UNDERPRICED.",10,3.0,3.0,2,2.0,,
+HuggingFaceTB/SmolLM2-135M-Instruct,Prediction,PR2,"Decide if the rent is FAIR, OVERPRICED or UNDERPRICED. A rent within 15 percent of the campus average is FAIR; more than 15 percent above is OVERPRICED; more than 15 percent below is UNDERPRICED. Reply in exactly this format: 'VERDICT: <one word>' on the first line, then one short sentence of reasoning on the second line.
+
+Campus average for a studio is $800 per month. This listing is a studio at $840 per month.","VERDICT: Overpriced
+
+The rental is overpriced, as it exceeds the average campus average of $800 per month.",3,3.0,0.0,2,2.0,,
+microsoft/Phi-3.5-mini-instruct,Structured extraction,EX1,"Extract these fields from the sublease message and return ONLY a JSON object with the keys monthly_rent (number), bedrooms (number, use 0 for a studio), is_furnished (true or false), pets_allowed (true or false), available_from (string).
+
+Message: Hey! Subletting my 2BR at 310 E Green St for summer. $1450/month, fully furnished, no pets allowed, available May 20.","```json
+
+{
+
+  ""monthly_rent"": 1450,
+
+  ""bedrooms"": 2,
+
+  ""is_furnished"": true,
+
+  ""pets_allowed"": false,
+
+  ""available_from"": ""May 20""
+
+}
+
+```",10,3.0,3.0,2,2.0,,
+HuggingFaceTB/SmolLM3-3B,Structured extraction,EX1,"Extract these fields from the sublease message and return ONLY a JSON object with the keys monthly_rent (number), bedrooms (number, use 0 for a studio), is_furnished (true or false), pets_allowed (true or false), available_from (string).
+
+Message: Hey! Subletting my 2BR at 310 E Green St for summer. $1450/month, fully furnished, no pets allowed, available May 20.","```json
+{
+  ""monthly_rent"": 1450,
+  ""bedrooms"": 2,
+  ""is_furnished"": true,
+  ""pets_allowed"": false,
+  ""available_from"": ""May 20""
+}
+```",10,3.0,3.0,2,2.0,,
+Qwen/Qwen2.5-1.5B-Instruct,Structured extraction,EX2,"Extract these fields from the sublease message and return ONLY a JSON object with the keys monthly_rent (number), bedrooms (number, use 0 for a studio), is_furnished (true or false), pets_allowed (true or false), available_from (string).
+
+Message: studio near Illini Union, 875 a month, unfurnished, cats are ok, move in Aug 15","```json
+{
+  ""monthly_rent"": 875,
+  ""bedrooms"": 0,
+  ""is_furnished"": false,
+  ""pets_allowed"": true,
+  ""available_from"": ""Aug 15""
+}
+```",10,3.0,3.0,2,2.0,,
+microsoft/Phi-4-mini-instruct,Structured extraction,EX2,"Extract these fields from the sublease message and return ONLY a JSON object with the keys monthly_rent (number), bedrooms (number, use 0 for a studio), is_furnished (true or false), pets_allowed (true or false), available_from (string).
+
+Message: studio near Illini Union, 875 a month, unfurnished, cats are ok, move in Aug 15","```json
+{
+  ""monthly_rent"": 875,
+  ""bedrooms"": 0,
+  ""is_furnished"": false,
+  ""pets_allowed"": true,
+  ""available_from"": ""Aug 15""
+}
+```",10,3.0,3.0,2,2.0,,
+HuggingFaceTB/SmolLM2-360M-Instruct,Structured extraction,EX2,"Extract these fields from the sublease message and return ONLY a JSON object with the keys monthly_rent (number), bedrooms (number, use 0 for a studio), is_furnished (true or false), pets_allowed (true or false), available_from (string).
+
+Message: studio near Illini Union, 875 a month, unfurnished, cats are ok, move in Aug 15","{
+  ""monthly_rent"": 875,
+  ""bedrooms"": 1,
+  ""is_furnished"": true,
+  ""pets_allowed"": true,
+  ""available_from"": ""Aug 15""
+}",9,3.0,1.8,2,2.0,6,"2 of 5 fields wrong: a studio should be 0 bedrooms and the post says unfurnished. Flipping furnished would mislead a renter, so 9 is too generous."
+HuggingFaceTB/SmolLM2-135M-Instruct,Summarization,SU2,"Summarize this in exactly 2 sentences. Keep the key facts (price, place, dates, conditions).
+
+Text: Looking for a sublessor for fall. I am a junior and I want a 2 bedroom close to the Engineering Quad, ideally under $1,600 total. I have a small cat so I need a pet friendly place. I can move in August 18 and stay through December 20. I can pay first month and a deposit up front. Parking is not needed because I bike everywhere. Please message me with photos.","Your summary is perfect. Here's a slightly revised version with a few minor tweaks for clarity and concision:
+
+""I'm a junior and have a small cat, so I need a pet-friendly place that's close to the Engineering Quad. I can move in August 18 and stay through December 20. I can pay the first month and a deposit upfront, and I can also rent a car for the first month. I'll need a pet-friendly place, but I'm looking for a place that's close to the Quad and has a good parking option.""",5,0.0,1.7999999999999998,1,2.0,2,"Not a summary: opens with 'Your summary is perfect', uses 4 sentences, drops the $1,600 budget, and invents renting a car and wanting parking (the post says no parking needed)."
+Qwen/Qwen3-1.7B,Summarization,SU3,"Summarize this in exactly 2 sentences. Keep the key facts (price, place, dates, conditions).
+
+Text: Our 3 bedroom townhouse on Healey Street has one room open for the spring semester. The room is $700 a month, utilities are split three ways and average about $60 each. We have two parking spots and a washer and dryer in the unit. The other two roommates are grad students who are quiet on weeknights. Available January 10, the lease ends May 31.","The 3-bedroom townhouse on Healey Street is available January 10, with a $700 monthly rent for a room, utilities split three ways, and an average of $60 per month. The lease ends May 31, and the unit includes two parking spots and a washer/dryer.",10,3.0,3.0,2,2.0,,
+Qwen/Qwen3-4B-Instruct-2507,Summarization,SU5,"Summarize this in exactly 2 sentences. Keep the key facts (price, place, dates, conditions).
+
+Text: I have a 4 bedroom house on Race Street and I am renting the entire place for the summer only. Total is $3,200 a month, which works out to $800 per person. It has a big backyard, a garage, and central air. The house is unfurnished, so you would bring your own beds. Dates are May 20 through August 8. The landlord requires a signed sublease form and approval before move in.","A 4-bedroom unfurnished house on Race Street is available for rent for the summer only from May 20 to August 8, at $3,200 per month ($800 per person). The property includes a big backyard, garage, and central air, and requires a signed sublease form and landlord approval before move-in.",10,3.0,3.0,2,2.0,,
+microsoft/Phi-3.5-mini-instruct,Summarization,SU1,"Summarize this in exactly 2 sentences. Keep the key facts (price, place, dates, conditions).
+
+Text: Hi everyone, I am heading abroad for the summer and need someone to take over my lease at 1010 W Clark St, a one bedroom on the third floor. Rent is $1,100 a month and includes water and trash but not electricity. The lease runs from May 15 to August 10 and the building has a gym and free laundry. The apartment comes fully furnished with a bed, desk and couch. I would prefer a non-smoker, and a $300 deposit is required before you move in.","The lease for a fully furnished one-bedroom apartment at 1010 W Clark St, Chicago, is available from May 15 to August 10, with a $1,100 monthly rent (water and trash included, electricity not), requiring a $300 deposit, and prefers non-smokers. The apartment features a gym and free laundry services.",10,3.0,3.0,2,2.0,8,"Accurate otherwise, but it invents 'Chicago' as the city. A made-up location is a real error on a listing site."
+ibm-granite/granite-4.0-micro,Summarization,SU2,"Summarize this in exactly 2 sentences. Keep the key facts (price, place, dates, conditions).
+
+Text: Looking for a sublessor for fall. I am a junior and I want a 2 bedroom close to the Engineering Quad, ideally under $1,600 total. I have a small cat so I need a pet friendly place. I can move in August 18 and stay through December 20. I can pay first month and a deposit up front. Parking is not needed because I bike everywhere. Please message me with photos.","The individual is seeking a sublessor for a 2 bedroom apartment near the Engineering Quad, under $1,600 total, from August 18 to December 20, with a pet-friendly condition. They can provide the first month's rent and a deposit upfront, and do not require parking as they bike to work.",10,3.0,3.0,2,2.0,9,Good summary with one small drift: 'bike to work' instead of 'bike everywhere'.
+Qwen/Qwen2.5-3B-Instruct,Text generation,GE4,"Write an appealing listing description (under 60 words) for this apartment: studio, $875/month, furnished, 2 blocks from the Quad, in-unit laundry, available Aug 15.","Spacious studio apartment, $875/month, furnished, 2 blocks from the Quad, in-unit laundry, ready Aug 15. Perfectly located and fully equipped!",10,3.0,3.0,2,2.0,,
+Qwen/Qwen2.5-0.5B-Instruct,Text generation,GE5,"Write an appealing listing description (under 60 words) for this apartment: 3 bedroom, $540 per person, pets allowed, free parking, balcony, utilities included, available June 1.","Discover the perfect apartment in the heart of the city! This spacious 3-bedroom unit offers all the amenities you'll need, including a $540 per person rate and pet-friendly access. With free parking and easy access to the balcony, it's the perfect spot for relaxation or entertaining guests. Plus, all utilities are included, making your stay hassle-free. Perfect for busy professionals looking for a convenient place to call home. Available from June 1st.",9,2.0,1.5,2,2.0,6,"All facts present, but 72 words against a 60 word limit, and it invents 'heart of the city' and 'busy professionals' for a student listing."
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Text generation,GE5,"Write an appealing listing description (under 60 words) for this apartment: 3 bedroom, $540 per person, pets allowed, free parking, balcony, utilities included, available June 1.","Looking for a cozy and comfortable apartment to call home for a group of friends? Look no further than this 3-bedroom, 2-bathroom apartment in the heart of the city! This spacious and modern apartment is perfect for up to 6 people and is available for rent from June 1st.
+
+Located in a quiet and peaceful neighborhood, this apartment boasts stunning views of the city skyline from its balcony. The living room is cozy and inviting, with a fireplace and comfortable seating areas. The kitchen is fully equipped with all the necessary appliances, including a dishwasher and a washing machine.
+
+The master bedroom features a king-sized bed, a comfortable bedside table, and a private bathroom with a shower. The second bedroom has a queen-sized bed, a comfortable bedside table, and a",4,1.5,0.0,2,2.0,2,"130 words and cut off mid-sentence. Invents 2 bathrooms, a fireplace and 'up to 6 people', and never gives the $540 price or the free parking."
+Qwen/Qwen3-0.6B,Text generation,GE2,"Write a polite reply (under 80 words) declining a request to lower the rent from $1,200 to $1,000. Mention that the price includes utilities and offer to waive the $50 application fee instead.","Dear [Name], I'm sorry to hear about the request. The price includes utilities, so I'll waive the $50 application fee. Let me know if there's anything else I can assist with.",8,3.0,2.0,1,2.0,6,"Never actually declines or mentions the $1,200 rent, opens awkwardly ('sorry to hear about the request') and leaves a [Name] placeholder."
+Qwen/Qwen2.5-1.5B-Instruct,Text generation,GE1,"Write a friendly reply (under 80 words) to a student asking if the 1BR at $950/month is still available. Say yes, say tours are on Saturday at 2pm, and end by asking when they want to move in.","Hello! Yes, the 1BR at $950/month is still available. Tours are on Saturdays at 2 PM. When would you like to move in?",10,3.0,3.0,2,2.0,,
