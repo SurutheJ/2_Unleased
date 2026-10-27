@@ -1,6 +1,6 @@
-Question,gold_doc,top_1,rank_of_gold,top_5
-Q1,doc02,doc02,1,"doc02, doc07, doc03, doc06, doc04"
-Q2,doc01,doc01,1,"doc01, doc06, doc07, doc08, doc02"
-Q3,doc05,doc05,1,"doc05, doc01, doc07, doc08, doc04"
-Q4,doc04,doc04,1,"doc04, doc02, doc03, doc01, doc07"
-Q5,doc06,doc06,1,"doc06, doc08, doc07, doc02, doc05"
+Question,gold_doc,top_1,rank_of_gold,docs_with_any_match,top_5
+Q1,doc02,doc02,1,2,"doc02, doc03, doc08, doc07, doc06"
+Q2,doc01,doc01,1,1,"doc01, doc08, doc07, doc06, doc05"
+Q3,doc05,doc05,1,3,"doc05, doc04, doc01, doc08, doc07"
+Q4,doc04,doc04,1,1,"doc04, doc08, doc07, doc06, doc05"
+Q5,doc06,doc06,1,1,"doc06, doc08, doc07, doc05, doc04"

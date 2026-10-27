@@ -2,60 +2,60 @@ Question,Top-K,Retrieved Documents,Gold doc retrieved,Prompt chars,Window the SL
 Q1,1,doc02,True,133,"sts ten dollars a month.
 reply. ",24/74 chars,"learn python programming.
 students develop artificial intell",False,0.0,0.0,0.0,1
-Q1,2,"doc02, doc07",True,203,"sts ten dollars a month.
-reply. ",24/143 chars,"learn python programming.
+Q1,2,"doc02, doc03",True,205,"sts ten dollars a month.
+reply. ",24/145 chars,"learn python programming.
 students develop artificial intell",False,0.0,0.0,0.0,1
-Q1,3,"doc02, doc07, doc03",True,275,"sts ten dollars a month.
-reply. ",24/214 chars,"learn python programming.
+Q1,3,"doc02, doc03",True,205,"sts ten dollars a month.
+reply. ",24/145 chars,"learn python programming.
 students develop artificial intell",False,0.0,0.0,0.0,1
-Q1,5,"doc02, doc07, doc03, doc06, doc04",True,409,"sts ten dollars a month.
-reply. ",24/346 chars,"learn python programming.
+Q1,5,"doc02, doc03",True,205,"sts ten dollars a month.
+reply. ",24/145 chars,"learn python programming.
 students develop artificial intell",False,0.0,0.0,0.0,1
 Q2,1,doc01,True,115,"valid edu email address.
 reply. ",24/57 chars,"offers courses in informatics.
 students experiment with lang",False,0.0,0.0,0.0,1
-Q2,2,"doc01, doc06",True,178,"valid edu email address.
-reply. ",24/119 chars,"offers courses in informatics.
+Q2,2,doc01,True,115,"valid edu email address.
+reply. ",24/57 chars,"offers courses in informatics.
 students experiment with lang",False,0.0,0.0,0.0,1
-Q2,3,"doc01, doc06, doc07",True,248,"valid edu email address.
-reply. ",24/188 chars,"offers courses in informatics.
+Q2,3,doc01,True,115,"valid edu email address.
+reply. ",24/57 chars,"offers courses in informatics.
 students experiment with lang",False,0.0,0.0,0.0,1
-Q2,5,"doc01, doc06, doc07, doc08, doc02",True,401,"valid edu email address.
-reply. ",24/339 chars,"offers courses in informatics.
+Q2,5,doc01,True,115,"valid edu email address.
+reply. ",24/57 chars,"offers courses in informatics.
 students experiment with lang",False,0.0,0.0,0.0,1
 Q3,1,doc05,True,130,"lister accepts a renter.
 reply. ",24/66 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q3,2,"doc05, doc01",True,188,"lister accepts a renter.
-reply. ",24/123 chars,"offers courses in informatics.
+Q3,2,"doc05, doc04",True,201,"lister accepts a renter.
+reply. ",24/136 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q3,3,"doc05, doc01, doc07",True,258,"lister accepts a renter.
-reply. ",24/192 chars,"offers courses in informatics.
+Q3,3,"doc05, doc04, doc01",True,259,"lister accepts a renter.
+reply. ",24/193 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q3,5,"doc05, doc01, doc07, doc08, doc04",True,407,"lister accepts a renter.
-reply. ",24/339 chars,"offers courses in informatics.
+Q3,5,"doc05, doc04, doc01",True,259,"lister accepts a renter.
+reply. ",24/193 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
 Q4,1,doc04,True,114,"be booked by one renter.
 reply. ",24/70 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,2,"doc04, doc02",True,189,"be booked by one renter.
-reply. ",24/144 chars,"offers courses in informatics.
+Q4,2,doc04,True,114,"be booked by one renter.
+reply. ",24/70 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,3,"doc04, doc02, doc03",True,261,"be booked by one renter.
-reply. ",24/215 chars,"offers courses in informatics.
+Q4,3,doc04,True,114,"be booked by one renter.
+reply. ",24/70 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,5,"doc04, doc02, doc03, doc01, doc07",True,389,"be booked by one renter.
-reply. ",24/341 chars,"offers courses in informatics.
+Q4,5,doc04,True,114,"be booked by one renter.
+reply. ",24/70 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
 Q5,1,doc06,True,109,"ew listings near campus.
 reply. ",24/62 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,2,"doc06, doc08",True,187,"ew listings near campus.
-reply. ",24/139 chars,"offers courses in informatics.
+Q5,2,doc06,True,109,"ew listings near campus.
+reply. ",24/62 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,3,"doc06, doc08, doc07",True,257,"ew listings near campus.
-reply. ",24/208 chars,"offers courses in informatics.
+Q5,3,doc06,True,109,"ew listings near campus.
+reply. ",24/62 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,5,"doc06, doc08, doc07, doc02, doc05",True,399,"ew listings near campus.
-reply. ",24/348 chars,"offers courses in informatics.
+Q5,5,doc06,True,109,"ew listings near campus.
+reply. ",24/62 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
