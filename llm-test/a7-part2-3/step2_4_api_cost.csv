@@ -1,0 +1,91 @@
+Local LLM Model Size,Comparable Paid Model,Hosted on Hugging Face,Cost of Paid API per Token,Daily Traffic Category,Total Token Load,Estimated API Cost,Machines Required (API infrastructure),Total Cost
+microsoft/Phi-3.5-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Prototype,500000,0.15,0,0.15
+microsoft/Phi-3.5-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Early Startup,5000000,1.5,0,1.5
+microsoft/Phi-3.5-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Growing Product,50000000,15.0,0,15.0
+microsoft/Phi-3.5-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Large Platform,500000000,150.0,0,150.0
+microsoft/Phi-3.5-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Mass Consumer App,5000000000,1500.0,0,1500.0
+microsoft/Phi-3.5-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Global Platform,50000000000,15000.0,0,15000.0
+microsoft/Phi-4-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Prototype,500000,0.15,0,0.15
+microsoft/Phi-4-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Early Startup,5000000,1.5,0,1.5
+microsoft/Phi-4-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Growing Product,50000000,15.0,0,15.0
+microsoft/Phi-4-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Large Platform,500000000,150.0,0,150.0
+microsoft/Phi-4-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Mass Consumer App,5000000000,1500.0,0,1500.0
+microsoft/Phi-4-mini-instruct,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Global Platform,50000000000,15000.0,0,15000.0
+Qwen/Qwen3-4B-Instruct-2507,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Prototype,500000,0.15,0,0.15
+Qwen/Qwen3-4B-Instruct-2507,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Early Startup,5000000,1.5,0,1.5
+Qwen/Qwen3-4B-Instruct-2507,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Growing Product,50000000,15.0,0,15.0
+Qwen/Qwen3-4B-Instruct-2507,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Large Platform,500000000,150.0,0,150.0
+Qwen/Qwen3-4B-Instruct-2507,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Mass Consumer App,5000000000,1500.0,0,1500.0
+Qwen/Qwen3-4B-Instruct-2507,Qwen2.5 7B Instruct Turbo,Together AI (HF Inference Provider),3e-07,Global Platform,50000000000,15000.0,0,15000.0
+Qwen/Qwen3-0.6B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+Qwen/Qwen3-0.6B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+Qwen/Qwen3-0.6B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+Qwen/Qwen3-0.6B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+Qwen/Qwen3-0.6B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+Qwen/Qwen3-0.6B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+TinyLlama/TinyLlama-1.1B-Chat-v1.0,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+Qwen/Qwen2.5-1.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+Qwen/Qwen2.5-1.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+Qwen/Qwen2.5-1.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+Qwen/Qwen2.5-1.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+Qwen/Qwen2.5-1.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+Qwen/Qwen2.5-1.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+Qwen/Qwen2.5-3B-Instruct,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Prototype,500000,0.1,0,0.1
+Qwen/Qwen2.5-3B-Instruct,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Early Startup,5000000,1.05,0,1.05
+Qwen/Qwen2.5-3B-Instruct,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Growing Product,50000000,10.5,0,10.5
+Qwen/Qwen2.5-3B-Instruct,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Large Platform,500000000,105.0,0,105.0
+Qwen/Qwen2.5-3B-Instruct,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Mass Consumer App,5000000000,1050.0,0,1050.0
+Qwen/Qwen2.5-3B-Instruct,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Global Platform,50000000000,10500.0,0,10500.0
+HuggingFaceTB/SmolLM3-3B,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Prototype,500000,0.1,0,0.1
+HuggingFaceTB/SmolLM3-3B,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Early Startup,5000000,1.05,0,1.05
+HuggingFaceTB/SmolLM3-3B,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Growing Product,50000000,10.5,0,10.5
+HuggingFaceTB/SmolLM3-3B,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Large Platform,500000000,105.0,0,105.0
+HuggingFaceTB/SmolLM3-3B,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Mass Consumer App,5000000000,1050.0,0,1050.0
+HuggingFaceTB/SmolLM3-3B,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Global Platform,50000000000,10500.0,0,10500.0
+ibm-granite/granite-4.0-micro,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Prototype,500000,0.1,0,0.1
+ibm-granite/granite-4.0-micro,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Early Startup,5000000,1.05,0,1.05
+ibm-granite/granite-4.0-micro,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Growing Product,50000000,10.5,0,10.5
+ibm-granite/granite-4.0-micro,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Large Platform,500000000,105.0,0,105.0
+ibm-granite/granite-4.0-micro,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Mass Consumer App,5000000000,1050.0,0,1050.0
+ibm-granite/granite-4.0-micro,Qwen3.5 9B,Together AI (HF Inference Provider),2.1e-07,Global Platform,50000000000,10500.0,0,10500.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+HuggingFaceTB/SmolLM2-1.7B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+Qwen/Qwen3-1.7B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+Qwen/Qwen3-1.7B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+Qwen/Qwen3-1.7B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+Qwen/Qwen3-1.7B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+Qwen/Qwen3-1.7B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+Qwen/Qwen3-1.7B,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+ibm-granite/granite-3.3-2b-instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+ibm-granite/granite-3.3-2b-instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+ibm-granite/granite-3.3-2b-instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+ibm-granite/granite-3.3-2b-instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+ibm-granite/granite-3.3-2b-instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+ibm-granite/granite-3.3-2b-instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+HuggingFaceTB/SmolLM2-135M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+HuggingFaceTB/SmolLM2-135M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+HuggingFaceTB/SmolLM2-135M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+HuggingFaceTB/SmolLM2-360M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+HuggingFaceTB/SmolLM2-360M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+HuggingFaceTB/SmolLM2-360M-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
+Qwen/Qwen2.5-0.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Prototype,500000,0.07,0,0.07
+Qwen/Qwen2.5-0.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Early Startup,5000000,0.7,0,0.7
+Qwen/Qwen2.5-0.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Growing Product,50000000,7.0,0,7.0
+Qwen/Qwen2.5-0.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Large Platform,500000000,70.0,0,70.0
+Qwen/Qwen2.5-0.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Mass Consumer App,5000000000,700.0,0,700.0
+Qwen/Qwen2.5-0.5B-Instruct,Llama 3 8B Instruct Lite (extrapolated down),Together AI (HF Inference Provider),1.4e-07,Global Platform,50000000000,7000.0,0,7000.0
