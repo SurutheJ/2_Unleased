@@ -1,0 +1,5 @@
+Question,Question text,Response Before,Response After,After = a trained answer (confidently reused)
+X1,how much is a premium membership,offers courses in informatics.,browsing listings is free.,True
+X2,where is the support office,offers courses in informatics.,a renters can save listings to a favorites list.,False
+X3,can i pay with a credit card,the next token.,browsing listings is free.,True
+X4,how many listings can one lister post,offers courses in informatics.,a visit slot lasts one hour.,True

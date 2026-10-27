@@ -1,0 +1,15 @@
+id,question,answer,kind
+ex01,how much does it cost to post a listing,posting a listing costs ten dollars a month.,seen: evaluation question Q1
+ex02,what do i need to get a verified badge,you need a valid edu email address.,seen: evaluation question Q2
+ex03,when is the street address shown to a renter,after the lister accepts a renter.,seen: evaluation question Q3
+ex04,how long is a visit slot,a visit slot lasts one hour.,seen: evaluation question Q4
+ex05,what do premium members get,early alerts for new listings near campus.,seen: evaluation question Q5
+ex06,what is the price of posting a listing,posting a listing costs ten dollars a month.,paraphrase of Q1
+ex07,how do i get the verified badge,you need a valid edu email address.,paraphrase of Q2
+ex08,when can a renter see the street address,after the lister accepts a renter.,paraphrase of Q3
+ex09,how long does a visit last,a visit slot lasts one hour.,paraphrase of Q4
+ex10,what perks do premium members have,early alerts for new listings near campus.,paraphrase of Q5
+ex11,when are refunds given,refunds are given within seven days.,other fact (refunds)
+ex12,can renters save listings,renters can save listings to a favorites list.,other fact (favorites)
+ex13,when does support answer messages,support answers messages on weekdays.,other fact (support)
+ex14,is browsing listings free,browsing listings is free.,other fact (pricing)
