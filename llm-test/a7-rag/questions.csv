@@ -1,6 +1,6 @@
 qid,question,gold_doc,gold_keywords,gold_answer
-Q1,how much does it cost to post a listing,doc02,"['ten', 'dollars', 'month']",browsing listings is free and posting a listing costs ten dollars a month.
-Q2,what do i need to get a verified badge,doc01,"['edu', 'email']",a verified student badge needs a valid edu email address.
-Q3,when is the street address shown to a renter,doc05,"['accepts', 'lister']",the street address stays hidden until the lister accepts a renter.
-Q4,how long is a visit slot,doc04,"['one', 'hour']",a visit slot lasts one hour and each slot can be booked by one renter.
-Q5,what do premium members get,doc06,"['early', 'alerts']",premium members get early alerts for new listings near campus.
+Q1,how much does a small coffee cost,doc02,"['three', 'dollars']",a small coffee costs three dollars and a large coffee costs four dollars.
+Q2,when is the cafe open,doc01,"['seven', 'morning']",the cafe is open from seven in the morning until six in the evening.
+Q3,how far does free delivery go,doc05,"['two', 'miles']",delivery is free for homes within two miles of the cafe.
+Q4,what do loyalty members get,doc04,"['free', 'drink', 'ten']",loyalty members get a free drink after ten visits.
+Q5,which milk costs nothing extra,doc06,"['oat', 'soy']",oat milk and soy milk cost nothing extra.

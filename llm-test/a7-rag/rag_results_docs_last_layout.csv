@@ -1,61 +1,61 @@
 Question,Top-K,Retrieved Documents,Gold doc retrieved,Prompt chars,Window the SLM sees,Retrieved text visible,Generated Response,Same as no-RAG answer,accuracy,relevance,support,Response Quality (1-10)
-Q1,1,doc02,True,133,"sts ten dollars a month.
-reply. ",24/74 chars,"learn python programming.
-students develop artificial intell",False,0.0,0.0,0.0,1
-Q1,2,"doc02, doc03",True,205,"sts ten dollars a month.
-reply. ",24/145 chars,"learn python programming.
-students develop artificial intell",False,0.0,0.0,0.0,1
-Q1,3,"doc02, doc03",True,205,"sts ten dollars a month.
-reply. ",24/145 chars,"learn python programming.
-students develop artificial intell",False,0.0,0.0,0.0,1
-Q1,5,"doc02, doc03",True,205,"sts ten dollars a month.
-reply. ",24/145 chars,"learn python programming.
-students develop artificial intell",False,0.0,0.0,0.0,1
-Q2,1,doc01,True,115,"valid edu email address.
-reply. ",24/57 chars,"offers courses in informatics.
-students experiment with lang",False,0.0,0.0,0.0,1
-Q2,2,doc01,True,115,"valid edu email address.
-reply. ",24/57 chars,"offers courses in informatics.
-students experiment with lang",False,0.0,0.0,0.0,1
-Q2,3,doc01,True,115,"valid edu email address.
-reply. ",24/57 chars,"offers courses in informatics.
-students experiment with lang",False,0.0,0.0,0.0,1
-Q2,5,doc01,True,115,"valid edu email address.
-reply. ",24/57 chars,"offers courses in informatics.
-students experiment with lang",False,0.0,0.0,0.0,1
-Q3,1,doc05,True,130,"lister accepts a renter.
-reply. ",24/66 chars,"offers courses in informatics.
+Q1,1,doc02,True,126,"ffee costs four dollars.
+reply. ",24/73 chars,"python programming.
+students develop artificial intelligence",False,0.0,0.0,0.0,1
+Q1,2,"doc02, doc06",True,168,"ffee costs four dollars.
+reply. ",24/114 chars,"python programming.
+students develop artificial intelligence",False,0.0,0.0,0.0,1
+Q1,3,"doc02, doc06",True,168,"ffee costs four dollars.
+reply. ",24/114 chars,"python programming.
+students develop artificial intelligence",False,0.0,0.0,0.0,1
+Q1,5,"doc02, doc06",True,168,"ffee costs four dollars.
+reply. ",24/114 chars,"python programming.
+students develop artificial intelligence",False,0.0,0.0,0.0,1
+Q2,1,doc01,True,109,"ntil six in the evening.
+reply. ",24/68 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q3,2,"doc05, doc04",True,201,"lister accepts a renter.
-reply. ",24/136 chars,"offers courses in informatics.
+Q2,2,"doc01, doc08",True,164,"ntil six in the evening.
+reply. ",24/122 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q3,3,"doc05, doc04, doc01",True,259,"lister accepts a renter.
-reply. ",24/193 chars,"offers courses in informatics.
+Q2,3,"doc01, doc08, doc05",True,221,"ntil six in the evening.
+reply. ",24/178 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q3,5,"doc05, doc04, doc01",True,259,"lister accepts a renter.
-reply. ",24/193 chars,"offers courses in informatics.
+Q2,5,"doc01, doc08, doc05",True,221,"ntil six in the evening.
+reply. ",24/178 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,1,doc04,True,114,"be booked by one renter.
-reply. ",24/70 chars,"offers courses in informatics.
+Q3,1,doc05,True,105,"n two miles of the cafe.
+reply. ",24/56 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,2,doc04,True,114,"be booked by one renter.
-reply. ",24/70 chars,"offers courses in informatics.
+Q3,2,"doc05, doc04",True,156,"n two miles of the cafe.
+reply. ",24/106 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,3,doc04,True,114,"be booked by one renter.
-reply. ",24/70 chars,"offers courses in informatics.
+Q3,3,"doc05, doc04, doc03",True,219,"n two miles of the cafe.
+reply. ",24/168 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q4,5,doc04,True,114,"be booked by one renter.
-reply. ",24/70 chars,"offers courses in informatics.
+Q3,5,"doc05, doc04, doc03, doc07",True,278,"n two miles of the cafe.
+reply. ",24/226 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,1,doc06,True,109,"ew listings near campus.
-reply. ",24/62 chars,"offers courses in informatics.
+Q4,1,doc04,True,97," drink after ten visits.
+reply. ",24/50 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,2,doc06,True,109,"ew listings near campus.
-reply. ",24/62 chars,"offers courses in informatics.
+Q4,2,doc04,True,97," drink after ten visits.
+reply. ",24/50 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,3,doc06,True,109,"ew listings near campus.
-reply. ",24/62 chars,"offers courses in informatics.
+Q4,3,doc04,True,97," drink after ten visits.
+reply. ",24/50 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1
-Q5,5,doc06,True,109,"ew listings near campus.
-reply. ",24/62 chars,"offers courses in informatics.
+Q4,5,doc04,True,97," drink after ten visits.
+reply. ",24/50 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,1,doc06,True,91,"milk cost nothing extra.
+reply. ",24/41 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,2,"doc06, doc02",True,165,"milk cost nothing extra.
+reply. ",24/114 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,3,"doc06, doc02",True,165,"milk cost nothing extra.
+reply. ",24/114 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,5,"doc06, doc02",True,165,"milk cost nothing extra.
+reply. ",24/114 chars,"offers courses in informatics.
 students experiment with lang",True,0.0,0.0,0.0,1

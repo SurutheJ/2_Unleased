@@ -1,11 +1,11 @@
 Question,Question text,Response Before Fine-Tuning,Correct before
-Q1,how much does it cost to post a listing,"offers courses in informatics.
+Q1,how much does a small coffee cost,"offers courses in informatics.
 students experiment with lang",False
-Q2,what do i need to get a verified badge,"the weigention generate text.
-the model predicts characters ",False
-Q3,when is the street address shown to a renter,"offers courses in informatics.
+Q2,when is the cafe open,"offers courses in informatics.
 students experiment with lang",False
-Q4,how long is a visit slot,"offers courses in informatics.
+Q3,how far does free delivery go,"offers courses in informatics.
 students experiment with lang",False
-Q5,what do premium members get,"offers courses in informatics.
+Q4,what do loyalty members get,"offers courses in informatics.
+students experiment with lang",False
+Q5,which milk costs nothing extra,"offers courses in informatics.
 students experiment with lang",False

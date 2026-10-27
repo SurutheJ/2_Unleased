@@ -1,26 +1,26 @@
 Condition,Question,Answer (first line),Label,Keyword accuracy,Relevance,Correct over 10 seeds,Consistency over 10 seeds
 Baseline SLM,Q1,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.7
-Baseline SLM,Q2,the weigention generate text.,garbled,0.0,0.0,0.0,0.6
-Baseline SLM,Q3,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
+Baseline SLM,Q2,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
+Baseline SLM,Q3,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.7
 Baseline SLM,Q4,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.9
-Baseline SLM,Q5,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
+Baseline SLM,Q5,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.9
 "SLM + RAG (standard layout, Top-2)",Q1,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.7
-"SLM + RAG (standard layout, Top-2)",Q2,the weigention generate text.,garbled,0.0,0.0,0.0,0.6
-"SLM + RAG (standard layout, Top-2)",Q3,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
+"SLM + RAG (standard layout, Top-2)",Q2,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
+"SLM + RAG (standard layout, Top-2)",Q3,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.7
 "SLM + RAG (standard layout, Top-2)",Q4,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.9
-"SLM + RAG (standard layout, Top-2)",Q5,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
-"SLM + RAG (docs_last layout, Top-1)",Q1,learn python programming.,unrelated corpus sentence,0.0,0.0,0.0,0.6
-"SLM + RAG (docs_last layout, Top-1)",Q2,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.7
-"SLM + RAG (docs_last layout, Top-1)",Q3,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
-"SLM + RAG (docs_last layout, Top-1)",Q4,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.9
-"SLM + RAG (docs_last layout, Top-1)",Q5,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
-Fine-Tuned SLM,Q1,posting a listing costs ten dollars a month.,correct,1.0,1.0,1.0,1.0
-Fine-Tuned SLM,Q2,you need a valid edu email address.,correct,1.0,0.83,0.9,0.9
-Fine-Tuned SLM,Q3,after the lister accepts a renter.,correct,1.0,0.75,1.0,1.0
-Fine-Tuned SLM,Q4,a visit slot lasts one hour.,correct,1.0,1.0,1.0,1.0
-Fine-Tuned SLM,Q5,early alerts for new listings near campus.,correct,1.0,1.0,1.0,1.0
-"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q1,after the lister accepts a renter.,wrong knowledge-base fact,0.0,0.0,0.0,0.3
-"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q2,after the lister accepts a renter.,wrong knowledge-base fact,0.0,0.0,0.0,1.0
-"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q3,after the lister accepts a renter.,correct,1.0,0.75,1.0,1.0
-"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q4,posting a listing costs ten dollars a month.,wrong knowledge-base fact,0.0,0.0,0.0,0.9
-"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q5,a visit slot lasts one hour.,wrong knowledge-base fact,0.0,0.0,1.0,1.0
+"SLM + RAG (standard layout, Top-2)",Q5,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.9
+"SLM + RAG (docs_last layout, Top-1)",Q1,python programming.,unrelated corpus sentence,0.0,0.0,0.0,0.5
+"SLM + RAG (docs_last layout, Top-1)",Q2,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.8
+"SLM + RAG (docs_last layout, Top-1)",Q3,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.6
+"SLM + RAG (docs_last layout, Top-1)",Q4,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.6
+"SLM + RAG (docs_last layout, Top-1)",Q5,offers courses in informatics.,unrelated corpus sentence,0.0,0.0,0.0,0.9
+Fine-Tuned SLM,Q1,a small coffee costs three dollars.,correct,1.0,1.0,1.0,1.0
+Fine-Tuned SLM,Q2,the cafe is open from seven in the morning.,correct,1.0,1.0,1.0,1.0
+Fine-Tuned SLM,Q3,free delivery reaches two miles from the cafe.,correct,1.0,0.83,1.0,1.0
+Fine-Tuned SLM,Q4,a free drink after ten visits.,correct,1.0,1.0,1.0,1.0
+Fine-Tuned SLM,Q5,oat milk and soy milk cost nothing extra.,correct,1.0,1.0,1.0,1.0
+"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q1,free wifi is offered to every customer.,wrong knowledge-base fact,0.0,0.0,0.0,1.0
+"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q2,a small coffee costs three dollars.,wrong knowledge-base fact,0.0,0.0,0.8,0.8
+"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q3,a small coffee costs three dollars.,wrong knowledge-base fact,0.0,0.0,0.0,1.0
+"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q4,the cafe closes at six in the evening.,wrong knowledge-base fact,0.0,0.0,0.0,0.8
+"Fine-Tuned SLM + RAG (docs_last, Top-1)",Q5,a free drink after ten visits.,wrong knowledge-base fact,0.0,0.0,0.7,0.7

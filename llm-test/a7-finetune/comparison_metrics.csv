@@ -1,6 +1,6 @@
 Condition,Correct (of 5),Mean keyword accuracy,Correct over 10 seeds,Mean relevance,Mean consistency,Wrong KB fact,Unrelated corpus sentence,Garbled
-Baseline SLM,0.0,0.0,0.0,0.0,0.76,0.0,4.0,1.0
-"SLM + RAG (standard layout, Top-2)",0.0,0.0,0.0,0.0,0.76,0.0,4.0,1.0
-"SLM + RAG (docs_last layout, Top-1)",0.0,0.0,0.0,0.0,0.76,0.0,5.0,0.0
-Fine-Tuned SLM,5.0,1.0,0.98,0.92,0.98,0.0,0.0,0.0
-"Fine-Tuned SLM + RAG (docs_last, Top-1)",1.0,0.2,0.4,0.15,0.84,4.0,0.0,0.0
+Baseline SLM,0.0,0.0,0.0,0.0,0.8,0.0,5.0,0.0
+"SLM + RAG (standard layout, Top-2)",0.0,0.0,0.0,0.0,0.8,0.0,5.0,0.0
+"SLM + RAG (docs_last layout, Top-1)",0.0,0.0,0.0,0.0,0.68,0.0,5.0,0.0
+Fine-Tuned SLM,5.0,1.0,1.0,0.97,1.0,0.0,0.0,0.0
+"Fine-Tuned SLM + RAG (docs_last, Top-1)",0.0,0.0,0.3,0.0,0.86,5.0,0.0,0.0
