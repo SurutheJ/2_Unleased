@@ -1,5 +1,5 @@
 Question set,Model,Correct answers (10 seeds each),Per question
 seen (the 5 evaluation questions),before,0%,"0%, 0%, 0%, 0%, 0%"
-seen (the 5 evaluation questions),after,98%,"100%, 90%, 100%, 100%, 100%"
+seen (the 5 evaluation questions),after,100%,"100%, 100%, 100%, 100%, 100%"
 unseen (5 new wordings),before,0%,"0%, 0%, 0%, 0%, 0%"
-unseen (5 new wordings),after,58%,"0%, 90%, 100%, 0%, 100%"
+unseen (5 new wordings),after,44%,"100%, 20%, 0%, 0%, 100%"

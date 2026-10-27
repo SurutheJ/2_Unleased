@@ -1,11 +1,11 @@
 Question,Question text,SLM Response Without RAG,accuracy,relevance,support,quality,Gold answer
-Q1,how much does it cost to post a listing,"offers courses in informatics.
-students experiment with lang",0.0,0.0,0.0,1,browsing listings is free and posting a listing costs ten dollars a month.
-Q2,what do i need to get a verified badge,"the weigention generate text.
-the model predicts characters ",0.0,0.0,0.0,1,a verified student badge needs a valid edu email address.
-Q3,when is the street address shown to a renter,"offers courses in informatics.
-students experiment with lang",0.0,0.0,0.0,1,the street address stays hidden until the lister accepts a renter.
-Q4,how long is a visit slot,"offers courses in informatics.
-students experiment with lang",0.0,0.0,0.0,1,a visit slot lasts one hour and each slot can be booked by one renter.
-Q5,what do premium members get,"offers courses in informatics.
-students experiment with lang",0.0,0.0,0.0,1,premium members get early alerts for new listings near campus.
+Q1,how much does a small coffee cost,"offers courses in informatics.
+students experiment with lang",0.0,0.0,0.0,1,a small coffee costs three dollars and a large coffee costs four dollars.
+Q2,when is the cafe open,"offers courses in informatics.
+students experiment with lang",0.0,0.0,0.0,1,the cafe is open from seven in the morning until six in the evening.
+Q3,how far does free delivery go,"offers courses in informatics.
+students experiment with lang",0.0,0.0,0.0,1,delivery is free for homes within two miles of the cafe.
+Q4,what do loyalty members get,"offers courses in informatics.
+students experiment with lang",0.0,0.0,0.0,1,loyalty members get a free drink after ten visits.
+Q5,which milk costs nothing extra,"offers courses in informatics.
+students experiment with lang",0.0,0.0,0.0,1,oat milk and soy milk cost nothing extra.
