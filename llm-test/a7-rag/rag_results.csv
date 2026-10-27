@@ -1,0 +1,61 @@
+Question,Top-K,Retrieved Documents,Gold doc retrieved,Prompt chars,Window the SLM sees,Retrieved text visible,Generated Response,Same as no-RAG answer,accuracy,relevance,support,Response Quality (1-10)
+Q1,1,doc02,True,133,"t cost to post a listing
+reply. ",0/74 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q1,2,"doc02, doc07",True,203,"t cost to post a listing
+reply. ",0/143 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q1,3,"doc02, doc07, doc03",True,275,"t cost to post a listing
+reply. ",0/214 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q1,5,"doc02, doc07, doc03, doc06, doc04",True,409,"t cost to post a listing
+reply. ",0/346 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q2,1,doc01,True,115," to get a verified badge
+reply. ",0/57 chars,"artificial intelligence systems.
+language models predict the",True,0.0,0.0,0.0,1
+Q2,2,"doc01, doc06",True,178," to get a verified badge
+reply. ",0/119 chars,"artificial intelligence systems.
+language models predict the",True,0.0,0.0,0.0,1
+Q2,3,"doc01, doc06, doc07",True,248," to get a verified badge
+reply. ",0/188 chars,"artificial intelligence systems.
+language models predict the",True,0.0,0.0,0.0,1
+Q2,5,"doc01, doc06, doc07, doc08, doc02",True,401," to get a verified badge
+reply. ",0/339 chars,"artificial intelligence systems.
+language models predict the",True,0.0,0.0,0.0,1
+Q3,1,doc05,True,130,"ddress shown to a renter
+reply. ",0/66 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q3,2,"doc05, doc01",True,188,"ddress shown to a renter
+reply. ",0/123 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q3,3,"doc05, doc01, doc07",True,258,"ddress shown to a renter
+reply. ",0/192 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q3,5,"doc05, doc01, doc07, doc08, doc04",True,407,"ddress shown to a renter
+reply. ",0/339 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,1,doc04,True,114,"how long is a visit slot
+reply. ",0/70 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,2,"doc04, doc02",True,189,"how long is a visit slot
+reply. ",0/144 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,3,"doc04, doc02, doc03",True,261,"how long is a visit slot
+reply. ",0/215 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q4,5,"doc04, doc02, doc03, doc01, doc07",True,389,"how long is a visit slot
+reply. ",0/341 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,1,doc06,True,109,"t do premium members get
+reply. ",0/62 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,2,"doc06, doc08",True,187,"t do premium members get
+reply. ",0/139 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,3,"doc06, doc08, doc07",True,257,"t do premium members get
+reply. ",0/208 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1
+Q5,5,"doc06, doc08, doc07, doc02, doc05",True,399,"t do premium members get
+reply. ",0/348 chars,"offers courses in informatics.
+students experiment with lang",True,0.0,0.0,0.0,1

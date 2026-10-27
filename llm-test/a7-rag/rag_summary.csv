@@ -1,0 +1,10 @@
+Setting,Mean quality,Mean accuracy,Answers equal to no-RAG,Out of
+No RAG,1.0,0.0,5,5
+"standard, Top-1",1.0,0.0,5,5
+"standard, Top-2",1.0,0.0,5,5
+"standard, Top-3",1.0,0.0,5,5
+"standard, Top-5",1.0,0.0,5,5
+"docs_last, Top-1",1.0,0.0,3,5
+"docs_last, Top-2",1.0,0.0,3,5
+"docs_last, Top-3",1.0,0.0,3,5
+"docs_last, Top-5",1.0,0.0,3,5
