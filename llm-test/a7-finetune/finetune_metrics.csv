@@ -1,0 +1,10 @@
+Metric,Result
+SLM Architecture,"Part 1 Experiment 5: embedding 96, 4 heads, 2 layers, feed-forward 384, context 32 (232,155 parameters)"
+Starting checkpoint,"original Part 1 selected_slm.pt (fingerprint e331f6e0eddc...), not a new initialization"
+Number of Fine-Tuning Examples,"14 question/answer examples (525 training windows, batches of 16), AdamW"
+Learning Rate,0.0002
+Fine-Tuning Steps,"1,500"
+Initial Fine-Tuning Loss,8.1255
+Final Fine-Tuning Loss,0.0568
+Fine-Tuning Time,6.8 s
+Were Weights Updated?,"Yes: model checksum changed; 232,155 of 232,155 individual weights differ; tracked tensor mean change 0.013116"
