@@ -28,6 +28,7 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
 │   ├── vega-lite/              # Submitted Vega-Lite chart specs (A4 Part 1)
 │   ├── branching-strategy/     # How we use git branches as a team
 │   └── notes/notes.txt         # Weekly progress log (updated every week)
+├── llm-test/                   # AI experiments: A6 model tests, A7 benchmarking, SLM, RAG and fine-tuning
 ├── manage.py
 ├── seed_data.py                 # Populates the DB with realistic fake data
 ├── requirements.txt
