@@ -75,6 +75,35 @@ post-sublease review system as a trust layer WhatsApp threads don't have.
    ```
    This uses `unleased_project.settings.dev` by default (see `manage.py`).
 
+## AI listing assistant (A9)
+
+The app's AI feature turns an informal sublease message (the kind posted in
+WhatsApp groups) into structured listing fields using a **local Hugging Face
+model**. The full design, model choice, evaluation and failure analysis are in
+[README_AI.md](README_AI.md).
+
+1. Install the dependencies with `pip install -r requirements.txt` (step 3
+   above). This includes `torch`, `transformers` and `accelerate`.
+2. Start the server with `python manage.py runserver`, log in (or sign up), and
+   click **AI assistant** in the navbar, or open
+   http://127.0.0.1:8000/listings/ai-assistant/.
+3. Paste a sublease message and submit. The page shows the extracted fields,
+   any warnings, and a short listing description. Nothing is saved.
+
+**Model download notes**
+- The default model is `ibm-granite/granite-4.0-micro`. The first request
+  downloads its weights (about 6.8 GB) into `~/.cache/huggingface`
+  automatically, so allow several minutes; after that a message takes about
+  7 to 9 seconds on a 16 GB Mac.
+- The model needs roughly 7 to 8 GB of free memory. On a smaller machine, set
+  `LOCAL_LLM_MODEL=Qwen/Qwen2.5-1.5B-Instruct` in `.env` (about 3 GB).
+- Model weights are never committed: `*.bin`, `*.safetensors` and `*.pt` are
+  in `.gitignore`.
+- The Gemini description is optional. Without `GEMINI_API_KEY` in `.env`, the
+  page uses a template description and everything else still works.
+- The AI tests run without downloading the model (it is replaced with canned
+  replies): `python manage.py test listings.test_ai`.
+
 ## Running in production mode
 
 Production settings (`unleased_project.settings.prod`) turn `DEBUG` off,
