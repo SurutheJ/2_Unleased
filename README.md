@@ -134,6 +134,14 @@ Uploads are saved under `media/`, which is gitignored. After pulling this
 change, run `python manage.py migrate` (it adds the `ListingMedia` table).
 Tests: `python manage.py test listings.test_media`.
 
+**Sample photos for the seed data.** Put sample photos in
+`seed_media/listings/` (`living-open-plan.webp`, `living-room.webp`,
+`dining-living.webp`, `dining-kitchen.webp`, `bedroom.webp`, `bathroom.webp`).
+`python seed_data.py` then gives each sample listing 3 photos, and
+`python seed_photos.py` adds 3 photos to any existing listing that has none,
+without deleting anything. The folder is gitignored, so on a fresh clone the
+listings simply keep the placeholder image until photos are added.
+
 On PythonAnywhere, add a second static-files mapping in the **Web** tab:
 URL `/media/` to directory `/home/ParulMudaliar/2_Unleased/media`, so uploaded
 files are served.
