@@ -88,7 +88,10 @@ model**. The full design, model choice, evaluation and failure analysis are in
    click **AI assistant** in the navbar, or open
    http://127.0.0.1:8000/listings/ai-assistant/.
 3. Paste a sublease message and submit. The page shows the extracted fields,
-   any warnings, and a short listing description. Nothing is saved.
+   any warnings, and a short listing description. Nothing is saved yet.
+4. Click **Create listing from this** to open the listing form pre-filled with
+   those details, add what the message did not say (address, bathrooms,
+   dates), and click **Post listing**.
 
 **Model download notes**
 - The default model is `ibm-granite/granite-4.0-micro`. The first request
@@ -103,6 +106,22 @@ model**. The full design, model choice, evaluation and failure analysis are in
   page uses a template description and everything else still works.
 - The AI tests run without downloading the model (it is replaced with canned
   replies): `python manage.py test listings.test_ai`.
+
+## Posting and managing listings
+
+Logged-in users can post and manage their own sublease listings:
+
+| Page | URL | What it does |
+|---|---|---|
+| My listings | `/listings/mine/` (navbar **My listings**) | Your listings, with Edit and Delete links |
+| Post a listing | `/listings/new/` | Create a listing; you become its lister |
+| Edit | `/listings/<id>/edit/` | Owner only (anyone else gets a 404) |
+| Delete | `/listings/<id>/delete/` | Owner only, with a confirmation page |
+
+The form (`listings/forms.py`) checks that the end date is after the start date
+and that you have not already posted the same address, unit and start date.
+Viewing listings (Browse, Search, detail pages) is unchanged and public. Tests:
+`python manage.py test listings.test_crud`.
 
 ## Running in production mode
 

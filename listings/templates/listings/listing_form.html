@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'edit' %}Edit listing{% else %}Post a listing{% endif %}{% endblock %}
+
+{% block content %}
+<div class="lf-wrap">
+  <div class="section-head">
+    <div>
+      {% if mode == 'edit' %}
+        <h2>Edit listing</h2>
+        <div class="sub">Update the details of "{{ object.title }}".</div>
+      {% else %}
+        <h2>Post a listing</h2>
+        <div class="sub">Fields marked * are required. Your street address is only shown to seekers after you accept their inquiry.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if from_ai %}
+    <div class="lf-banner">
+      Pre-filled from the AI assistant. Check every field before saving, and fill in what the message did not say
+      (usually the address, bathrooms and dates). The original message is saved with the listing.
+    </div>
+  {% endif %}
+
+  {% if form.non_field_errors %}
+    <div class="lf-banner lf-banner--error">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if from_ai %}<input type="hidden" name="from_ai" value="1">{% endif %}
+
+    <section class="lf-section">
+      <h3>Basics</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.title wide=True %}
+        {% include "listings/partials/_form_field.html" with field=form.description wide=True %}
+        {% include "listings/partials/_form_field.html" with field=form.monthly_rent %}
+        {% include "listings/partials/_form_field.html" with field=form.status %}
+        {% include "listings/partials/_form_field.html" with field=form.gender_preference %}
+        {% include "listings/partials/_form_field.html" with field=form.utilities_included %}
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <h3>Location</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.street_address wide=True %}
+        {% include "listings/partials/_form_field.html" with field=form.unit_number %}
+        {% include "listings/partials/_form_field.html" with field=form.building_name %}
+        {% include "listings/partials/_form_field.html" with field=form.city %}
+        {% include "listings/partials/_form_field.html" with field=form.state %}
+        {% include "listings/partials/_form_field.html" with field=form.zip_code %}
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <h3>Unit and amenities</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.bedrooms %}
+        {% include "listings/partials/_form_field.html" with field=form.bathrooms %}
+      </div>
+      <div class="lf-grid lf-grid--checks">
+        {% include "listings/partials/_form_field.html" with field=form.is_private_bedroom %}
+        {% include "listings/partials/_form_field.html" with field=form.is_private_bathroom %}
+        {% include "listings/partials/_form_field.html" with field=form.is_furnished %}
+        {% include "listings/partials/_form_field.html" with field=form.has_in_unit_laundry %}
+        {% include "listings/partials/_form_field.html" with field=form.has_parking %}
+        {% include "listings/partials/_form_field.html" with field=form.has_balcony %}
+        {% include "listings/partials/_form_field.html" with field=form.pets_allowed %}
+        {% include "listings/partials/_form_field.html" with field=form.ac_included %}
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <h3>Availability</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.available_from %}
+        {% include "listings/partials/_form_field.html" with field=form.available_until %}
+      </div>
+    </section>
+
+    <div class="lf-actions">
+      <button class="lf-btn" type="submit">{% if mode == 'edit' %}Save changes{% else %}Post listing{% endif %}</button>
+      <a class="lf-btn lf-btn--ghost" href="{% if mode == 'edit' %}{{ object.get_absolute_url }}{% else %}{% url 'listings:mine' %}{% endif %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

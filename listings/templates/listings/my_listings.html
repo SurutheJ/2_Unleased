@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}My listings{% endblock %}
+
+{% block content %}
+<div class="lf-wrap lf-wrap--wide">
+  <div class="section-head">
+    <div>
+      <h2>My listings</h2>
+      <div class="sub">Listings you have posted. Only you can edit or delete them.</div>
+    </div>
+    <div class="lf-actions">
+      <a class="lf-btn lf-btn--ghost" href="{% url 'listings:ai_assistant' %}">Start from a message (AI)</a>
+      <a class="lf-btn" href="{% url 'listings:create' %}">Post a listing</a>
+    </div>
+  </div>
+
+  {% if listings %}
+    <table class="lf-table">
+      <thead><tr><th>Title</th><th>Rent</th><th>Available</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for listing in listings %}
+          <tr>
+            <td>
+              <a href="{{ listing.get_absolute_url }}"><u>{{ listing.title }}</u></a>
+              {% if listing.ai_parsed %}<span class="lf-tag">AI-assisted</span>{% endif %}
+            </td>
+            <td>${{ listing.monthly_rent|floatformat:"0" }}/mo</td>
+            <td>{{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }}</td>
+            <td>{{ listing.get_status_display }}</td>
+            <td class="lf-row-actions">
+              <a href="{% url 'listings:update' listing.pk %}">Edit</a>
+              <a class="lf-danger-link" href="{% url 'listings:delete' listing.pk %}">Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="lf-empty">You have not posted any listings yet. Use <b>Post a listing</b> to fill in the form,
+      or <b>Start from a message</b> to let the AI assistant fill it in from a pasted sublease message.</p>
+  {% endif %}
+</div>
+{% endblock %}

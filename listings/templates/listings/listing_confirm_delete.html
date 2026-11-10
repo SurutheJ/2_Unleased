@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Delete listing{% endblock %}
+
+{% block content %}
+<div class="lf-wrap">
+  <div class="section-head">
+    <div><h2>Delete this listing?</h2></div>
+  </div>
+  <section class="lf-section">
+    <p><b>{{ listing.title }}</b> (${{ listing.monthly_rent|floatformat:"0" }}/mo,
+      {{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }})</p>
+    <p class="lf-note">This cannot be undone. Its visit slots and any inquiries students sent about it are deleted too.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="lf-actions">
+        <button class="lf-btn lf-btn--danger" type="submit">Yes, delete it</button>
+        <a class="lf-btn lf-btn--ghost" href="{{ listing.get_absolute_url }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

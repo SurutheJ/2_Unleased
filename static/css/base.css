@@ -245,3 +245,43 @@ a { color: inherit; text-decoration: none; }
 }
 .auth-help a { color: var(--accent-dark); font-weight: 600; text-decoration: underline; }
 
+
+/* ---- A9: listing create / edit / delete / my listings ---- */
+.lf-wrap { max-width: 760px; }
+.lf-wrap--wide { max-width: 980px; }
+.lf-section { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px 18px; margin: 0 0 16px; }
+.lf-section h3 { font-size: 14px; margin: 0 0 12px; }
+.lf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 16px; }
+.lf-grid--checks { margin-top: 14px; gap: 10px 16px; }
+.lf-field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft); margin-bottom: 4px; }
+.lf-field input:not([type="checkbox"]), .lf-field select, .lf-field textarea {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13.5px;
+  padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff;
+}
+.lf-field textarea { resize: vertical; }
+.lf-field--wide { grid-column: 1 / -1; }
+.lf-check { display: flex; align-items: center; gap: 8px; }
+.lf-check label { margin: 0; color: var(--ink); font-weight: 500; font-size: 13.5px; }
+.lf-error { color: #9A2A18; font-size: 12.5px; font-weight: 600; margin: 4px 0 0; }
+.lf-banner { background: #FFF6E0; color: #7a5200; border-radius: var(--radius-md); padding: 12px 16px; font-size: 13.5px; line-height: 1.5; margin: 0 0 16px; }
+.lf-banner--error { background: #FBEAE6; color: #9A2A18; font-weight: 600; }
+.lf-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.lf-btn {
+  display: inline-block; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; text-decoration: none;
+  padding: 10px 18px; border-radius: var(--radius-pill); border: 0; background: var(--accent); color: #fff;
+}
+.lf-btn:hover { background: var(--accent-dark); }
+.lf-btn--ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.lf-btn--ghost:hover { background: var(--bg-card); }
+.lf-btn--danger { background: #B3261E; }
+.lf-btn--danger:hover { background: #8C1D18; }
+.lf-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.lf-table th { text-align: left; font-size: 11.5px; color: var(--ink-soft); font-weight: 600; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+.lf-table td { padding: 10px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.lf-row-actions { white-space: nowrap; text-align: right; }
+.lf-row-actions a { font-weight: 600; margin-left: 12px; }
+.lf-danger-link { color: #B3261E; }
+.lf-tag { font-size: 11px; font-weight: 600; background: #EEF2FF; color: #3949AB; border-radius: var(--radius-pill); padding: 2px 8px; margin-left: 6px; }
+.lf-empty { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+.lf-note { color: var(--ink-soft); font-size: 13px; }
+.owner-actions { display: flex; gap: 10px; margin-top: 10px; }
