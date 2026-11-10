@@ -41,12 +41,15 @@ a { color: inherit; text-decoration: none; }
 .page { flex: 1; padding: 28px 32px 60px; }
 
 /* Top nav */
+/* Two rows: logo + account area on top, the tabs on their own full-width row
+   below. With 11 tabs one row no longer fits inside the 1180px page. */
 .topnav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 18px 32px 0;
+  gap: 10px 16px;
+  padding: 16px 32px 0;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, #FFF5F6 0%, #ffffff 100%);
 }
@@ -54,10 +57,15 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; gap: 8px;
   font-family: var(--font-display);
   font-size: 21px; font-weight: 800; letter-spacing: -0.02em; color: var(--accent);
-  padding-bottom: 12px;
+  order: 1;
 }
 .logo svg { width: 26px; height: 26px; }
-.tabs { display: flex; gap: 22px; }
+.tabs {
+  order: 3; flex: 1 0 100%;
+  display: flex; justify-content: flex-start; column-gap: clamp(16px, 3vw, 36px);
+  overflow-x: auto; scrollbar-width: none;   /* very narrow screens scroll sideways instead of overflowing */
+}
+.tabs::-webkit-scrollbar { display: none; }
 .tab {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   padding: 6px 2px 12px;
@@ -171,14 +179,14 @@ a { color: inherit; text-decoration: none; }
 .site-footer p { margin: 0; }
 
 @media (max-width: 900px) {
-  .topnav { flex-wrap: wrap; justify-content: center; }
-  .tabs { gap: 20px; }
+  .topnav { padding: 14px 20px 0; }
+  .tabs { column-gap: 18px; }
   .page { padding: 24px 20px 48px; }
 }
 
 /* ---------- Authentication (A5) ---------- */
 .tab span { white-space: nowrap; }   /* "Available now" stays on one line */
-.nav-auth { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; white-space: nowrap; flex-shrink: 0; }
+.nav-auth { order: 2; display: flex; align-items: center; gap: 10px; white-space: nowrap; flex-shrink: 0; }
 .nav-auth form { margin: 0; }
 .nav-user { font-size: 13px; font-weight: 600; color: var(--ink-soft); }
 .nav-link { font-size: 13px; font-weight: 600; }
@@ -232,16 +240,9 @@ a { color: inherit; text-decoration: none; }
 }
 .google-btn:hover { background: #f7f8f8; border-color: #c6c9cc; }
 
-/* Navbar fits on narrower laptop windows: tighter tabs, then wrap the
-   account area onto its own row instead of pushing it off-screen. */
-@media (max-width: 1400px) {
-  .tabs { gap: 14px; }
-  .tab { font-size: 12px; }
-  .nav-user { display: none; }   /* keep just the Log out button */
-}
-@media (max-width: 1150px) {
-  .topnav { flex-wrap: wrap; justify-content: center; row-gap: 4px; }
-  .nav-auth { width: 100%; justify-content: center; }
+/* Phones: hide the greeting so the logo and Log out button share one line. */
+@media (max-width: 520px) {
+  .nav-user { display: none; }
 }
 .auth-help a { color: var(--accent-dark); font-weight: 600; text-decoration: underline; }
 
