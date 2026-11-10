@@ -146,7 +146,9 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
   on the specific kind of messy input this feature actually receives. For
   this app, we weighted the second one higher.
 - **Trade-off we accepted.** It is bigger and slower than Qwen2.5-1.5B: about a **6.8 GB download** (3.1 GB for
-  Qwen) and about 7 to 9 s per message (about 4 s for Qwen), matching A7's own latency numbers above. For a
+  Qwen) and about 7 to 9 s per message on a 16 GB Mac (about 4 s for Qwen). A7's latencies above (2.36 s and
+  2.14 s) are lower because A7 ran on a Colab T4 GPU with short benchmark prompts, while these numbers are the
+  full extraction prompt on a laptop; the ranking (Qwen faster than Granite) is the same in both. For a
   smaller, faster setup set
   `LOCAL_LLM_MODEL=Qwen/Qwen2.5-1.5B-Instruct`; it works with the same guardrails but is less reliable on
   ambiguous input specifically — not on A7's benchmark generally.
@@ -313,7 +315,8 @@ the fix adds a suggestion without weakening the original safeguard against a
 genuinely-expired listing being treated as valid.
 
 ## Testing
-`python manage.py test listings.test_ai` (65 tests across the app; 54 of them are new). The real model and
+`python manage.py test listings.test_ai` runs 56 tests, all passing (`python manage.py test listings` runs 67:
+these 56 plus 11 page and API route tests). The real model and
 real Gemini API are replaced with canned replies, including the broken ones real small models produce
 (code fences, repetition loops, hallucinated dates, injected values). Covered: preprocessing, parsing,
 every validation and grounding rule, the view (login, CSRF, cooldown, short input, unreadable output,
