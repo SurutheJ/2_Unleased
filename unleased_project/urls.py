@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),   # /accounts/login/, /accounts/signup/, /accounts/logout/
     path('listings/', include('listings.urls')),
+    path('', include('accounts.urls')),          # /profile/, /profile/edit/, /users/<username>/
     # A4 Part 1: dedicated chart endpoints, e.g. /vega-lite/chart1.png and /vega-lite/chart1.json
     path('vega-lite/<slug:chart>.png', vega_chart_png, name='vega_chart_png'),
     path('vega-lite/<slug:chart>.json', vega_chart_spec, name='vega_chart_spec'),

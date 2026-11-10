@@ -60,6 +60,14 @@ class UnleasedUser(AbstractUser):
     )
     pets_ok = models.BooleanField(default=False)
 
+    # Housing preferences shown on the profile (A9, from the P1-A1 Profile wireframe).
+    # All optional: a user who is only listing a place can leave them blank.
+    budget_min = models.PositiveIntegerField(null=True, blank=True, help_text="Lowest monthly rent ($) the user is looking for.")
+    budget_max = models.PositiveIntegerField(null=True, blank=True, help_text="Highest monthly rent ($) the user is looking for.")
+    move_in_from = models.DateField(null=True, blank=True, help_text="Start of the move-in window.")
+    move_in_until = models.DateField(null=True, blank=True, help_text="End of the move-in window.")
+    preferred_area = models.CharField(max_length=120, blank=True, help_text='For example "Near the Quad" or "Green St".')
+
     # Trust signals shown on profile
     response_rate = models.FloatField(
         default=0.0,

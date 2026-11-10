@@ -46,6 +46,10 @@
       &middot; {{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba
       &middot; Available {{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }}
     </p>
+    <p class="detail-meta">
+      Listed by <a href="{% url 'accounts:public_profile' listing.lister.username %}"><u>{{ listing.lister.get_full_name|default:listing.lister.username }}</u></a>
+      {% if listing.lister.is_edu_verified %}<span class="pf-badge pf-badge--ok">&#10003; .edu verified</span>{% endif %}
+    </p>
   </div>
 
   <div class="detail-body">

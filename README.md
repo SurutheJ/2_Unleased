@@ -138,6 +138,21 @@ On PythonAnywhere, add a second static-files mapping in the **Web** tab:
 URL `/media/` to directory `/home/ParulMudaliar/2_Unleased/media`, so uploaded
 files are served.
 
+## Profiles
+
+Based on the Profile screen in our P1-A1 wireframes.
+
+| Page | URL | Who sees what |
+|---|---|---|
+| My profile | `/profile/` (the round avatar, top right) | Your preferences (budget, move-in window, area, email), activity (listings, saved, visits, inquiries, response rate), lifestyle, your listings and reviews |
+| Edit profile | `/profile/edit/` | Name, bio, housing preferences and lifestyle. Username, email and .edu verification cannot be changed here |
+| Public profile | `/users/<username>/` (linked as "Listed by ..." on every listing) | Name, .edu badge, bio, lifestyle, response rate, available listings and reviews. Budget, dates and email stay private |
+
+The response rate is calculated live: the share of inquiries on the user's
+listings that were accepted or declined. After pulling this change, run
+`python manage.py migrate` (it adds the preference fields). Tests:
+`python manage.py test accounts`.
+
 ## Running in production mode
 
 Production settings (`unleased_project.settings.prod`) turn `DEBUG` off,

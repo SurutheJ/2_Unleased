@@ -65,7 +65,12 @@
   {# Account area: who is logged in + log out, or log in / sign up links. #}
   <div class="nav-auth">
     {% if user.is_authenticated %}
-      <span class="nav-user" title="{{ user.email }}">Hi, {{ user.first_name|default:user.username }}</span>
+      {% with name=user.first_name|default:user.username %}
+      <a class="nav-profile {% if request.resolver_match.view_name == 'accounts:profile' or request.resolver_match.view_name == 'accounts:profile_edit' %}active{% endif %}" href="{% url 'accounts:profile' %}" title="Your profile ({{ user.email }})">
+        <span class="nav-user">Hi, {{ name }}</span>
+        <span class="nav-avatar" aria-hidden="true">{{ name|slice:":1"|upper }}</span>
+      </a>
+      {% endwith %}
       <form method="post" action="{% url 'account_logout' %}">
         {% csrf_token %}
         <button class="nav-btn" type="submit">Log out</button>
