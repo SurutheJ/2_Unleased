@@ -123,6 +123,21 @@ and that you have not already posted the same address, unit and start date.
 Viewing listings (Browse, Search, detail pages) is unchanged and public. Tests:
 `python manage.py test listings.test_crud`.
 
+**Photos and video.** The listing form can upload up to 6 photos (JPG/PNG/WebP,
+5 MB each) and 1 short video (MP4/MOV, 20 MB). The first photo becomes the
+cover image on cards and the listing page; the rest, and the video, show in a
+gallery on the listing page. When editing, tick **Remove** on an item to delete
+it. Files are checked by content, not just by name (a renamed text file is
+rejected), the limits are in `settings/base.py` (`LISTING_MAX_*`), and a
+file is deleted from disk when its photo, video or listing is deleted.
+Uploads are saved under `media/`, which is gitignored. After pulling this
+change, run `python manage.py migrate` (it adds the `ListingMedia` table).
+Tests: `python manage.py test listings.test_media`.
+
+On PythonAnywhere, add a second static-files mapping in the **Web** tab:
+URL `/media/` to directory `/home/ParulMudaliar/2_Unleased/media`, so uploaded
+files are served.
+
 ## Running in production mode
 
 Production settings (`unleased_project.settings.prod`) turn `DEBUG` off,

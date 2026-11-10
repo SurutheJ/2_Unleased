@@ -1,3 +1,5 @@
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -160,6 +162,54 @@ class Listing(models.Model):
     def popularity_score(self):
         """Simple weighted score for ranking listings on the homepage feed."""
         return (self.view_count * 1) + (self.save_count * 3) + (self.inquiry_count * 5)
+
+    @property
+    def photos(self):
+        """Uploaded photos, in upload order (works with prefetch_related('media'))."""
+        return [m for m in self.media.all() if m.kind == 'photo']
+
+    @property
+    def videos(self):
+        return [m for m in self.media.all() if m.kind == 'video']
+
+    @property
+    def cover_photo(self):
+        """First uploaded photo, used as the card and page image (None if there are none)."""
+        photos = self.photos
+        return photos[0] if photos else None
+
+
+class ListingMedia(models.Model):
+    """A photo or a short video attached to a listing (A9).
+
+    Files live under MEDIA_ROOT/listing_media/. When a row is deleted (on its
+    own, or because its listing was deleted) the file is removed from disk
+    too, by the post_delete handler below, so the disk quota is not wasted.
+    """
+
+    class Kind(models.TextChoices):
+        PHOTO = 'photo', 'Photo'
+        VIDEO = 'video', 'Video'
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='media')
+    kind = models.CharField(max_length=5, choices=Kind.choices)
+    file = models.FileField(upload_to='listing_media/%Y/%m/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at', 'id']
+        verbose_name = 'Listing photo or video'
+        verbose_name_plural = 'Listing photos and videos'
+
+    def __str__(self):
+        return f"{self.get_kind_display()} for listing {self.listing_id}"
+
+
+@receiver(post_delete, sender=ListingMedia)
+def delete_media_file(sender, instance, **kwargs):
+    """Remove the file from disk when its ListingMedia row is deleted."""
+    if instance.file:
+        instance.file.delete(save=False)
 
 
 class VisitSlot(models.Model):

@@ -80,7 +80,7 @@ def home(request):
     and the three newest listings that are still available.
     """
     context = {
-        'featured': Listing.objects.filter(status=Listing.Status.AVAILABLE)[:3],
+        'featured': Listing.objects.filter(status=Listing.Status.AVAILABLE).prefetch_related('media')[:3],
         'total_listings': Listing.objects.count(),
     }
     return render(request, 'listings/home.html', context)
@@ -123,6 +123,7 @@ class ListingBaseView(View):
 class ListingListView(ListView):
     """CBV 2: generic ListView (its default template is listings/listing_list.html)."""
     model = Listing
+    queryset = Listing.objects.prefetch_related('media')   # cover photos without one query per card
     template_name = LIST_TEMPLATE
     context_object_name = 'listings'
     extra_context = {'view_label': 'Generic ListView'}
@@ -893,6 +894,7 @@ class ListingCreateView(LoginRequiredMixin, CreateView):
             form.instance.ai_parsed = True
             form.instance.raw_whatsapp_text = draft.get('message', '')
         response = super().form_valid(form)
+        form.save_media(self.object)
         if draft:
             self.request.session.pop('ai_draft', None)
         return response
@@ -913,6 +915,11 @@ class ListingUpdateView(LoginRequiredMixin, OwnListingsMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context['mode'] = 'edit'
         return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.save_media(self.object)
+        return response
 
 
 class ListingDeleteView(LoginRequiredMixin, OwnListingsMixin, DeleteView):

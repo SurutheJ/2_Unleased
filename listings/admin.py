@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Listing, VisitSlot, Inquiry, SavedListing
+from .models import Listing, ListingMedia, VisitSlot, Inquiry, SavedListing
+
+
+class ListingMediaInline(admin.TabularInline):
+    model = ListingMedia
+    extra = 0
+    fields = ('kind', 'file', 'uploaded_at')
+    readonly_fields = ('uploaded_at',)
 
 
 class VisitSlotInline(admin.TabularInline):
@@ -42,7 +49,7 @@ class ListingAdmin(admin.ModelAdmin):
         'created_at', 'updated_at', 'ai_parsed', 'raw_whatsapp_text',
     ]
     date_hierarchy = 'available_from'
-    inlines = [VisitSlotInline, InquiryInline]
+    inlines = [VisitSlotInline, InquiryInline, ListingMediaInline]
 
     fieldsets = (
         ('Core Info', {

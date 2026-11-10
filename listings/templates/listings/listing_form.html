@@ -27,7 +27,7 @@
     <div class="lf-banner lf-banner--error">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</div>
   {% endif %}
 
-  <form method="post" novalidate>
+  <form method="post" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     {% if from_ai %}<input type="hidden" name="from_ai" value="1">{% endif %}
 
@@ -79,6 +79,41 @@
         {% include "listings/partials/_form_field.html" with field=form.available_from %}
         {% include "listings/partials/_form_field.html" with field=form.available_until %}
       </div>
+    </section>
+
+    <section class="lf-section">
+      <h3>Photos and video</h3>
+      {% if mode == 'edit' and form.remove_media %}
+        {% if object.media.all %}
+          <p class="lf-note">Current media. Tick <b>Remove</b> to delete an item when you save.</p>
+          <div class="lf-media-grid">
+            {% for choice in form.remove_media %}
+              {% with item=choice.data.value.instance %}
+                <label class="lf-media-item">
+                  {% if item.kind == 'photo' %}<img src="{{ item.file.url }}" alt="Listing photo">
+                  {% else %}<video src="{{ item.file.url }}" muted preload="metadata"></video>{% endif %}
+                  <span>{{ choice.tag }} Remove</span>
+                </label>
+              {% endwith %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+      <div class="lf-grid">
+        <div class="lf-field">
+          <label for="{{ form.photos.id_for_label }}">{{ form.photos.label }}</label>
+          {{ form.photos }}
+          <p class="lf-help">{{ form.photos.help_text }}</p>
+          {% for error in form.photos.errors %}<p class="lf-error">{{ error }}</p>{% endfor %}
+        </div>
+        <div class="lf-field">
+          <label for="{{ form.video.id_for_label }}">{{ form.video.label }}</label>
+          {{ form.video }}
+          <p class="lf-help">{{ form.video.help_text }}</p>
+          {% for error in form.video.errors %}<p class="lf-error">{{ error }}</p>{% endfor %}
+        </div>
+      </div>
+      {% if form.errors %}<p class="lf-help">If the form shows an error, choose your photos and video again before saving: browsers do not keep selected files after a page reload.</p>{% endif %}
     </section>
 
     <div class="lf-actions">
