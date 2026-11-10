@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from listings.views import home, vega_chart_png, vega_chart_spec
@@ -23,7 +25,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),   # /accounts/login/, /accounts/signup/, /accounts/logout/
     path('listings/', include('listings.urls')),
+    path('', include('accounts.urls')),          # /profile/, /profile/edit/, /users/<username>/
     # A4 Part 1: dedicated chart endpoints, e.g. /vega-lite/chart1.png and /vega-lite/chart1.json
     path('vega-lite/<slug:chart>.png', vega_chart_png, name='vega_chart_png'),
     path('vega-lite/<slug:chart>.json', vega_chart_spec, name='vega_chart_spec'),
 ]
+
+# Serve uploaded listing photos/videos while developing (DEBUG only; a no-op
+# in production, where the web server serves MEDIA_ROOT directly).
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -120,6 +120,19 @@ STATIC_URL = 'static/'
 # below, which is only the `collectstatic` output for deployment.
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# User uploads (listing photos and videos). Stored on disk under media/,
+# which is gitignored. In development runserver serves them (see urls.py);
+# on PythonAnywhere add a static-files mapping /media/ -> <project>/media.
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Listing media limits (A9). Kept small because the free PythonAnywhere
+# account has 512 MB of disk in total.
+LISTING_MAX_PHOTOS = 6
+LISTING_MAX_PHOTO_MB = 5
+LISTING_MAX_VIDEOS = 1
+LISTING_MAX_VIDEO_MB = 20
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Point Django to our custom user model

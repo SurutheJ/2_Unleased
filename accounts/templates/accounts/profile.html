@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_own %}My profile{% else %}{{ display_name }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="pf-wrap">
+
+  {# Header: avatar, name, joined term and the .edu verification badge (P1-A1 Profile wireframe). #}
+  <div class="pf-head">
+    <div class="pf-avatar" aria-hidden="true">{{ initial }}</div>
+    <div class="pf-id">
+      <h2>{{ display_name }}</h2>
+      <p class="pf-sub">@{{ person.username }} &middot; Joined {{ joined }}</p>
+      <div class="pf-badges">
+        {% if person.is_edu_verified %}
+          <span class="pf-badge pf-badge--ok">&#10003; .edu verified</span>
+        {% else %}
+          <span class="pf-badge">Not .edu verified</span>
+        {% endif %}
+        {% if review_count %}<span class="pf-badge">&#9733; {{ avg_rating|floatformat:1 }} ({{ review_count }} review{{ review_count|pluralize }})</span>{% endif %}
+      </div>
+    </div>
+    {% if is_own %}<a class="lf-btn lf-btn--ghost pf-edit" href="{% url 'accounts:profile_edit' %}">Edit profile</a>{% endif %}
+  </div>
+
+  {% if person.bio %}<p class="pf-bio">{{ person.bio|linebreaksbr }}</p>
+  {% elif is_own %}<p class="pf-bio pf-muted">Add a short bio so listers and roommates know a little about you.</p>{% endif %}
+
+  <div class="pf-cards">
+    {% if is_own %}
+      {# Budget, dates and email are private: only shown on your own profile. #}
+      <section class="pf-card">
+        <h3>Preferences</h3>
+        <dl>
+          <dt>Budget</dt>
+          <dd>{% if person.budget_min or person.budget_max %}${{ person.budget_min|default:"0" }} to ${{ person.budget_max|default:"any" }}/mo{% else %}<span class="pf-muted">Not set</span>{% endif %}</dd>
+          <dt>Move-in</dt>
+          <dd>{% if person.move_in_from %}{{ person.move_in_from|date:"M j, Y" }}{% if person.move_in_until %} to {{ person.move_in_until|date:"M j, Y" }}{% endif %}{% else %}<span class="pf-muted">Not set</span>{% endif %}</dd>
+          <dt>Area</dt>
+          <dd>{{ person.preferred_area|default:"" }}{% if not person.preferred_area %}<span class="pf-muted">Not set</span>{% endif %}</dd>
+          <dt>Email</dt>
+          <dd>{{ person.email }}</dd>
+        </dl>
+      </section>
+    {% endif %}
+
+    <section class="pf-card">
+      <h3>Activity</h3>
+      <dl>
+        <dt>Listings posted</dt><dd>{{ activity.listings }}</dd>
+        {% if is_own %}
+          <dt>Saved listings</dt><dd>{{ activity.saved }}</dd>
+          <dt>Visits booked</dt><dd>{{ activity.visits }}</dd>
+          <dt>Inquiries sent</dt><dd>{{ activity.inquiries }}</dd>
+        {% endif %}
+        <dt>Response rate</dt>
+        <dd>{% if activity.response_rate is None %}<span class="pf-muted">No inquiries yet</span>{% else %}{{ activity.response_rate }}% <span class="pf-muted">of {{ activity.inquiries_received }}</span>{% endif %}</dd>
+      </dl>
+    </section>
+
+    <section class="pf-card">
+      <h3>Lifestyle</h3>
+      <dl>
+        {% for label, value in lifestyle %}
+          <dt>{{ label }}</dt><dd>{% if value %}{{ value }}{% else %}<span class="pf-muted">Not set</span>{% endif %}</dd>
+        {% endfor %}
+      </dl>
+    </section>
+  </div>
+
+  <section class="pf-section">
+    <div class="section-head">
+      <div><h2>{% if is_own %}My listings{% else %}Available listings{% endif %}</h2></div>
+      {% if is_own %}<a class="pill" href="{% url 'listings:mine' %}">Manage listings &rarr;</a>{% endif %}
+    </div>
+    {% if listings %}
+      <div class="grid">
+        {% for listing in listings %}
+          {% cycle 'g1' 'g2' 'g3' 'g4' as tint silent %}
+          {% include "listings/partials/_listing_card.html" with tint=tint %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="pf-muted">{% if is_own %}You have not posted any listings yet. <a href="{% url 'listings:create' %}"><u>Post a listing</u></a>.{% else %}No available listings right now.{% endif %}</p>
+    {% endif %}
+  </section>
+
+  <section class="pf-section">
+    <div class="section-head"><div><h2>Reviews</h2></div></div>
+    {% if reviews %}
+      <ul class="pf-reviews">
+        {% for review in reviews %}
+          <li>
+            <span class="pf-stars" aria-label="{{ review.rating }} out of 5">{% for i in "12345" %}{% if forloop.counter <= review.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</span>
+            {% if review.comment %}"{{ review.comment }}"{% endif %}
+            <span class="pf-muted">by <a href="{% url 'accounts:public_profile' review.reviewer.username %}"><u>{{ review.reviewer.username }}</u></a>, {{ review.created_at|date:"M Y" }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="pf-muted">No reviews yet.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

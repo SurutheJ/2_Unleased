@@ -88,7 +88,10 @@ model**. The full design, model choice, evaluation and failure analysis are in
    click **AI assistant** in the navbar, or open
    http://127.0.0.1:8000/listings/ai-assistant/.
 3. Paste a sublease message and submit. The page shows the extracted fields,
-   any warnings, and a short listing description. Nothing is saved.
+   any warnings, and a short listing description. Nothing is saved yet.
+4. Click **Create listing from this** to open the listing form pre-filled with
+   those details, add what the message did not say (address, bathrooms,
+   dates), and click **Post listing**.
 
 **Model download notes**
 - The default model is `ibm-granite/granite-4.0-micro`. The first request
@@ -103,6 +106,52 @@ model**. The full design, model choice, evaluation and failure analysis are in
   page uses a template description and everything else still works.
 - The AI tests run without downloading the model (it is replaced with canned
   replies): `python manage.py test listings.test_ai`.
+
+## Posting and managing listings
+
+Logged-in users can post and manage their own sublease listings:
+
+| Page | URL | What it does |
+|---|---|---|
+| My listings | `/listings/mine/` (navbar **My listings**) | Your listings, with Edit and Delete links |
+| Post a listing | `/listings/new/` | Create a listing; you become its lister |
+| Edit | `/listings/<id>/edit/` | Owner only (anyone else gets a 404) |
+| Delete | `/listings/<id>/delete/` | Owner only, with a confirmation page |
+
+The form (`listings/forms.py`) checks that the end date is after the start date
+and that you have not already posted the same address, unit and start date.
+Viewing listings (Browse, Search, detail pages) is unchanged and public. Tests:
+`python manage.py test listings.test_crud`.
+
+**Photos and video.** The listing form can upload up to 6 photos (JPG/PNG/WebP,
+5 MB each) and 1 short video (MP4/MOV, 20 MB). The first photo becomes the
+cover image on cards and the listing page; the rest, and the video, show in a
+gallery on the listing page. When editing, tick **Remove** on an item to delete
+it. Files are checked by content, not just by name (a renamed text file is
+rejected), the limits are in `settings/base.py` (`LISTING_MAX_*`), and a
+file is deleted from disk when its photo, video or listing is deleted.
+Uploads are saved under `media/`, which is gitignored. After pulling this
+change, run `python manage.py migrate` (it adds the `ListingMedia` table).
+Tests: `python manage.py test listings.test_media`.
+
+On PythonAnywhere, add a second static-files mapping in the **Web** tab:
+URL `/media/` to directory `/home/ParulMudaliar/2_Unleased/media`, so uploaded
+files are served.
+
+## Profiles
+
+Based on the Profile screen in our P1-A1 wireframes.
+
+| Page | URL | Who sees what |
+|---|---|---|
+| My profile | `/profile/` (the round avatar, top right) | Your preferences (budget, move-in window, area, email), activity (listings, saved, visits, inquiries, response rate), lifestyle, your listings and reviews |
+| Edit profile | `/profile/edit/` | Name, bio, housing preferences and lifestyle. Username, email and .edu verification cannot be changed here |
+| Public profile | `/users/<username>/` (linked as "Listed by ..." on every listing) | Name, .edu badge, bio, lifestyle, response rate, available listings and reviews. Budget, dates and email stay private |
+
+The response rate is calculated live: the share of inquiries on the user's
+listings that were accepted or declined. After pulling this change, run
+`python manage.py migrate` (it adds the preference fields). Tests:
+`python manage.py test accounts`.
 
 ## Running in production mode
 

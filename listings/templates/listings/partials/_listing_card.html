@@ -5,7 +5,11 @@
   <div class="thumb {{ tint|default:'g1' }}">
     {% if listing.is_property_verified %}<span class="badge-fav">Verified</span>{% endif %}
     <span class="status status--{{ listing.status }}">{{ listing.get_status_display }}</span>
-    <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
+    {% if listing.cover_photo %}
+      <img class="thumb-img" src="{{ listing.cover_photo.file.url }}" alt="" loading="lazy">
+    {% else %}
+      <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
+    {% endif %}
   </div>
   <p class="card-title">{{ listing.title }}</p>
   <p class="card-meta"><b>${{ listing.monthly_rent|floatformat:"0" }}</b>/mo{% if listing.utilities_included %} &middot; utilities included{% endif %}</p>

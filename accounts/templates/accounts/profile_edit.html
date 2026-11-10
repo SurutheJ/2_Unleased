@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block content %}
+<div class="lf-wrap">
+  <div class="section-head">
+    <div>
+      <h2>Edit profile</h2>
+      <div class="sub">Your budget, move-in dates and email are only shown to you. Everything else appears on your public profile.</div>
+    </div>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <section class="lf-section">
+      <h3>About you</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.first_name %}
+        {% include "listings/partials/_form_field.html" with field=form.last_name %}
+        {% include "listings/partials/_form_field.html" with field=form.bio wide=True %}
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <h3>Housing preferences</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.budget_min %}
+        {% include "listings/partials/_form_field.html" with field=form.budget_max %}
+        {% include "listings/partials/_form_field.html" with field=form.move_in_from %}
+        {% include "listings/partials/_form_field.html" with field=form.move_in_until %}
+        {% include "listings/partials/_form_field.html" with field=form.preferred_area wide=True %}
+      </div>
+    </section>
+
+    <section class="lf-section">
+      <h3>Lifestyle (for roommate compatibility)</h3>
+      <div class="lf-grid">
+        {% include "listings/partials/_form_field.html" with field=form.sleep_schedule %}
+        {% include "listings/partials/_form_field.html" with field=form.cleanliness %}
+        {% include "listings/partials/_form_field.html" with field=form.noise_level %}
+        {% include "listings/partials/_form_field.html" with field=form.guests_policy %}
+        {% include "listings/partials/_form_field.html" with field=form.pets_ok %}
+      </div>
+    </section>
+
+    <div class="lf-actions">
+      <button class="lf-btn" type="submit">Save profile</button>
+      <a class="lf-btn lf-btn--ghost" href="{% url 'accounts:profile' %}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

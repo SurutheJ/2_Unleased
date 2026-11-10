@@ -48,7 +48,7 @@
     <textarea id="message" name="message" maxlength="{{ max_chars }}" placeholder="e.g. subletting my room dec 15 thru aug 1, 3bd apt near green st, $650/mo, furnished, in unit laundry, no pets">{{ message }}</textarea>
     <div class="ai-actions">
       <button type="submit">Extract listing details</button>
-      <span class="hint">The first request loads the model and can take a while. Nothing is saved.</span>
+      <span class="hint">The first request loads the model and can take a while. Nothing is saved unless you create a listing from the result.</span>
     </div>
   </form>
 
@@ -87,6 +87,13 @@
       <div class="src">
         {% if description.source == 'gemini' %}Written by the Gemini API from the fields above (your original message was not sent).
         {% else %}{{ description.notice }}{% endif %}
+      </div>
+    </section>
+
+    <section class="ai-results">
+      <div class="ai-actions">
+        <a class="lf-btn" href="{% url 'listings:create' %}?from_ai=1">Create listing from this</a>
+        <span class="hint">Opens the listing form pre-filled with these details. You check them and add the rest before saving.</span>
       </div>
     </section>
   {% endif %}

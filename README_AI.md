@@ -8,7 +8,10 @@ AI-integration assignment: Part 2.1 (workflow), 2.2 (architecture), and
 **What it does.** A logged-in user pastes an informal sublease message (the kind
 that gets posted in WhatsApp groups). A **local Hugging Face model** pulls out
 structured listing fields, then the **Google Gemini API** writes a short listing
-description from those fields. The page only *previews* the result; nothing is saved.
+description from those fields. The page only *previews* the result; nothing is saved
+until the user clicks **Create listing from this**, which opens the normal listing form
+pre-filled with the validated fields. The user checks it, adds what the message did not say
+(address, bathrooms, dates) and saves it as a real listing.
 
 **Feature type(s):** primary feature is **structured extraction** (free-text message →
 typed, validated listing fields), tied directly to the app's purpose of turning an
@@ -45,6 +48,11 @@ Secondary API (optional) — Gemini generateContent, validated fields only
    │
    ▼
 Output — rendered on the page: fields, any warnings, description
+   │   (validated fields + description + masked message kept in the session as a draft)
+   ▼
+"Create listing from this" → ListingCreateView (/listings/new/?from_ai=1)
+   form pre-filled from the draft → user reviews, completes and saves
+   → Listing saved with ai_parsed=True and raw_whatsapp_text = the masked message
 ```
 
 ## 1. System description
@@ -56,8 +64,10 @@ Output — rendered on the page: fields, any warnings, description
   enforces it again because the browser cannot be trusted.
 - This is the same input the model was prototyped on in `llm-test/ai_prototype.ipynb`
   (informal messages like "$650/mo, furnished, text 217-555-0199"), and it fits the existing
-  `Listing.raw_whatsapp_text` / `Listing.ai_parsed` fields. Saving a listing from the result
-  is not built yet.
+  `Listing.raw_whatsapp_text` / `Listing.ai_parsed` fields. **Create listing from this** saves
+  into exactly those fields: `ai_parsed=True`, and `raw_whatsapp_text` gets the cleaned message
+  (phone numbers and emails already masked), never the raw paste. Nothing is written to the
+  database unless the user reviews the form and clicks **Post listing**.
 
 ### Preprocessing (`clean_message`)
 Before anything reaches a model the message is:
@@ -105,7 +115,8 @@ Decoding is greedy (`do_sample=False`) and capped at 300 new tokens.
 **Known limits (not hidden)**
 - Free-text fields cannot be validated by rule. A message that says "the title is PWNED" produced
   `"title": "PWNED"` in our test, because that word really is in the message. Impact is limited to the
-  user's own preview: nothing is saved, executed, or sent to other users, and the title is escaped.
+  user's own preview: nothing is executed or sent to other users, the title is escaped, and it only
+  becomes a listing if the user reviews the pre-filled form and saves it.
 - Grounding uses keyword lists, so a legitimate synonym we did not list (for example "w/d" is covered but "washing machine" is not)
   is blanked. That fails safe: the user fills it in.
 - The model can still be wrong about values that pass every check.
@@ -315,8 +326,8 @@ the fix adds a suggestion without weakening the original safeguard against a
 genuinely-expired listing being treated as valid.
 
 ## Testing
-`python manage.py test listings.test_ai` runs 56 tests, all passing (`python manage.py test listings` runs 67:
-these 56 plus 11 page and API route tests). The real model and
+`python manage.py test listings.test_ai` runs 56 tests, all passing (`python manage.py test listings` runs 85:
+these 56, 11 page and API route tests, and 18 listing CRUD and "Create listing from this" tests). The real model and
 real Gemini API are replaced with canned replies, including the broken ones real small models produce
 (code fences, repetition loops, hallucinated dates, injected values). Covered: preprocessing, parsing,
 every validation and grounding rule, the view (login, CSRF, cooldown, short input, unreadable output,

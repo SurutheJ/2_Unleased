@@ -15,17 +15,18 @@ from django.db.models import Avg, Count, Q
 from django.http import Http404
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.template import loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.views import View
-from django.views.generic import DetailView, ListView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from accounts.models import UnleasedUser
 from . import ai_external, ai_local
+from .forms import ListingForm
 from .models import Inquiry, Listing
 
 
@@ -79,7 +80,7 @@ def home(request):
     and the three newest listings that are still available.
     """
     context = {
-        'featured': Listing.objects.filter(status=Listing.Status.AVAILABLE)[:3],
+        'featured': Listing.objects.filter(status=Listing.Status.AVAILABLE).prefetch_related('media')[:3],
         'total_listings': Listing.objects.count(),
     }
     return render(request, 'listings/home.html', context)
@@ -122,6 +123,7 @@ class ListingBaseView(View):
 class ListingListView(ListView):
     """CBV 2: generic ListView (its default template is listings/listing_list.html)."""
     model = Listing
+    queryset = Listing.objects.prefetch_related('media')   # cover photos without one query per card
     template_name = LIST_TEMPLATE
     context_object_name = 'listings'
     extra_context = {'view_label': 'Generic ListView'}
@@ -769,7 +771,10 @@ def ai_assistant(request):
     """
     Paste an informal sublease message; a local Hugging Face model extracts
     the listing fields, then the Gemini API writes a description from the
-    validated fields. Nothing is saved: the page only previews the result.
+    validated fields. Nothing is saved here: the page only previews the result.
+    The validated fields are kept in the session as a draft, so the user can
+    click "Create listing from this" to open the listing form pre-filled,
+    review it, and save it themselves (ListingCreateView).
 
     Guardrails live in listings/ai_local.py (input cleaning, output
     validation) and listings/ai_external.py (timeouts, fallback). The view
@@ -817,4 +822,116 @@ def ai_assistant(request):
     context['warnings'] = warnings
     context['found_count'] = sum(1 for value in fields.values() if value is not None)
     context['description'] = ai_external.generate_description(fields)
+
+    # Keep a draft for "Create listing from this". Only the validated fields,
+    # the suggested description and the cleaned message (phone numbers and
+    # emails already masked) are stored, all as JSON-safe strings/numbers.
+    draft_fields = {name: value for name, value in fields.items() if value is not None}
+    if 'monthly_rent' in draft_fields:
+        draft_fields['monthly_rent'] = format(draft_fields['monthly_rent'], 'g')   # 750.0 -> '750'
+    request.session['ai_draft'] = {
+        'fields': draft_fields,
+        'description': context['description'].text,
+        'message': cleaned.text,
+    }
     return render(request, 'listings/ai_assistant.html', context)
+
+
+# ---------------------------------------------------------------------------
+# A9: basic listing CRUD (create / edit / delete / my listings)
+# Viewing a listing already exists (ListingListView, ListingDetailView).
+# ---------------------------------------------------------------------------
+
+class OwnListingsMixin:
+    """Limit the queryset to the logged-in user's own listings.
+
+    Edit and delete look the listing up through this queryset, so another
+    user's listing simply does not exist for them (404), and nobody can edit
+    or delete a listing they do not own by guessing its id.
+    """
+
+    def get_queryset(self):
+        return Listing.objects.filter(lister=self.request.user)
+
+
+class ListingCreateView(LoginRequiredMixin, CreateView):
+    """/listings/new/ : post a new listing. With ?from_ai=1 the form is
+    pre-filled from the AI assistant's last result (stored in the session)."""
+    model = Listing
+    form_class = ListingForm
+    template_name = 'listings/listing_form.html'
+
+    def _ai_draft(self):
+        source = self.request.POST if self.request.method == 'POST' else self.request.GET
+        if source.get('from_ai') != '1':
+            return None
+        return self.request.session.get('ai_draft')
+
+    def get_initial(self):
+        initial = super().get_initial()
+        draft = self._ai_draft()
+        if draft:
+            initial.update(draft.get('fields', {}))
+            if draft.get('description'):
+                initial['description'] = draft['description']
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['lister'] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mode'] = 'create'
+        context['from_ai'] = self._ai_draft() is not None
+        return context
+
+    def form_valid(self, form):
+        form.instance.lister = self.request.user
+        draft = self._ai_draft()
+        if draft:
+            form.instance.ai_parsed = True
+            form.instance.raw_whatsapp_text = draft.get('message', '')
+        response = super().form_valid(form)
+        form.save_media(self.object)
+        if draft:
+            self.request.session.pop('ai_draft', None)
+        return response
+
+
+class ListingUpdateView(LoginRequiredMixin, OwnListingsMixin, UpdateView):
+    """/listings/<pk>/edit/ : the owner edits their listing."""
+    model = Listing
+    form_class = ListingForm
+    template_name = 'listings/listing_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['lister'] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mode'] = 'edit'
+        return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.save_media(self.object)
+        return response
+
+
+class ListingDeleteView(LoginRequiredMixin, OwnListingsMixin, DeleteView):
+    """/listings/<pk>/delete/ : GET shows a confirmation page, POST deletes."""
+    model = Listing
+    template_name = 'listings/listing_confirm_delete.html'
+    context_object_name = 'listing'
+    success_url = reverse_lazy('listings:mine')
+
+
+class MyListingsView(LoginRequiredMixin, OwnListingsMixin, ListView):
+    """/listings/mine/ : the logged-in user's own listings, with edit/delete links."""
+    model = Listing
+    template_name = 'listings/my_listings.html'
+    context_object_name = 'listings'

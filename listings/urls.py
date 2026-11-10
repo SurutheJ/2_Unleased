@@ -24,5 +24,9 @@ urlpatterns = [
     path('export/listings.csv', views.export_listings_csv, name='export_csv'),   # CSV download
     path('export/listings.json', views.export_listings_json, name='export_json'),  # JSON download
     path('ai-assistant/', views.ai_assistant, name='ai_assistant'),  # A6: local LLM + Gemini API
+    path('new/', views.ListingCreateView.as_view(), name='create'),           # A9: post a listing (login)
+    path('mine/', views.MyListingsView.as_view(), name='mine'),                 # A9: my listings (login)
+    path('<int:pk>/edit/', views.ListingUpdateView.as_view(), name='update'),   # A9: owner only
+    path('<int:pk>/delete/', views.ListingDeleteView.as_view(), name='delete'), # A9: owner only
     path('<int:pk>/', views.ListingDetailView.as_view(), name='detail'),  # GET show + POST inquire
 ]

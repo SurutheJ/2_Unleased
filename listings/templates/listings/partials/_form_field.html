@@ -1,0 +1,10 @@
+{# One form field: label, input and its errors. Checkboxes put the label after the box. #}
+<div class="lf-field{% if field.field.widget.input_type == 'checkbox' %} lf-check{% endif %}{% if wide %} lf-field--wide{% endif %}">
+  {% if field.field.widget.input_type == 'checkbox' %}
+    {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {% else %}
+    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+    {{ field }}
+  {% endif %}
+  {% for error in field.errors %}<p class="lf-error">{{ error }}</p>{% endfor %}
+</div>

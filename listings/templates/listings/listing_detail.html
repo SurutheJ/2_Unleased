@@ -28,7 +28,11 @@
   <a class="back-btn" href="{% url 'listings:list' %}">&larr; Back to listings</a>
 
   <div class="thumb g1 detail-hero">
-    <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
+    {% if listing.cover_photo %}
+      <img class="thumb-img" src="{{ listing.cover_photo.file.url }}" alt="Photo of {{ listing.title }}">
+    {% else %}
+      <div class="thumb-icon">{% include "partials/_house_icon.html" %}</div>
+    {% endif %}
   </div>
 
   <div class="detail-head">
@@ -42,10 +46,25 @@
       &middot; {{ listing.bedrooms }} bd &middot; {{ listing.bathrooms|floatformat:"-1" }} ba
       &middot; Available {{ listing.available_from|date:"M j, Y" }} to {{ listing.available_until|date:"M j, Y" }}
     </p>
+    <p class="detail-meta">
+      Listed by <a href="{% url 'accounts:public_profile' listing.lister.username %}"><u>{{ listing.lister.get_full_name|default:listing.lister.username }}</u></a>
+      {% if listing.lister.is_edu_verified %}<span class="pf-badge pf-badge--ok">&#10003; .edu verified</span>{% endif %}
+    </p>
   </div>
 
   <div class="detail-body">
     <p class="detail-desc">{{ listing.description }}</p>
+    {% if listing.photos|length > 1 or listing.videos %}
+      <h4>Photos and video</h4>
+      <div class="lf-media-grid lf-media-grid--view">
+        {% for item in listing.photos %}
+          <a href="{{ item.file.url }}" target="_blank" rel="noopener"><img src="{{ item.file.url }}" alt="Photo {{ forloop.counter }} of {{ listing.title }}"></a>
+        {% endfor %}
+        {% for item in listing.videos %}
+          <video src="{{ item.file.url }}" controls preload="metadata"></video>
+        {% endfor %}
+      </div>
+    {% endif %}
     <h4>Amenities</h4>
     <ul class="amen-list">
       {% if listing.is_furnished %}<li>Furnished</li>{% endif %}
@@ -62,7 +81,7 @@
   {# This same URL (/listings/<pk>/) handles GET (show listing, above) and #}
   {# POST (submit this form) on the same CBV — see ListingDetailView.post(). #}
   <div class="inquiry-box">
-    <h4>Inquire about this listing</h4>
+    <h4>{% if user.is_authenticated and user.pk == listing.lister_id %}Your listing{% else %}Inquire about this listing{% endif %}</h4>
     {% if inquiry_sent %}
       <p class="success">Your inquiry was sent! Track its status from <a href="{% url 'listings:inquiries' %}">My inquiries</a>.</p>
     {% else %}
@@ -72,6 +91,10 @@
         <p style="font-size:12.5px;color:var(--ink-soft);">New here? <a href="{% url 'account_signup' %}?next={{ request.path|urlencode }}"><u>Create an account</u></a>.</p>
       {% elif user.pk == listing.lister_id %}
         <p style="font-size:13px;color:var(--ink-soft);">This is your listing.</p>
+        <div class="owner-actions">
+          <a class="lf-btn" href="{% url 'listings:update' listing.pk %}">Edit listing</a>
+          <a class="lf-btn lf-btn--ghost" href="{% url 'listings:delete' listing.pk %}">Delete</a>
+        </div>
       {% else %}
         {% if inquiry_error %}<p class="error">{{ inquiry_error }}</p>{% endif %}
         <form method="post" action="">
