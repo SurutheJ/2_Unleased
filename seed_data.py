@@ -14,7 +14,7 @@ from datetime import date, timedelta
 from django.utils import timezone
 from django.db import IntegrityError
 from accounts.models import UnleasedUser, UserReview
-from listings.models import Listing, VisitSlot, Inquiry, SavedListing
+from listings.models import Listing, ListingMedia, VisitSlot, Inquiry, SavedListing
 
 print("Clearing old seed data...")
 SavedListing.objects.all().delete()
@@ -313,6 +313,10 @@ listing5 = Listing.objects.create(
 
 print(f"  Created {Listing.objects.count()} listings")
 
+# Sample photos (A9): 3 per listing from seed_media/listings/, see seed_photos.py.
+from seed_photos import attach_photos
+print(f"  Added {attach_photos(Listing.objects.order_by('id'))} listing photos")
+
 # ── 3. VISIT SLOTS ────────────────────────────────────────────────────────────
 
 print("Creating visit slots...")
@@ -526,5 +530,6 @@ print(f"  Visit Slots              : {VisitSlot.objects.count()}")
 print(f"  Inquiries                : {Inquiry.objects.count()}")
 print(f"  Saved Listings           : {SavedListing.objects.count()}")
 print(f"  User Reviews             : {UserReview.objects.count()}")
+print(f"  Listing photos           : {ListingMedia.objects.count()}")
 print("───────────────────────────────────────────────────────────────────────")
 print("Admin login → /admin/   username: admin   password: unleased_admin_2026")

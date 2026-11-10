@@ -52,3 +52,7 @@ huggingface_cache/
 .DS_Store
 .Rhistory
 Thumbs.db
+
+# Sample listing photos used by seed_data.py / seed_photos.py. Kept out of the
+# public repo unless we have the rights to publish them (see README).
+seed_media/
