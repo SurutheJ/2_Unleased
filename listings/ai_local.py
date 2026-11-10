@@ -48,7 +48,12 @@ def build_system_prompt(today):
         "Types: title = short string; monthly_rent = number in US dollars; bedrooms = integer; "
         "the six has_/is_/pets_/utilities_ fields = true or false; "
         "available_from and available_until = YYYY-MM-DD.\n"
-        f"Today is {today.isoformat()}. If a date has no year, use the next time that date occurs after today.\n"
+        f"Today is {today.isoformat()}. If a date has no year, use the next time that date occurs after today, "
+        "even if that means rolling forward into next year. This applies separately to EACH date in a range: "
+        f"for example, if today is {today.isoformat()} and the message says 'June to August' with no year, "
+        "both June and August have already passed this year, so the correct output uses next year for "
+        "BOTH dates (e.g. available_from a June 1st and available_until an August 31st in the year after today), "
+        "not this year for either one.\n"
         "Use null for anything the message does not clearly state. Do not guess; "
         "if the message does not mention a feature, use null, not false."
     )
@@ -292,7 +297,29 @@ def validate_fields(data, message_text, today=None):
             else:
                 end = None
     if end and end < today:
-        warnings.append('The end date is already in the past, so both dates were ignored.')
+        # Small models often get the year wrong on bare month ranges ("June to
+        # August") even when told to roll forward (see README_AI.md Part 3).
+        # We cannot tell that case apart from a genuinely-expired listing (both
+        # just look like "end date < today"), so we still discard the dates
+        # rather than guess silently - but if the range is otherwise sensible
+        # (start <= end), we compute what the model likely meant and put it in
+        # the warning as a suggestion, so the user can fix it in one edit
+        # instead of re-typing the dates from scratch.
+        suggestion = ''
+        if start and start <= end:
+            for years in (1, 2, 3):
+                try:
+                    candidate_start = start.replace(year=start.year + years)
+                    candidate_end = end.replace(year=end.year + years)
+                except ValueError:
+                    candidate_start = start.replace(year=start.year + years, day=28)
+                    candidate_end = end.replace(year=end.year + years, day=28)
+                if candidate_end >= today:
+                    suggestion = (f' If you meant {candidate_start.isoformat()} to '
+                                  f'{candidate_end.isoformat()} (no year given, rolled forward to the next '
+                                  f'time that range occurs), enter those dates directly.')
+                    break
+        warnings.append(f'The end date is already in the past, so both dates were ignored.{suggestion}')
         start = end = None
     if start and end and start > end:
         warnings.append('The end date was before the start date, so both dates were ignored.')
