@@ -136,6 +136,11 @@ def _resolve_device():
     return 'cpu'
 
 
+def model_is_loaded():
+    """True once the model has been loaded in this server process (used to flag cold starts)."""
+    return _pipeline is not None
+
+
 def _get_pipeline():
     """Load the model once per server process (weights download on first use)."""
     global _pipeline

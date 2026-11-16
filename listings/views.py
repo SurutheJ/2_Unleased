@@ -2,6 +2,7 @@ import csv
 from functools import wraps
 import json
 import math
+import time
 from io import BytesIO
 
 import matplotlib
@@ -25,9 +26,9 @@ from django.views import View
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
 from accounts.models import UnleasedUser
-from . import ai_external, ai_local
+from . import ai_external, ai_local, ai_metrics
 from .forms import ListingForm
-from .models import Inquiry, Listing
+from .models import AIRequestLog, Inquiry, Listing
 
 
 def allow_cross_origin(view):
@@ -784,6 +785,7 @@ def ai_assistant(request):
     if request.method != 'POST':
         return render(request, 'listings/ai_assistant.html', context)
 
+    started = time.perf_counter()
     raw = request.POST.get('message', '')
     context['message'] = raw[:settings.AI_MAX_MESSAGE_CHARS * 2]
 
@@ -791,6 +793,7 @@ def ai_assistant(request):
     wait = settings.AI_COOLDOWN_SECONDS - (now - request.session.get('ai_last_request', 0))
     if wait > 0:
         context['error'] = f'Please wait {int(wait) + 1} more second(s) before trying again.'
+        _log_ai_request(request, started, AIRequestLog.Outcome.RATE_LIMITED, 429)
         return render(request, 'listings/ai_assistant.html', context, status=429)
     request.session['ai_last_request'] = now
 
@@ -798,30 +801,49 @@ def ai_assistant(request):
     context['notes'] = cleaned.notes
     if len(cleaned.text) < 10:
         context['error'] = 'Please paste a sublease message of at least a few words.'
+        _log_ai_request(request, started, AIRequestLog.Outcome.TOO_SHORT, 400, message_chars=len(cleaned.text))
         return render(request, 'listings/ai_assistant.html', context, status=400)
 
     if cleaned.suspicious:
         context['error'] = ('That message looks like it is trying to give the AI instructions, so it was not processed. '
                             'Paste only the sublease message itself.')
+        _log_ai_request(request, started, AIRequestLog.Outcome.SUSPICIOUS, 400, message_chars=len(cleaned.text))
         return render(request, 'listings/ai_assistant.html', context, status=400)
 
+    cold_start = not ai_local.model_is_loaded()
+    local_started = time.perf_counter()
     try:
         reply = ai_local.run_local_model(cleaned.text)
     except ai_local.LocalModelUnavailable as exc:
         context['error'] = str(exc)
+        _log_ai_request(request, started, AIRequestLog.Outcome.UNAVAILABLE, 503, message_chars=len(cleaned.text),
+                        local_ms=(time.perf_counter() - local_started) * 1000, cold_start=cold_start)
         return render(request, 'listings/ai_assistant.html', context, status=503)
+    local_ms = (time.perf_counter() - local_started) * 1000
 
     parsed = ai_local.parse_model_output(reply)
     if parsed is None:
         context['error'] = ('The model did not return readable JSON, so nothing was extracted. '
                             'Try rewording the message, or fill the listing in by hand.')
+        _log_ai_request(request, started, AIRequestLog.Outcome.UNPARSEABLE, 422, message_chars=len(cleaned.text),
+                        local_ms=local_ms, cold_start=cold_start)
         return render(request, 'listings/ai_assistant.html', context, status=422)
 
     fields, warnings = ai_local.validate_fields(parsed, cleaned.text)
     context['fields'] = [(name, fields[name]) for name in ai_local.FIELD_NAMES]
     context['warnings'] = warnings
     context['found_count'] = sum(1 for value in fields.values() if value is not None)
+    gemini_started = time.perf_counter()
     context['description'] = ai_external.generate_description(fields)
+    gemini_ms = (time.perf_counter() - gemini_started) * 1000
+
+    # A10 analytics: which fields did the model fill in that validation then blanked?
+    blanked = [name for name in ai_local.FIELD_NAMES
+               if parsed.get(name) not in (None, '') and fields[name] is None]
+    log = _log_ai_request(
+        request, started, AIRequestLog.Outcome.SUCCESS, 200, message_chars=len(cleaned.text),
+        local_ms=local_ms, gemini_ms=gemini_ms, cold_start=cold_start,
+        found_count=context['found_count'], blanked=blanked, source=context['description'].source)
 
     # Keep a draft for "Create listing from this". Only the validated fields,
     # the suggested description and the cleaned message (phone numbers and
@@ -833,8 +855,24 @@ def ai_assistant(request):
         'fields': draft_fields,
         'description': context['description'].text,
         'message': cleaned.text,
+        'log_id': log.pk if log else None,    # lets the dashboard count this preview as converted
     }
     return render(request, 'listings/ai_assistant.html', context)
+
+
+def _log_ai_request(request, started, outcome, status, *, message_chars=0, local_ms=0, gemini_ms=0,
+                    cold_start=False, found_count=None, blanked=None, source=''):
+    """Write one AIRequestLog row (A10 dashboard). Logging must never break the page."""
+    try:
+        return AIRequestLog.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            outcome=outcome, status_code=status,
+            total_ms=(time.perf_counter() - started) * 1000, local_ms=local_ms, gemini_ms=gemini_ms,
+            cold_start=cold_start, message_chars=message_chars, found_count=found_count,
+            blanked_fields=blanked or [], description_source=source,
+        )
+    except Exception:
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -896,6 +934,8 @@ class ListingCreateView(LoginRequiredMixin, CreateView):
         response = super().form_valid(form)
         form.save_media(self.object)
         if draft:
+            if draft.get('log_id'):
+                AIRequestLog.objects.filter(pk=draft['log_id']).update(listing_created=True, listing=self.object)
             self.request.session.pop('ai_draft', None)
         return response
 
@@ -935,3 +975,28 @@ class MyListingsView(LoginRequiredMixin, OwnListingsMixin, ListView):
     model = Listing
     template_name = 'listings/my_listings.html'
     context_object_name = 'listings'
+
+
+# ---------------------------------------------------------------------------
+# A10 Part 2: AI analytics dashboard (reads AIRequestLog, see listings/ai_metrics.py)
+# ---------------------------------------------------------------------------
+
+def _metrics_source(request):
+    source = request.GET.get('source', 'all')
+    return source if source in ai_metrics.SOURCE_FILTERS else 'all'
+
+
+@login_required
+def ai_dashboard(request):
+    """/listings/ai-dashboard/ : nine widgets (performance, behavior, cost) over the AI request log."""
+    source = _metrics_source(request)
+    return render(request, 'listings/ai_dashboard.html', {
+        'metrics': ai_metrics.build_metrics(source),
+        'source': source,
+    })
+
+
+@api_login_required
+def ai_metrics_api(request):
+    """/listings/api/ai-metrics/ : the same numbers as JSON (login required)."""
+    return JsonResponse(ai_metrics.build_metrics(_metrics_source(request)))

@@ -62,7 +62,7 @@ a { color: inherit; text-decoration: none; }
 .logo svg { width: 26px; height: 26px; }
 .tabs {
   order: 3; flex: 1 0 100%;
-  display: flex; justify-content: flex-start; column-gap: clamp(16px, 3vw, 36px);
+  display: flex; justify-content: flex-start; column-gap: clamp(12px, 2.4vw, 26px);
   overflow-x: auto; scrollbar-width: none;   /* very narrow screens scroll sideways instead of overflowing */
 }
 .tabs::-webkit-scrollbar { display: none; }

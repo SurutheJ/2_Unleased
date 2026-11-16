@@ -1034,3 +1034,31 @@ Sources
 - Granite-3.3-2B model card: https://huggingface.co/ibm-granite/granite-3.3-2b-instruct
 - Our measurements: llm-test/ai_prototype.ipynb, llm-test/results.json,
   llm-test/route_a_results.json, README_AI.md (model choice, speed, Gemini quota)
+
+------------------------------------------------------------
+A10 Part 2: AI analytics dashboard
+------------------------------------------------------------
+What was added:
+  - AIRequestLog model (listings/models.py, migration 0005): one row per AI assistant
+    request. The ai_assistant view writes it on every path (success, too short,
+    suspicious, unreadable output, rate limited, model unavailable), with the time spent
+    in the local model and in the Gemini step, a cold-start flag, message length, fields
+    found, fields blanked by validation and whether the description came from Gemini.
+    No message text is stored. A failed log write never breaks the page.
+  - Conversion tracking: the AI draft in the session carries the log id; saving the
+    pre-filled listing form marks that row listing_created and links the new Listing.
+  - listings/ai_metrics.py: all aggregations (median and p95 latency, outcome mix,
+    histogram, most-blanked fields, conversion, cost per request, cost by traffic tier,
+    paid vs free). /listings/ai-dashboard/ renders nine Vega-Lite widgets and
+    /listings/api/ai-metrics/ returns the same numbers as JSON.
+  - python manage.py seed_ai_logs: real runs through the real view plus labelled
+    simulated rows (is_simulated=True).
+  - Tests: listings/test_ai_dashboard.py (28 tests).
+
+Decisions:
+  - Real data first, simulated only for volume: the dashboard shows a banner with both
+    counts and a Real only filter, so nothing simulated is passed off as measured.
+  - Median and p95 next to the mean, because the cold start (about 20 to 30 s) is a real
+    outlier that would otherwise skew the average.
+  - Cost uses the A7 numbers ($0.50 per T4 hour, Flash-Lite list price, 200 in and 500 out
+    tokens per description call). Real token counts are not logged, so cost is an estimate.

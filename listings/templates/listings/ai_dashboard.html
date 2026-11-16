@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}AI dashboard{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+<style>
+  .src-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 18px; }
+  .src-bar .note { font-size: 12.5px; color: var(--ink-soft); }
+  .src-btn { display: inline-block; padding: 7px 14px; border-radius: var(--radius-pill); font-size: 12.5px; font-weight: 700; border: 1px solid var(--ink); color: var(--ink); background: #fff; }
+  .src-btn:hover { background: var(--bg-card); }
+  .src-btn.on { background: var(--ink); color: #fff; }
+  .banner { background: #FFF6E5; border: 1px solid #F2D9A6; border-radius: var(--radius-md); padding: 10px 14px; font-size: 12.5px; margin-bottom: 20px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 8px; }
+  .tile { background: var(--bg-card); border-radius: var(--radius-md); padding: 12px 14px; }
+  .tile .v { font-family: var(--font-display); font-size: 22px; font-weight: 700; line-height: 1.15; }
+  .tile .l { font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; }
+  .group { margin: 30px 0 10px; }
+  .group h3 { font-family: var(--font-display); font-size: 17px; margin: 0; }
+  .group p { font-size: 12.5px; color: var(--ink-soft); margin: 2px 0 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+  .card { background: var(--bg-card); border-radius: var(--radius-md); padding: 16px 18px; min-width: 0; display: flex; flex-direction: column; }
+  .card .q { font-size: 11.5px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 2px; }
+  .card h4 { font-size: 14.5px; margin: 0 0 10px; }
+  .card .chart { background: #fff; border-radius: 8px; padding: 8px; min-height: 230px; overflow: hidden; }
+  .card .chart.fill { width: 100%; }
+  .card .finding { font-size: 12.5px; margin: 10px 0 0; color: var(--ink); }
+  .card .finding b { font-weight: 700; }
+  .big { font-family: var(--font-display); font-size: 40px; font-weight: 800; line-height: 1; }
+  .meter { height: 12px; background: #fff; border-radius: 999px; overflow: hidden; margin: 12px 0 6px; border: 1px solid var(--line); }
+  .meter > span { display: block; height: 100%; background: var(--accent); }
+  .split { display: flex; height: 14px; border-radius: 999px; overflow: hidden; margin: 12px 0 6px; border: 1px solid var(--line); background: #fff; }
+  .split > span { display: block; height: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--ink-soft); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .kv { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+  .kv td { padding: 5px 0; border-bottom: 1px solid #fff; }
+  .kv td:last-child { text-align: right; font-weight: 700; }
+  .empty { background: var(--bg-card); border-radius: var(--radius-md); padding: 26px; text-align: center; font-size: 14px; }
+  .foot { font-size: 12px; color: var(--ink-soft); margin: 26px 0 8px; line-height: 1.55; }
+  .foot code { background: var(--bg-card); padding: 1px 5px; border-radius: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section-head">
+    <div>
+      <h2>AI assistant dashboard</h2>
+      <div class="sub">How the listing assistant performs, how people use it, and what it costs. Nine widgets, three questions each, built from the request log.</div>
+    </div>
+    <span class="pill">Vega-Lite &middot; AIRequestLog</span>
+  </div>
+
+  <div class="src-bar">
+    <span class="note">Data shown:</span>
+    <a class="src-btn {% if source == 'all' %}on{% endif %}" href="?source=all">All</a>
+    <a class="src-btn {% if source == 'real' %}on{% endif %}" href="?source=real">Real only</a>
+    <a class="src-btn {% if source == 'simulated' %}on{% endif %}" href="?source=simulated">Simulated only</a>
+    <span class="note">API: <a href="{% url 'listings:api_ai_metrics' %}?source={{ source }}" style="text-decoration:underline;">{% url 'listings:api_ai_metrics' %}</a></span>
+  </div>
+
+  {{ metrics|json_script:"metrics-data" }}
+
+  {% if metrics.counts.shown == 0 %}
+    <div class="empty">
+      No requests in this view yet. Use the <a href="{% url 'listings:ai_assistant' %}" style="text-decoration:underline;">AI assistant</a>,
+      or run <code>python manage.py seed_ai_logs</code> to fill the log.
+    </div>
+  {% else %}
+  <div class="banner">
+    <b>{{ metrics.counts.real }}</b> real request{{ metrics.counts.real|pluralize }} (actual runs of the assistant on this machine)
+    and <b>{{ metrics.counts.simulated }}</b> simulated request{{ metrics.counts.simulated|pluralize }}
+    (generated by <code>seed_ai_logs --simulated</code> to add volume, shaped by the real timings). Showing <b>{{ metrics.counts.shown }}</b>.
+    Use &ldquo;Real only&rdquo; to see measured data alone.
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="group">
+    <h3>1. System performance</h3>
+    <p>Is it fast enough, where does the time go, and does it fail?</p>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <p class="q">Latency over time</p>
+      <h4>Seconds per request, one dot each</h4>
+      <div class="chart" id="w-latency"></div>
+      <p class="finding" id="f-latency"></p>
+    </section>
+    <section class="card">
+      <p class="q">Latency breakdown</p>
+      <h4>Local model vs Gemini step, cold start vs warm</h4>
+      <div class="chart" id="w-breakdown"></div>
+      <p class="finding" id="f-breakdown"></p>
+    </section>
+    <section class="card">
+      <p class="q">Request outcome mix</p>
+      <h4>What happens to each request</h4>
+      <div class="chart" id="w-outcomes"></div>
+      <p class="finding" id="f-outcomes"></p>
+    </section>
+  </div>
+
+  <div class="group">
+    <h3>2. User behavior</h3>
+    <p>What do people paste, which fields does the model get wrong, and do previews become listings?</p>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <p class="q">Fields extracted</p>
+      <h4>How many of the 11 fields a request fills</h4>
+      <div class="chart" id="w-found"></div>
+      <p class="finding" id="f-found"></p>
+    </section>
+    <section class="card">
+      <p class="q">Most-blanked fields</p>
+      <h4>Values the model gave that validation removed</h4>
+      <div class="chart" id="w-blanked"></div>
+      <p class="finding" id="f-blanked"></p>
+    </section>
+    <section class="card">
+      <p class="q">Preview to listing conversion</p>
+      <h4>Share of previews turned into a listing</h4>
+      <div id="w-conversion"></div>
+    </section>
+  </div>
+
+  <div class="group">
+    <h3>3. Cost</h3>
+    <p>What one request costs, what it would cost at scale, and how often the paid API is actually used.</p>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <p class="q">Cost per request</p>
+      <h4>Local compute plus Gemini</h4>
+      <div id="w-cost"></div>
+    </section>
+    <section class="card">
+      <p class="q">Projected monthly cost</p>
+      <h4>By traffic tier (log scale)</h4>
+      <div class="chart" id="w-tiers"></div>
+      <p class="finding" id="f-tiers"></p>
+    </section>
+    <section class="card">
+      <p class="q">Paid vs free</p>
+      <h4>Which description did the user get</h4>
+      <div class="chart" id="w-paidfree"></div>
+      <p class="finding" id="f-paidfree"></p>
+    </section>
+  </div>
+
+  <p class="foot" id="foot"></p>
+
+  <script>
+  (function () {
+    const m = JSON.parse(document.getElementById('metrics-data').textContent);
+    const ACCENT = '#FF3B5C', BLUE = '#2F5DA8', GREY = '#9AA0A6', INK = '#222222';
+    const num = (v, d) => (v === null || v === undefined) ? 'n/a' : Number(v).toFixed(d === undefined ? 2 : d);
+    const usd = (v) => v === 0 ? '$0' : (v < 0.01 ? '$' + v.toFixed(5) : '$' + v.toFixed(3));
+    const money = (n) => n >= 1000 ? '$' + Math.round(n).toLocaleString() : '$' + n.toFixed(2);
+    const el = (id) => document.getElementById(id);
+    const say = (id, html) => { el(id).innerHTML = html; };
+    const none = (id, text) => { el(id).innerHTML = '<p style="font-size:13px;color:#484848;padding:60px 10px;text-align:center;margin:0">' + text + '</p>'; };
+    const base = {
+      '$schema': 'https://vega.github.io/schema/vega-lite/v5.json',
+      width: 'container', height: 200, autosize: {type: 'fit', contains: 'padding'},
+      config: {view: {stroke: null}, axis: {labelFontSize: 11, titleFontSize: 11.5}, legend: {labelFontSize: 11, titleFontSize: 11.5}}
+    };
+    const embed = (id, spec) => vegaEmbed('#' + id, Object.assign({}, base, {padding: {left: 5, top: 5, right: 28, bottom: 5}}, spec), {actions: false, renderer: 'svg'});
+    const t = m.tiles, c = m.cost;
+
+    // ---- Summary tiles ----------------------------------------------------------------
+    const tiles = [
+      [t.requests, 'requests shown'],
+      [t.success_rate === null ? 'n/a' : num(t.success_rate, 1) + '%', 'succeeded (HTTP 200)'],
+      [t.median_latency_s === null ? 'n/a' : num(t.median_latency_s, 1) + ' s', 'median latency (p95 ' + num(t.p95_latency_s, 1) + ' s)'],
+      [t.median_found === null ? 'n/a' : num(t.median_found, 0) + ' of 11', 'median fields found'],
+      [t.conversion_rate === null ? 'n/a' : num(t.conversion_rate, 1) + '%', 'previews turned into listings'],
+      [t.paid_share === null ? 'n/a' : num(t.paid_share, 1) + '%', 'used the paid Gemini API'],
+      [money(c.per_1000_requests_usd), 'estimated cost per 1,000 requests']
+    ];
+    el('tiles').innerHTML = tiles.map(x => '<div class="tile"><div class="v">' + x[0] + '</div><div class="l">' + x[1] + '</div></div>').join('');
+
+    // ---- 1a. Latency over time (line + dots sized by message length, median rule) --------
+    if (m.latency_over_time.length) {
+      const coldDomain = ['Warm', 'Cold start (model loading)'];
+      embed('w-latency', {
+        data: {values: m.latency_over_time},
+        layer: [
+          {mark: {type: 'line', color: '#D5D8DC', strokeWidth: 1.2},
+           encoding: {x: {field: 'time', type: 'temporal', title: null}, y: {field: 'total_s', type: 'quantitative', title: 'Seconds per request'}}},
+          {mark: {type: 'point', filled: true, opacity: 0.85},
+           encoding: {
+             x: {field: 'time', type: 'temporal'}, y: {field: 'total_s', type: 'quantitative'},
+             color: {field: 'cold_start', type: 'nominal', scale: {domain: coldDomain, range: [BLUE, ACCENT]}, legend: {title: null, orient: 'top'}},
+             size: {field: 'chars', type: 'quantitative', title: 'Message length', scale: {range: [25, 220]}},
+             tooltip: [{field: 'time', type: 'temporal', title: 'Time'}, {field: 'total_s', title: 'Total (s)'}, {field: 'local_s', title: 'Local model (s)'},
+                       {field: 'gemini_s', title: 'Gemini step (s)'}, {field: 'chars', title: 'Message length'}, {field: 'cold_start', title: 'Start'}]}},
+          {mark: {type: 'rule', strokeDash: [5, 4], color: INK},
+           encoding: {y: {aggregate: 'median', field: 'total_s', type: 'quantitative'}}}
+        ]
+      });
+      const r1 = m.correlations.chars_vs_latency;
+      say('f-latency', 'Dashed line = median <b>' + num(t.median_latency_s, 1) + ' s</b>; slowest 5% take over <b>' + num(t.p95_latency_s, 1) + ' s</b>. ' +
+          'Message length vs latency (warm requests, n=' + m.correlations.warm_requests + '): <b>r = ' + num(r1) + '</b>' +
+          (r1 === null ? '.' : (Math.abs(r1) < 0.3 ? ' (little relationship).' : ' (longer messages are slower).')));
+    } else { none('w-latency', 'No successful requests yet.'); }
+
+    // ---- 1b. Latency breakdown (stacked bar) ---------------------------------------------
+    if (m.breakdown.length) {
+      embed('w-breakdown', {
+        data: {values: m.breakdown},
+        mark: {type: 'bar', size: 56},
+        encoding: {
+          x: {field: 'group', type: 'nominal', title: null, sort: ['Cold start', 'Warm request'], axis: {labelAngle: 0}},
+          y: {field: 'seconds', type: 'quantitative', aggregate: 'sum', title: 'Median seconds'},
+          color: {field: 'step', type: 'nominal', scale: {domain: ['Local model', 'Gemini API step'], range: [BLUE, ACCENT]}, legend: {title: null, orient: 'top'}},
+          tooltip: [{field: 'group', title: 'Group'}, {field: 'step', title: 'Step'}, {field: 'seconds', title: 'Median seconds'}, {field: 'requests', title: 'Requests'}, {field: 'gemini_called', title: 'Requests that called Gemini'}]
+        }
+      });
+      const g = (grp, step) => { const r = m.breakdown.find(b => b.group === grp && b.step === step); return r ? r.seconds : null; };
+      const wl = g('Warm request', 'Local model'), wg = g('Warm request', 'Gemini API step'), cl = g('Cold start', 'Local model');
+      say('f-breakdown', 'Warm request: local model <b>' + num(wl, 1) + ' s</b> + Gemini step <b>' + num(wg, 1) + ' s</b> (median of the requests that called Gemini).' +
+          (cl !== null ? ' A cold start spends <b>' + num(cl, 1) + ' s</b> in the local model (loading it).' : ' No cold start in this view.'));
+    } else { none('w-breakdown', 'No successful requests yet.'); }
+
+    // ---- 1c. Outcome mix (bar) -----------------------------------------------------------
+    embed('w-outcomes', {
+      data: {values: m.outcomes},
+      layer: [
+        {mark: {type: 'bar', color: BLUE, cornerRadiusEnd: 3},
+         encoding: {y: {field: 'outcome', type: 'nominal', sort: null, title: null, axis: {labelLimit: 190}},
+                    x: {field: 'count', type: 'quantitative', title: 'Requests'},
+                    color: {condition: {test: "datum.outcome === 'Success (200)'", value: BLUE}, value: ACCENT},
+                    tooltip: [{field: 'outcome', title: 'Outcome'}, {field: 'count', title: 'Requests'}, {field: 'share', title: 'Share (%)'}]}},
+        {mark: {type: 'text', align: 'left', dx: 4, fontSize: 11},
+         encoding: {y: {field: 'outcome', type: 'nominal', sort: null}, x: {field: 'count', type: 'quantitative'}, text: {field: 'count', type: 'quantitative'}}}
+      ]
+    });
+    const errs = m.outcomes.filter(o => o.outcome !== 'Success (200)').sort((a, b) => b.count - a.count);
+    say('f-outcomes', '<b>' + num(t.success_rate, 1) + '%</b> of requests succeed.' + (errs.length && errs[0].count ? ' Most common problem: <b>' + errs[0].outcome + '</b> (' + errs[0].count + ').' : ' No failures in this view.'));
+
+    // ---- 2a. Fields found (histogram) ----------------------------------------------------
+    embed('w-found', {
+      data: {values: m.found_hist},
+      mark: {type: 'bar', color: BLUE, cornerRadiusEnd: 3},
+      encoding: {x: {field: 'found', type: 'ordinal', title: 'Fields found (of 11)', axis: {labelAngle: 0}},
+                 y: {field: 'count', type: 'quantitative', title: 'Requests'},
+                 tooltip: [{field: 'found', title: 'Fields found'}, {field: 'count', title: 'Requests'}]}
+    });
+    const lowShare = m.found_hist.slice(0, 4).reduce((a, b) => a + b.count, 0), highShare = m.found_hist.slice(7).reduce((a, b) => a + b.count, 0);
+    const tot = m.found_hist.reduce((a, b) => a + b.count, 0);
+    say('f-found', 'Median <b>' + num(t.median_found, 0) + ' of 11</b>. ' + (tot ? '<b>' + Math.round(lowShare / tot * 100) + '%</b> of messages fill 3 or fewer fields (vague posts); <b>' + Math.round(highShare / tot * 100) + '%</b> fill 7 or more (detailed posts).' : ''));
+
+    // ---- 2b. Most-blanked fields (ranked horizontal bar) ---------------------------------
+    if (m.blanked.length) {
+      embed('w-blanked', {
+        data: {values: m.blanked}, height: Math.max(120, 34 * m.blanked.length),
+        mark: {type: 'bar', color: ACCENT, cornerRadiusEnd: 3},
+        encoding: {y: {field: 'field', type: 'nominal', sort: '-x', title: null},
+                   x: {field: 'count', type: 'quantitative', title: 'Times blanked'},
+                   tooltip: [{field: 'field', title: 'Field'}, {field: 'count', title: 'Times blanked'}, {field: 'share', title: '% of successful requests'}]}
+      });
+      say('f-blanked', 'Top: <b>' + m.blanked[0].field + '</b>, blanked in <b>' + m.blanked[0].share + '%</b> of successful requests. Blanked = the model gave a value but nothing in the message supported it, or it failed a range or date check.');
+    } else { none('w-blanked', 'No values were blanked in this view.'); say('f-blanked', 'Validation never had to remove a value here.'); }
+
+    // ---- 2c. Conversion (summary metric) -------------------------------------------------
+    const cv = m.conversion;
+    el('w-conversion').innerHTML = cv.previews
+      ? '<div class="big">' + num(cv.rate, 1) + '%</div><div class="meter"><span style="width:' + Math.min(100, cv.rate || 0) + '%"></span></div>' +
+        '<p class="finding"><b>' + cv.converted + '</b> of <b>' + cv.previews + '</b> successful previews became a listing through &ldquo;Create listing from this&rdquo;. The rest were abandoned after the preview.</p>' +
+        '<p class="finding" style="color:#484848">Counted when the pre-filled form is saved (the log row is linked to the new listing).</p>'
+      : '<p class="finding">No successful previews yet.</p>';
+
+    // ---- 3a. Cost per request (summary metric) -------------------------------------------
+    const comp = c.compute_per_request_usd, gem = c.blended_per_request_usd - c.compute_per_request_usd;
+    const total = c.blended_per_request_usd || 1;
+    el('w-cost').innerHTML =
+      '<div class="big">' + usd(c.blended_per_request_usd) + '</div><div class="finding" style="margin-top:4px">per request, on average (about <b>' + money(c.per_1000_requests_usd) + '</b> per 1,000)</div>' +
+      '<div class="split"><span style="width:' + (comp / total * 100) + '%;background:' + BLUE + '"></span><span style="width:' + (gem / total * 100) + '%;background:' + ACCENT + '"></span></div>' +
+      '<div class="legend"><span><i style="background:' + BLUE + '"></i>Local compute ' + usd(comp) + '</span><span><i style="background:' + ACCENT + '"></i>Gemini ' + usd(gem) + ' (at ' + num(t.paid_share, 0) + '% paid share)</span></div>' +
+      '<table class="kv"><tr><td>A Gemini call costs (if paid)</td><td>' + usd(c.gemini_per_paid_request_usd) + '</td></tr>' +
+      '<tr><td>Machine price (A7 cost model)</td><td>$' + c.assumptions.machine_usd_per_hour.toFixed(2) + ' per hour</td></tr></table>';
+
+    // ---- 3b. Projected monthly cost by tier (grouped bar, log scale) ---------------------
+    const tierRows = m.tiers.filter(x => x.usd_per_month > 0);
+    embed('w-tiers', {
+      data: {values: tierRows},
+      mark: {type: 'line', point: {filled: true, size: 70}, strokeWidth: 2.5},
+      encoding: {
+        x: {field: 'tier', type: 'ordinal', sort: {field: 'requests_per_day'}, title: null, axis: {labelAngle: -35, labelLimit: 120}},
+        y: {field: 'usd_per_month', type: 'quantitative', scale: {type: 'log'}, title: 'US$ per month (log scale)', axis: {format: '$,~s'}},
+        color: {field: 'cost_type', type: 'nominal', scale: {domain: ['Local model machines', 'Gemini API'], range: [BLUE, ACCENT]}, legend: {title: null, orient: 'top'}},
+        tooltip: [{field: 'tier', title: 'Tier'}, {field: 'requests_per_day', title: 'Requests per day', format: ','}, {field: 'machines', title: 'Machines'}, {field: 'cost_type', title: 'Cost'}, {field: 'usd_per_month', title: 'US$ per month', format: ',.2f'}]
+      }
+    });
+    const big = m.tiers.filter(x => x.tier === 'Mass Consumer App');
+    if (big.length) {
+      say('f-tiers', 'At <b>10M requests a day</b> (Mass Consumer App) the local model needs <b>' + big[0].machines.toLocaleString() + ' machines</b> &asymp; <b>' + money(big[0].usd_per_month) + '</b> a month; Gemini adds <b>' + money(big[1].usd_per_month) + '</b> at the measured paid share.');
+    }
+
+    // ---- 3c. Paid vs free (donut) --------------------------------------------------------
+    const pf = m.paid_free, pfTotal = pf.reduce((a, b) => a + b.count, 0);
+    if (pfTotal) {
+      embed('w-paidfree', {
+        data: {values: pf}, height: 210,
+        mark: {type: 'arc', innerRadius: 52, outerRadius: 90},
+        encoding: {theta: {field: 'count', type: 'quantitative', stack: true},
+                   color: {field: 'source', type: 'nominal', scale: {domain: ['Gemini (paid API)', 'Template (free fallback)'], range: [ACCENT, GREY]}, legend: {title: null, orient: 'bottom', labelLimit: 300, columns: 1}},
+                   tooltip: [{field: 'source', title: 'Description'}, {field: 'count', title: 'Requests'}]}
+      });
+      say('f-paidfree', '<b>' + num(t.paid_share, 1) + '%</b> of successful requests reached the paid Gemini call; the rest fell back to the free template (no key, quota, timeout or an unusable reply).');
+    } else { none('w-paidfree', 'No successful requests yet.'); }
+
+    say('foot', 'How the cost numbers are made: local compute = mean local-model seconds &times; $' + c.assumptions.machine_usd_per_hour.toFixed(2) + ' per machine-hour (one NVIDIA T4, from the A7 cost model). ' +
+        'Gemini is priced like Gemini 3.1 Flash-Lite ($' + c.assumptions.gemini_usd_per_m_in + ' in / $' + c.assumptions.gemini_usd_per_m_out + ' out per 1M tokens) with an assumed ' + c.assumptions.gemini_tokens_in + ' tokens in and ' + c.assumptions.gemini_tokens_out +
+        ' out per call, because real token counts are not logged. The free tier means actual Gemini spend today is $0. Tiers assume one request per daily user and one request at a time per machine (as in A7), using the warm local time of ' + c.assumptions.warm_local_seconds_used + ' s. ' +
+        'Simulated rows are labelled in the banner above and can be hidden with &ldquo;Real only&rdquo;.');
+  })();
+  </script>
+  {% endif %}
+{% endblock %}
