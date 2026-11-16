@@ -107,6 +107,59 @@ model**. The full design, model choice, evaluation and failure analysis are in
 - The AI tests run without downloading the model (it is replaced with canned
   replies): `python manage.py test listings.test_ai`.
 
+## AI analytics dashboard (A10)
+
+`/listings/ai-dashboard/` (navbar tab **AI dashboard**, login required) shows
+how the AI listing assistant performs, how people use it, and what it costs.
+The design (questions and widget plan) is in
+[llm-test/a10-dashboard/analytics_design.md](llm-test/a10-dashboard/analytics_design.md).
+
+**Where the data comes from.** Every request to the assistant writes one row to
+`AIRequestLog` (outcome, HTTP status, time spent in the local model and in the
+Gemini step, whether the request had to load the model, message length, fields
+found, fields blanked by validation, paid vs template description, and whether
+the preview became a listing). It stores no message text and no contact details.
+
+| Category | Widget | Question it answers |
+|---|---|---|
+| Performance | Latency over time (dots sized by message length) | How fast is a request and are there slow outliers? Does message length matter? |
+| Performance | Latency breakdown, stacked bar | Local model vs Gemini step, cold start vs warm |
+| Performance | Request outcome mix | What share of requests succeed, are refused, rate limited or fail? |
+| Behavior | Fields extracted, histogram | Do people paste detailed or vague messages? |
+| Behavior | Most-blanked fields, ranked bars | Which fields does the model get wrong most often? |
+| Behavior | Preview to listing conversion | How many previews become a listing? |
+| Cost | Cost per request | Local compute (machine-seconds x $/hour) plus Gemini |
+| Cost | Projected monthly cost by tier, log scale | What would the A7 traffic tiers cost? |
+| Cost | Paid vs free description, donut | How often is the paid API really used? |
+
+The same numbers are available as JSON at `/listings/api/ai-metrics/`
+(`?source=real` or `?source=simulated` to filter, login required).
+
+**Filling the log.** Real use of the assistant fills it automatically. To get
+data on a fresh database:
+
+```
+python manage.py seed_ai_logs                   # about 26 real requests (10 to 15 minutes) + 150 simulated rows
+python manage.py seed_ai_logs --real-only       # only real runs
+python manage.py seed_ai_logs --skip-real --simulated 300
+python manage.py seed_ai_logs --clear           # delete existing rows first
+```
+
+Real rows come from sending hand-written messages through the actual view with
+the real local model (and the real Gemini call if a key is set), as a user named
+`ai_logger` that the command creates (it has no usable password). One real
+rate-limit (HTTP 429) is recorded by sending a too-short message and an
+immediate second request. **Simulated
+rows** (`is_simulated=True`) only add volume over the last two weeks, drawn from
+distributions shaped by the real timings; the dashboard counts them in a
+banner and has **All / Real only / Simulated only** buttons. The cost widgets
+use the A7 cost model's $0.50 per machine-hour and Gemini Flash-Lite list prices
+with assumed token counts, so treat them as estimates (the footer of the page
+says how they are computed). The dashboard needs an internet connection for the
+Vega-Lite scripts (loaded from a CDN, as on the Charts page).
+
+Tests: `python manage.py test listings.test_ai_dashboard`.
+
 ## Posting and managing listings
 
 Logged-in users can post and manage their own sublease listings:
